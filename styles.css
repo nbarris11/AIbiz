@@ -109,7 +109,8 @@ ul {
 .signal-label,
 .note-label,
 .callout-label,
-.tier {
+.tier,
+.example-label {
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 0.74rem;
@@ -231,7 +232,12 @@ h2 {
 .sector-card p,
 .timeline-card p,
 .process-card p,
-.finance-callout p {
+.finance-callout p,
+.example-card p,
+.trust-card p,
+.contact-promise li,
+.field span,
+.form-status {
   color: var(--text-muted);
   line-height: 1.7;
   font-size: 1rem;
@@ -361,7 +367,9 @@ h2 {
 .sector-card,
 .timeline-card,
 .process-card,
-.faq-item {
+.faq-item,
+.example-card,
+.trust-card {
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.44);
   border-radius: var(--radius-lg);
@@ -382,9 +390,11 @@ h2 {
 
 .story-grid,
 .services-section,
+.example-section,
 .sector-section,
 .roadmap-section,
 .finance-section,
+.trust-section,
 .process-section,
 .faq-section {
   padding: 40px 0 0;
@@ -399,8 +409,10 @@ h2 {
 }
 
 .card-grid,
+.example-grid,
 .sector-grid,
-.process-grid {
+.process-grid,
+.trust-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
@@ -411,10 +423,37 @@ h2 {
 .sector-card h3,
 .timeline-card h3,
 .process-card h3,
+.example-card h3,
+.trust-card h3,
 .finance-callout h3,
 .comparison-row span {
   margin-bottom: 10px;
   font-size: 1.25rem;
+}
+
+.example-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.example-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.56), rgba(255, 248, 240, 0.72)),
+    rgba(255, 251, 245, 0.65);
+}
+
+.example-label {
+  margin-bottom: 14px;
+  color: #2d6d4d;
+}
+
+.example-card ul,
+.contact-promise ul {
+  display: grid;
+  gap: 10px;
+  padding-left: 18px;
+  margin: 18px 0 0;
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
 .service-grid {
@@ -521,6 +560,41 @@ h2 {
   border-radius: var(--radius-xl);
 }
 
+.founder-story {
+  padding: 28px;
+}
+
+.founder-intro {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.founder-portrait {
+  display: grid;
+  place-items: center;
+  width: 108px;
+  aspect-ratio: 1;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.46), transparent 30%),
+    linear-gradient(135deg, #183c30, #2e7150 68%, #d98324);
+  color: #fff8ef;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  box-shadow: 0 20px 40px rgba(24, 60, 48, 0.18);
+}
+
+.founder-note {
+  margin-bottom: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 0.94rem;
+}
+
 .table-head,
 .table-row {
   display: grid;
@@ -571,6 +645,14 @@ h2 {
   background: rgba(255, 251, 245, 0.86);
 }
 
+.trust-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.trust-card {
+  min-height: 100%;
+}
+
 .faq-list {
   display: grid;
   gap: 14px;
@@ -610,6 +692,79 @@ h2 {
   background: rgba(255, 255, 255, 0.38);
 }
 
+.contact-promise {
+  margin-top: 24px;
+  padding: 22px 24px;
+  border: 1px solid rgba(24, 37, 31, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.contact-form {
+  display: grid;
+  gap: 16px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field span {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(24, 37, 31, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--text);
+  font: inherit;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: rgba(45, 109, 77, 0.48);
+  box-shadow: 0 0 0 4px rgba(45, 109, 77, 0.12);
+  background: #fffdf8;
+}
+
+.field textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.form-status {
+  min-height: 1.7em;
+  margin-bottom: 0;
+  font-size: 0.94rem;
+}
+
+.form-status.is-success {
+  color: #1f6c4c;
+}
+
+.form-status.is-error {
+  color: #9d3c19;
+}
+
 .contact-meta {
   margin-top: 18px;
   color: var(--text-muted);
@@ -636,9 +791,11 @@ h2 {
   .contact-section,
   .service-grid,
   .card-grid,
+  .example-grid,
   .sector-grid,
   .process-grid,
-  .timeline {
+  .timeline,
+  .trust-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -681,11 +838,15 @@ h2 {
   .contact-section,
   .service-grid,
   .card-grid,
+  .example-grid,
   .sector-grid,
   .process-grid,
   .timeline,
+  .trust-grid,
   .hero-points,
-  .signal-grid {
+  .signal-grid,
+  .form-grid,
+  .founder-intro {
     grid-template-columns: 1fr;
   }
 
