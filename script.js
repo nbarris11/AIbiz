@@ -1,4 +1,6 @@
 const header = document.querySelector(".site-header");
+const navToggle = document.querySelector(".nav-toggle");
+const primaryNav = document.querySelector("#primary-nav");
 const revealItems = document.querySelectorAll(".reveal");
 const heroSection = document.querySelector("#hero");
 const mobileCtaBar = document.querySelector("#mobile-cta-bar");
@@ -10,6 +12,20 @@ if (header) {
 
   syncHeaderState();
   window.addEventListener("scroll", syncHeaderState, { passive: true });
+}
+
+if (navToggle && primaryNav) {
+  navToggle.addEventListener("click", () => {
+    const isOpen = primaryNav.classList.toggle("is-open");
+    navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 768) {
+      primaryNav.classList.remove("is-open");
+      navToggle.setAttribute("aria-expanded", "false");
+    }
+  });
 }
 
 if (revealItems.length > 0) {

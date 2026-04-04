@@ -189,6 +189,29 @@ p {
   background: var(--tan-light);
 }
 
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 46px;
+  height: 46px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid var(--tan-light);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--saddle);
+  cursor: pointer;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: currentColor;
+}
+
 .site-nav {
   display: flex;
   flex-wrap: wrap;
@@ -752,6 +775,10 @@ p {
     margin-left: 6px;
   }
 
+  .nav-toggle {
+    display: none;
+  }
+
   .hero-stats {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0;
@@ -835,6 +862,30 @@ p {
 @media (max-width: 767px) {
   body {
     padding-bottom: 92px;
+  }
+
+  .nav-shell {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    flex-direction: column;
+  }
+
+  .site-nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 8px;
+  }
+
+  .site-nav.is-open {
+    display: flex;
   }
 
   .mobile-cta-bar {
