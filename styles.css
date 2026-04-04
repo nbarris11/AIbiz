@@ -433,7 +433,7 @@ p {
 .service-card {
   position: relative;
   overflow: hidden;
-  padding: 30px 24px;
+  padding: 30px 112px 30px 24px;
   border: 1px solid var(--tan-light);
   border-radius: 12px;
   background: var(--parchment);
@@ -442,11 +442,11 @@ p {
 
 .service-number {
   position: absolute;
-  top: 10px;
-  right: 20px;
+  top: 12px;
+  right: 16px;
   color: var(--tan-light);
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 4.4rem;
+  font-size: 4rem;
   font-weight: 600;
   line-height: 1;
 }
