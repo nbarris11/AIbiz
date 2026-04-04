@@ -54,7 +54,7 @@ p {
 }
 
 .section {
-  padding: 64px 0;
+  padding: 56px 0;
 }
 
 .reveal {
@@ -399,7 +399,7 @@ p {
 }
 
 .section-head {
-  margin-bottom: 34px;
+  margin-bottom: 28px;
 }
 
 .centered-head {
@@ -503,8 +503,8 @@ p {
 
 .focus-note {
   max-width: 600px;
-  margin: 48px auto 0;
-  padding-top: 40px;
+  margin: 32px auto 0;
+  padding-top: 28px;
   border-top: 1px solid var(--tan-light);
   text-align: center;
 }
@@ -843,7 +843,7 @@ p {
 
 @media (min-width: 1024px) {
   .section {
-    padding: 96px 0;
+    padding: 76px 0;
   }
 
   .site-header {
