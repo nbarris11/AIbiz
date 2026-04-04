@@ -384,10 +384,12 @@ p {
 
 .section-process {
   background: var(--cream);
+  padding-top: 28px;
 }
 
 .section-who {
   background: var(--cream);
+  padding-bottom: 24px;
 }
 
 .section-contact {
@@ -844,6 +846,14 @@ p {
 @media (min-width: 1024px) {
   .section {
     padding: 76px 0;
+  }
+
+  .section-who {
+    padding-bottom: 32px;
+  }
+
+  .section-process {
+    padding-top: 36px;
   }
 
   .site-header {
