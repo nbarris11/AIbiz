@@ -501,13 +501,43 @@ p {
   fill: none;
 }
 
-.focus-closing {
-  margin-top: 24px;
-  color: var(--tan);
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 20px;
-  font-style: italic;
+.focus-note {
+  max-width: 600px;
+  margin: 48px auto 0;
+  padding-top: 40px;
+  border-top: 1px solid var(--tan-light);
   text-align: center;
+}
+
+.focus-note-label {
+  margin-bottom: 12px;
+  color: var(--tan);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.focus-note-copy {
+  margin-bottom: 20px;
+  color: var(--tan-dark);
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+.focus-note-link {
+  display: inline-flex;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--tan-light);
+  color: var(--forest);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.focus-note-link:hover,
+.focus-note-link:focus-visible {
+  border-bottom-color: var(--forest);
 }
 
 .process-grid {
