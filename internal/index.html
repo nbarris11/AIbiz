@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidecar Advisory — Internal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #2C2418;
+  --forest: #3D6B5E;
+  --forest-light: #5A8F7F;
+  --tan: #9C8B6E;
+  --tan-light: #C8B99A;
+  --parch: #F5F0E8;
+  --cream: #EDE6DA;
+  --ember: #C4473A;
+  --ember-light: #E86C5F;
+  --white: #FDFBF7;
+  --mid: #5C4E38;
+  --light: #D4C4A8;
+  --sidebar-w: 220px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Epilogue', sans-serif; background: var(--white); color: var(--navy); }
+
+/* ── LOGIN ─────────────────────────────────────────── */
+#login-screen {
+  position: fixed; inset: 0; background: var(--navy);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.login-card {
+  background: var(--parch); border-radius: 4px; padding: 48px 56px;
+  text-align: center; width: 360px;
+}
+.login-card .wordmark { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--navy); letter-spacing: .04em; margin-bottom: 4px; }
+.login-card .sub { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--tan); margin-bottom: 36px; }
+.login-card input {
+  width: 100%; padding: 12px 16px; border: 1px solid var(--light);
+  background: var(--white); border-radius: 3px; font-family: 'DM Mono', monospace;
+  font-size: 14px; color: var(--navy); margin-bottom: 14px; outline: none;
+  transition: border-color .2s;
+}
+.login-card input:focus { border-color: var(--forest); }
+.login-card button {
+  width: 100%; padding: 12px; background: var(--forest); color: var(--white);
+  border: none; border-radius: 3px; font-family: 'Epilogue', sans-serif;
+  font-size: 13px; font-weight: 500; letter-spacing: .06em; cursor: pointer;
+  transition: background .2s;
+}
+.login-card button:hover { background: var(--forest-light); }
+.login-error { color: var(--ember); font-size: 12px; margin-top: 10px; display: none; }
+
+/* ── APP SHELL ─────────────────────────────────────── */
+#app { display: none; height: 100vh; overflow: hidden; }
+
+/* ── SIDEBAR ───────────────────────────────────────── */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--navy); display: flex; flex-direction: column; z-index: 100;
+}
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.sidebar-logo .name { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--parch); letter-spacing: .03em; }
+.sidebar-logo .label { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--tan); margin-top: 2px; }
+.nav { flex: 1; padding: 16px 0; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 11px 24px;
+  font-size: 13px; font-weight: 400; color: rgba(245,240,232,.55);
+  cursor: pointer; transition: all .15s; border-left: 3px solid transparent;
+  letter-spacing: .02em;
+}
+.nav-item:hover { color: var(--parch); background: rgba(255,255,255,.04); }
+.nav-item.active { color: var(--parch); border-left-color: var(--forest-light); background: rgba(61,107,94,.15); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: .7; }
+.nav-item.active svg { opacity: 1; }
+.sidebar-footer {
+  padding: 16px 24px; border-top: 1px solid rgba(255,255,255,.08);
+  font-size: 11px; color: rgba(245,240,232,.3); letter-spacing: .04em;
+}
+
+/* ── MAIN ──────────────────────────────────────────── */
+.main { margin-left: var(--sidebar-w); height: 100vh; overflow-y: auto; }
+.page { display: none; padding: 40px 48px; max-width: 1100px; }
+.page.active { display: block; }
+.page-header { margin-bottom: 32px; }
+.page-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--navy); }
+.page-sub { font-size: 13px; color: var(--tan); margin-top: 4px; }
+
+/* ── CARDS & LAYOUT ────────────────────────────────── */
+.card {
+  background: var(--white); border: 1px solid var(--light);
+  border-radius: 4px; padding: 28px 32px; margin-bottom: 20px;
+}
+.card-title { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--forest); margin-bottom: 20px; }
+.metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.metric { background: var(--parch); border-radius: 3px; padding: 20px 22px; }
+.metric-label { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--tan); margin-bottom: 6px; }
+.metric-value { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--navy); }
+.metric-value.green { color: var(--forest); }
+.metric-value.ember { color: var(--ember); }
+
+/* ── FORMS ─────────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--mid); margin-bottom: 6px; display: block; }
+.form-note { font-size: 11px; color: var(--tan); margin-top: 3px; }
+input[type=text], input[type=number], input[type=date], select, textarea {
+  width: 100%; padding: 10px 13px; border: 1px solid var(--light);
+  background: var(--parch); border-radius: 3px; font-family: 'Epilogue', sans-serif;
+  font-size: 13px; color: var(--navy); outline: none; transition: border-color .2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--forest); background: var(--white); }
+textarea { resize: vertical; min-height: 80px; }
+.btn { padding: 10px 22px; border-radius: 3px; font-family: 'Epilogue', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: .06em; cursor: pointer; transition: all .2s; border: none; }
+.btn-primary { background: var(--forest); color: var(--white); }
+.btn-primary:hover { background: var(--forest-light); }
+.btn-secondary { background: var(--parch); color: var(--navy); border: 1px solid var(--light); }
+.btn-secondary:hover { background: var(--cream); }
+.btn-danger { background: transparent; color: var(--ember); border: 1px solid var(--ember); font-size: 11px; padding: 6px 12px; }
+.btn-danger:hover { background: var(--ember); color: var(--white); }
+.btn-sm { padding: 6px 14px; font-size: 11px; }
+
+/* ── CALCULATOR ────────────────────────────────────── */
+.calc-result {
+  background: var(--navy); color: var(--parch); border-radius: 4px; padding: 28px 32px; margin-top: 24px;
+}
+.calc-total { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 600; color: var(--white); }
+.calc-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--tan-light); margin-bottom: 8px; }
+.verdict { display: inline-block; padding: 4px 14px; border-radius: 2px; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-top: 10px; }
+.verdict.pass { background: var(--forest); color: var(--white); }
+.verdict.fail { background: var(--ember); color: var(--white); }
+.breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+.bk-item { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,.06); border-radius: 2px; font-size: 12px; }
+.bk-name { color: rgba(245,240,232,.65); }
+.bk-val { color: var(--parch); font-family: 'DM Mono', monospace; font-weight: 500; }
+
+/* ── TABLES ────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--tan); font-weight: 500; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--light); }
+.data-table td { padding: 12px 14px; border-bottom: 1px solid var(--cream); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--parch); }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 2px; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.badge-lead { background: #E8F0FF; color: #2952A3; }
+.badge-session { background: #FFF3E0; color: #B45309; }
+.badge-proposal { background: #EDE6DA; color: #5C4E38; }
+.badge-client { background: #E1F5EE; color: #0F6E56; }
+.badge-lost { background: #FDECEA; color: #993C1D; }
+
+/* ── PIPELINE ──────────────────────────────────────── */
+.pipeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+.pipeline-col { background: var(--parch); border-radius: 4px; padding: 14px 16px; min-height: 120px; }
+.pipeline-col-title { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--tan); font-weight: 600; margin-bottom: 12px; }
+.pipeline-card { background: var(--white); border: 1px solid var(--light); border-radius: 3px; padding: 10px 12px; margin-bottom: 8px; font-size: 12px; cursor: default; }
+.pipeline-card .pc-name { font-weight: 500; color: var(--navy); }
+.pipeline-card .pc-meta { color: var(--tan); font-size: 11px; margin-top: 3px; }
+
+/* ── SESSIONS ──────────────────────────────────────── */
+.session-card { background: var(--parch); border-radius: 3px; padding: 18px 22px; margin-bottom: 12px; border-left: 3px solid var(--forest); }
+.session-card .s-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.session-card .s-name { font-weight: 500; font-size: 15px; }
+.session-card .s-date { font-size: 11px; color: var(--tan); font-family: 'DM Mono', monospace; }
+.session-card .s-savings { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--forest); font-weight: 600; }
+.session-card .s-notes { font-size: 12px; color: var(--mid); margin-top: 8px; line-height: 1.6; }
+.session-card .s-outcome { font-size: 11px; margin-top: 10px; }
+
+/* ── REVENUE ───────────────────────────────────────── */
+.rev-month { border: 1px solid var(--light); border-radius: 4px; margin-bottom: 12px; overflow: hidden; }
+.rev-month-header { background: var(--parch); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.rev-month-title { font-size: 13px; font-weight: 500; }
+.rev-month-total { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--forest); font-weight: 500; }
+.rev-month-body { display: none; padding: 16px 20px; }
+.rev-month-body.open { display: block; }
+.rev-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--cream); font-size: 13px; }
+.rev-row:last-child { border-bottom: none; }
+
+/* ── MODAL ─────────────────────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(44,36,24,.5); z-index: 500; display: none; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: 4px; padding: 36px 40px; width: 580px; max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; margin-bottom: 24px; }
+.modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--tan); }
+.divider { border: none; border-top: 1px solid var(--light); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="wordmark">Sidecar Advisory</div>
+    <div class="sub">Internal Dashboard</div>
+    <input type="password" id="pw-input" placeholder="Enter passphrase" onkeydown="if(event.key==='Enter')tryLogin()">
+    <button onclick="tryLogin()">Access Dashboard</button>
+    <div class="login-error" id="login-error">Incorrect passphrase. Try again.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">Sidecar Advisory</div>
+      <div class="label">Internal Dashboard</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('calculator')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+        Clarity Session
+      </div>
+      <div class="nav-item" onclick="showPage('prospects')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Prospects & Clients
+      </div>
+      <div class="nav-item" onclick="showPage('sessions')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Session Notes
+      </div>
+      <div class="nav-item" onclick="showPage('revenue')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Revenue Tracker
+      </div>
+    </nav>
+    <div class="sidebar-footer">v4 · For internal use only</div>
+  </div>
+
+  <div class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-title">Good morning.</div>
+        <div class="page-sub" id="dash-date"></div>
+      </div>
+      <div class="metric-row" id="dash-metrics">
+        <div class="metric"><div class="metric-label">Active Prospects</div><div class="metric-value" id="m-prospects">0</div></div>
+        <div class="metric"><div class="metric-label">Sessions Run</div><div class="metric-value" id="m-sessions">0</div></div>
+        <div class="metric"><div class="metric-label">Active Clients</div><div class="metric-value green" id="m-clients">0</div></div>
+        <div class="metric"><div class="metric-label">MRR</div><div class="metric-value green" id="m-mrr">$0</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="card">
+          <div class="card-title">Pipeline</div>
+          <div id="dash-pipeline-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Sessions</div>
+          <div id="dash-sessions-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CLARITY SESSION CALCULATOR ── -->
+    <div class="page" id="page-calculator">
+      <div class="page-header">
+        <div class="page-title">Clarity Session Calculator</div>
+        <div class="page-sub">Find the $5,000 — then save the session to notes</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div class="card">
+            <div class="card-title">Business Basics</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Prospect Name</label>
+                <input type="text" id="c-name" placeholder="Smith Insurance Agency" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Business Type</label>
+                <select id="c-biz" onchange="calc()">
+                  <option>Insurance Agency</option>
+                  <option>Law Firm</option>
+                  <option>Accounting / CPA</option>
+                  <option>Real Estate Office</option>
+                  <option>Other Professional Services</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Employees</label>
+                <input type="number" id="c-emp" value="4" min="1" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Avg. Loaded Hourly Rate ($)</label>
+                <div class="form-note">Salary + benefits fully loaded</div>
+                <input type="number" id="c-rate" value="35" min="10" oninput="calc()">
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Manual Task Hours / Week / Employee</div>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label">Admin / Data Entry</label>
+                <input type="number" id="c-admin" value="4" min="0" step="0.5" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email & Scheduling</label>
+                <input type="number" id="c-email" value="3" min="0" step="0.5" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Reports & Docs</label>
+                <input type="number" id="c-report" value="2" min="0" step="0.5" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Client Follow-up</label>
+                <input type="number" id="c-follow" value="2" min="0" step="0.5" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Client Intake</label>
+                <input type="number" id="c-intake" value="2" min="0" step="0.5" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Research / Summarizing</label>
+                <input type="number" id="c-research" value="1.5" min="0" step="0.5" oninput="calc()">
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Other Monthly Costs</div>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label">Software Tools ($)</label>
+                <input type="number" id="c-sw" value="400" min="0" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Outsourced Tasks ($)</label>
+                <input type="number" id="c-out" value="300" min="0" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Error / Rework ($)</label>
+                <input type="number" id="c-err" value="200" min="0" oninput="calc()">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="calc-result">
+            <div class="calc-label">Estimated Annual Savings</div>
+            <div class="calc-total" id="r-total">$0</div>
+            <div id="r-verdict" class="verdict pass">Guarantee Met ✓</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px;">
+              <div style="background:rgba(255,255,255,.06);border-radius:2px;padding:12px;">
+                <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tan-light);margin-bottom:4px;">Hrs Saved/Wk</div>
+                <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--white);" id="r-hrs">0</div>
+              </div>
+              <div style="background:rgba(255,255,255,.06);border-radius:2px;padding:12px;">
+                <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tan-light);margin-bottom:4px;">Labor Savings</div>
+                <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--white);" id="r-labor">$0</div>
+              </div>
+              <div style="background:rgba(255,255,255,.06);border-radius:2px;padding:12px;">
+                <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tan-light);margin-bottom:4px;">Ops Savings</div>
+                <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--white);" id="r-ops">$0</div>
+              </div>
+            </div>
+            <div class="breakdown-grid" id="r-breakdown"></div>
+          </div>
+          <div class="card" style="margin-top:20px;">
+            <div class="card-title">Save This Session</div>
+            <div class="form-group">
+              <label class="form-label">Session Date</label>
+              <input type="date" id="c-date">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Key Pain Points Identified</label>
+              <textarea id="c-pain" placeholder="What tasks were they most frustrated by? What surprised you?"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Recommended AI Solutions</label>
+              <textarea id="c-solutions" placeholder="Which tools / automations would you implement first?"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Outcome</label>
+              <select id="c-outcome">
+                <option value="proposal">Sending Proposal</option>
+                <option value="followup">Following Up</option>
+                <option value="notfit">Not a Fit</option>
+                <option value="free">Guarantee Triggered — Free Session</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveSession()" style="width:100%;margin-top:4px;">Save Session Notes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROSPECTS & CLIENTS ── -->
+    <div class="page" id="page-prospects">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-end;">
+        <div>
+          <div class="page-title">Prospects & Clients</div>
+          <div class="page-sub">Track every relationship from lead to retainer</div>
+        </div>
+        <button class="btn btn-primary" onclick="openProspectModal()">+ Add Contact</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:16px 24px;border-bottom:1px solid var(--light);display:flex;gap:10px;">
+          <input type="text" id="prospect-search" placeholder="Search by name or company..." style="max-width:300px;" oninput="renderProspects()">
+          <select id="prospect-filter" style="width:160px;" onchange="renderProspects()">
+            <option value="">All Stages</option>
+            <option value="lead">Lead</option>
+            <option value="session">Session Booked</option>
+            <option value="proposal">Proposal Sent</option>
+            <option value="client">Active Client</option>
+            <option value="lost">Lost</option>
+          </select>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name / Company</th>
+              <th>Industry</th>
+              <th>Stage</th>
+              <th>Est. Value</th>
+              <th>Last Contact</th>
+              <th>Source</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="prospect-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── SESSION NOTES ── -->
+    <div class="page" id="page-sessions">
+      <div class="page-header">
+        <div class="page-title">Session Notes</div>
+        <div class="page-sub">Every Clarity Session, documented and searchable</div>
+      </div>
+      <div id="sessions-list"></div>
+    </div>
+
+    <!-- ── REVENUE TRACKER ── -->
+    <div class="page" id="page-revenue">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-end;">
+        <div>
+          <div class="page-title">Revenue Tracker</div>
+          <div class="page-sub">Projects, retainers, and sessions in one place</div>
+        </div>
+        <button class="btn btn-primary" onclick="openRevenueModal()">+ Add Entry</button>
+      </div>
+      <div class="metric-row">
+        <div class="metric"><div class="metric-label">Year to Date</div><div class="metric-value green" id="rv-ytd">$0</div></div>
+        <div class="metric"><div class="metric-label">This Month</div><div class="metric-value green" id="rv-month">$0</div></div>
+        <div class="metric"><div class="metric-label">Monthly Retainers</div><div class="metric-value" id="rv-mrr">$0</div></div>
+        <div class="metric"><div class="metric-label">Avg. Project Value</div><div class="metric-value" id="rv-avg">$0</div></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="data-table">
+          <thead><tr><th>Client</th><th>Type</th><th>Amount</th><th>Date</th><th>Notes</th><th></th></tr></thead>
+          <tbody id="revenue-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROSPECT MODAL -->
+<div class="modal-overlay" id="prospect-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('prospect-modal')">×</button>
+    <div class="modal-title">Add Contact</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" id="pm-name" placeholder="John Smith">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Company</label>
+        <input type="text" id="pm-company" placeholder="Smith Insurance Agency">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Industry</label>
+        <select id="pm-industry">
+          <option>Insurance Agency</option>
+          <option>Law Firm</option>
+          <option>Accounting / CPA</option>
+          <option>Real Estate Office</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stage</label>
+        <select id="pm-stage">
+          <option value="lead">Lead</option>
+          <option value="session">Session Booked</option>
+          <option value="proposal">Proposal Sent</option>
+          <option value="client">Active Client</option>
+          <option value="lost">Lost</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="text" id="pm-email" placeholder="john@smithinsurance.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="text" id="pm-phone" placeholder="(248) 555-0100">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Est. Deal Value ($)</label>
+        <input type="number" id="pm-value" placeholder="5000" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Source</label>
+        <select id="pm-source">
+          <option>LinkedIn</option>
+          <option>Referral</option>
+          <option>Chamber Event</option>
+          <option>Workshop</option>
+          <option>Cold Outreach</option>
+          <option>Website</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea id="pm-notes" placeholder="Context, how you met, key pain points..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Last Contact Date</label>
+      <input type="date" id="pm-lastcontact">
+    </div>
+    <hr class="divider">
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('prospect-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProspect()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- REVENUE MODAL -->
+<div class="modal-overlay" id="revenue-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('revenue-modal')">×</button>
+    <div class="modal-title">Add Revenue Entry</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Client Name</label>
+        <input type="text" id="rm-client" placeholder="Smith Insurance Agency">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select id="rm-type">
+          <option value="project">Implementation Project</option>
+          <option value="retainer">Monthly Retainer</option>
+          <option value="session">Clarity Session</option>
+          <option value="workshop">Workshop / Training</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amount ($)</label>
+        <input type="number" id="rm-amount" placeholder="3000" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" id="rm-date">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea id="rm-notes" placeholder="Scope, payment terms, anything relevant..."></textarea>
+    </div>
+    <hr class="divider">
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('revenue-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRevenue()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PASSPHRASE ─────────────────────────────────────
+const PASSPHRASE = 'sidecar2026';
+
+function tryLogin() {
+  const v = document.getElementById('pw-input').value;
+  if (v === PASSPHRASE) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    initApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+// ── DATA (localStorage) ────────────────────────────
+function load(key) { try { return JSON.parse(localStorage.getItem('sa_'+key)||'[]'); } catch { return []; } }
+function save(key, data) { localStorage.setItem('sa_'+key, JSON.stringify(data)); }
+
+// ── NAVIGATION ─────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(id==='dashboard') renderDashboard();
+  if(id==='prospects') renderProspects();
+  if(id==='sessions') renderSessions();
+  if(id==='revenue') renderRevenue();
+}
+
+// ── INIT ───────────────────────────────────────────
+function initApp() {
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('c-date').value = today;
+  document.getElementById('rm-date').value = today;
+  document.getElementById('pm-lastcontact').value = today;
+  calc();
+  renderDashboard();
+}
+
+// ── CALCULATOR ─────────────────────────────────────
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+
+function calc() {
+  const emp    = parseFloat(document.getElementById('c-emp').value)||0;
+  const rate   = parseFloat(document.getElementById('c-rate').value)||0;
+  const admin  = parseFloat(document.getElementById('c-admin').value)||0;
+  const email  = parseFloat(document.getElementById('c-email').value)||0;
+  const report = parseFloat(document.getElementById('c-report').value)||0;
+  const follow = parseFloat(document.getElementById('c-follow').value)||0;
+  const intake = parseFloat(document.getElementById('c-intake').value)||0;
+  const res    = parseFloat(document.getElementById('c-research').value)||0;
+  const sw     = parseFloat(document.getElementById('c-sw').value)||0;
+  const out    = parseFloat(document.getElementById('c-out').value)||0;
+  const err    = parseFloat(document.getElementById('c-err').value)||0;
+
+  const AI = 0.55;
+  const items = [
+    ['Admin / data entry',      admin*AI*emp*rate*52],
+    ['Email & scheduling',      email*AI*emp*rate*52],
+    ['Reports & documents',     report*AI*emp*rate*52],
+    ['Client follow-up',        follow*AI*emp*rate*52],
+    ['Client intake',           intake*AI*emp*rate*52],
+    ['Research & summarizing',  res*AI*emp*rate*52],
+    ['Software consolidation',  sw*0.3*12],
+    ['Outsourced task replacement', out*0.6*12],
+    ['Error / rework reduction', err*0.5*12],
+  ];
+
+  const laborSavings = (admin+email+report+follow+intake+res)*AI*emp*rate*52;
+  const opsSavings = sw*0.3*12 + out*0.6*12 + err*0.5*12;
+  const hrsRecovered = Math.round((admin+email+report+follow+intake+res)*AI*emp*10)/10;
+  const total = laborSavings + opsSavings;
+
+  document.getElementById('r-total').textContent = fmt(total);
+  document.getElementById('r-hrs').textContent = hrsRecovered;
+  document.getElementById('r-labor').textContent = fmt(laborSavings);
+  document.getElementById('r-ops').textContent = fmt(opsSavings);
+
+  const v = document.getElementById('r-verdict');
+  if(total >= 5000) { v.textContent='Guarantee Met ✓'; v.className='verdict pass'; }
+  else { v.textContent='Below $5,000 — Review Inputs'; v.className='verdict fail'; }
+
+  const bd = document.getElementById('r-breakdown');
+  bd.innerHTML = items.filter(i=>i[1]>0).sort((a,b)=>b[1]-a[1])
+    .map(i=>`<div class="bk-item"><span class="bk-name">${i[0]}</span><span class="bk-val">${fmt(i[1])}</span></div>`)
+    .join('');
+
+  window._lastCalc = { items, laborSavings, opsSavings, hrsRecovered, total };
+}
+
+function saveSession() {
+  const name = document.getElementById('c-name').value.trim();
+  if(!name) { alert('Please enter a prospect name.'); return; }
+  const sessions = load('sessions');
+  sessions.unshift({
+    id: Date.now(),
+    name,
+    biz: document.getElementById('c-biz').value,
+    date: document.getElementById('c-date').value,
+    total: window._lastCalc?.total||0,
+    hrs: window._lastCalc?.hrsRecovered||0,
+    laborSavings: window._lastCalc?.laborSavings||0,
+    opsSavings: window._lastCalc?.opsSavings||0,
+    pain: document.getElementById('c-pain').value,
+    solutions: document.getElementById('c-solutions').value,
+    outcome: document.getElementById('c-outcome').value,
+    breakdown: window._lastCalc?.items||[],
+  });
+  save('sessions', sessions);
+  alert('Session saved!');
+  document.getElementById('c-pain').value = '';
+  document.getElementById('c-solutions').value = '';
+}
+
+// ── PROSPECTS ──────────────────────────────────────
+let editingProspectId = null;
+
+function openProspectModal(id=null) {
+  editingProspectId = id;
+  if(id) {
+    const p = load('prospects').find(x=>x.id===id);
+    if(p) {
+      document.getElementById('pm-name').value = p.name||'';
+      document.getElementById('pm-company').value = p.company||'';
+      document.getElementById('pm-industry').value = p.industry||'Insurance Agency';
+      document.getElementById('pm-stage').value = p.stage||'lead';
+      document.getElementById('pm-email').value = p.email||'';
+      document.getElementById('pm-phone').value = p.phone||'';
+      document.getElementById('pm-value').value = p.value||'';
+      document.getElementById('pm-source').value = p.source||'LinkedIn';
+      document.getElementById('pm-notes').value = p.notes||'';
+      document.getElementById('pm-lastcontact').value = p.lastContact||'';
+    }
+  } else {
+    ['pm-name','pm-company','pm-email','pm-phone','pm-notes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pm-value').value = '';
+    document.getElementById('pm-stage').value = 'lead';
+  }
+  document.getElementById('prospect-modal').classList.add('open');
+}
+
+function saveProspect() {
+  const name = document.getElementById('pm-name').value.trim();
+  if(!name) { alert('Name is required.'); return; }
+  const prospects = load('prospects');
+  const obj = {
+    id: editingProspectId||Date.now(),
+    name,
+    company: document.getElementById('pm-company').value,
+    industry: document.getElementById('pm-industry').value,
+    stage: document.getElementById('pm-stage').value,
+    email: document.getElementById('pm-email').value,
+    phone: document.getElementById('pm-phone').value,
+    value: parseFloat(document.getElementById('pm-value').value)||0,
+    source: document.getElementById('pm-source').value,
+    notes: document.getElementById('pm-notes').value,
+    lastContact: document.getElementById('pm-lastcontact').value,
+    created: editingProspectId ? (prospects.find(p=>p.id===editingProspectId)?.created||Date.now()) : Date.now(),
+  };
+  if(editingProspectId) {
+    const idx = prospects.findIndex(p=>p.id===editingProspectId);
+    if(idx>=0) prospects[idx]=obj; else prospects.unshift(obj);
+  } else { prospects.unshift(obj); }
+  save('prospects', prospects);
+  closeModal('prospect-modal');
+  renderProspects();
+  renderDashboard();
+}
+
+function deleteProspect(id) {
+  if(!confirm('Remove this contact?')) return;
+  save('prospects', load('prospects').filter(p=>p.id!==id));
+  renderProspects();
+  renderDashboard();
+}
+
+const stageLabels = { lead:'Lead', session:'Session Booked', proposal:'Proposal Sent', client:'Active Client', lost:'Lost' };
+const stageBadge  = { lead:'badge-lead', session:'badge-session', proposal:'badge-proposal', client:'badge-client', lost:'badge-lost' };
+
+function renderProspects() {
+  const q = document.getElementById('prospect-search').value.toLowerCase();
+  const f = document.getElementById('prospect-filter').value;
+  let data = load('prospects');
+  if(q) data = data.filter(p=>(p.name+p.company).toLowerCase().includes(q));
+  if(f) data = data.filter(p=>p.stage===f);
+  const tbody = document.getElementById('prospect-tbody');
+  if(!data.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--tan);padding:32px;">No contacts yet. Add your first prospect.</td></tr>'; return; }
+  tbody.innerHTML = data.map(p=>`
+    <tr>
+      <td><div style="font-weight:500;">${p.name}</div><div style="font-size:11px;color:var(--tan);">${p.company}</div></td>
+      <td style="color:var(--mid);font-size:12px;">${p.industry}</td>
+      <td><span class="badge ${stageBadge[p.stage]}">${stageLabels[p.stage]}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${p.value?'$'+p.value.toLocaleString():'—'}</td>
+      <td style="font-size:12px;color:var(--tan);">${p.lastContact||'—'}</td>
+      <td style="font-size:12px;color:var(--mid);">${p.source||'—'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-secondary btn-sm" onclick="openProspectModal(${p.id})" style="margin-right:6px;">Edit</button>
+        <button class="btn btn-danger" onclick="deleteProspect(${p.id})">×</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ── SESSIONS ───────────────────────────────────────
+const outcomeLabels = { proposal:'Proposal Sent', followup:'Following Up', notfit:'Not a Fit', free:'Guarantee Triggered' };
+const outcomeColors = { proposal:'var(--forest)', followup:'var(--tan)', notfit:'var(--ember)', free:'var(--navy)' };
+
+function renderSessions() {
+  const data = load('sessions');
+  const el = document.getElementById('sessions-list');
+  if(!data.length) { el.innerHTML='<div style="color:var(--tan);padding:20px;">No sessions saved yet. Run a Clarity Session and save it.</div>'; return; }
+  el.innerHTML = data.map(s=>`
+    <div class="session-card">
+      <div class="s-header">
+        <div>
+          <div class="s-name">${s.name}</div>
+          <div style="font-size:11px;color:var(--tan);margin-top:2px;">${s.biz} · ${s.date}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="s-savings">${fmt(s.total)}</div>
+          <div style="font-size:11px;color:var(--tan);">${s.hrs} hrs/week recovered</div>
+        </div>
+      </div>
+      ${s.pain?`<div class="s-notes"><strong>Pain points:</strong> ${s.pain}</div>`:''}
+      ${s.solutions?`<div class="s-notes" style="margin-top:6px;"><strong>Solutions:</strong> ${s.solutions}</div>`:''}
+      <div class="s-outcome">
+        <span style="background:${outcomeColors[s.outcome]||'var(--navy)'};color:white;padding:3px 10px;border-radius:2px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;">
+          ${outcomeLabels[s.outcome]||s.outcome}
+        </span>
+      </div>
+    </div>`).join('');
+}
+
+// ── REVENUE ────────────────────────────────────────
+let editingRevenueId = null;
+
+function openRevenueModal(id=null) {
+  editingRevenueId = id;
+  if(id) {
+    const r = load('revenue').find(x=>x.id===id);
+    if(r) {
+      document.getElementById('rm-client').value = r.client||'';
+      document.getElementById('rm-type').value = r.type||'project';
+      document.getElementById('rm-amount').value = r.amount||'';
+      document.getElementById('rm-date').value = r.date||'';
+      document.getElementById('rm-notes').value = r.notes||'';
+    }
+  } else {
+    ['rm-client','rm-notes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('rm-amount').value='';
+    document.getElementById('rm-date').value=new Date().toISOString().split('T')[0];
+  }
+  document.getElementById('revenue-modal').classList.add('open');
+}
+
+function saveRevenue() {
+  const client = document.getElementById('rm-client').value.trim();
+  if(!client) { alert('Client name required.'); return; }
+  const revenue = load('revenue');
+  const obj = {
+    id: editingRevenueId||Date.now(),
+    client,
+    type: document.getElementById('rm-type').value,
+    amount: parseFloat(document.getElementById('rm-amount').value)||0,
+    date: document.getElementById('rm-date').value,
+    notes: document.getElementById('rm-notes').value,
+  };
+  if(editingRevenueId) {
+    const idx = revenue.findIndex(r=>r.id===editingRevenueId);
+    if(idx>=0) revenue[idx]=obj; else revenue.unshift(obj);
+  } else { revenue.unshift(obj); }
+  save('revenue', revenue);
+  closeModal('revenue-modal');
+  renderRevenue();
+  renderDashboard();
+}
+
+function deleteRevenue(id) {
+  if(!confirm('Delete this entry?')) return;
+  save('revenue', load('revenue').filter(r=>r.id!==id));
+  renderRevenue();
+  renderDashboard();
+}
+
+const revTypeLabels = { project:'Implementation Project', retainer:'Monthly Retainer', session:'Clarity Session', workshop:'Workshop', other:'Other' };
+
+function renderRevenue() {
+  const data = load('revenue');
+  const now = new Date();
+  const thisMonth = now.toISOString().slice(0,7);
+  const thisYear  = now.getFullYear().toString();
+  const ytd   = data.filter(r=>r.date&&r.date.startsWith(thisYear)).reduce((s,r)=>s+r.amount,0);
+  const month = data.filter(r=>r.date&&r.date.startsWith(thisMonth)).reduce((s,r)=>s+r.amount,0);
+  const retainers = data.filter(r=>r.type==='retainer').reduce((s,r)=>s+r.amount,0);
+  const projects  = data.filter(r=>r.type==='project');
+  const avg = projects.length ? projects.reduce((s,r)=>s+r.amount,0)/projects.length : 0;
+  document.getElementById('rv-ytd').textContent   = fmt(ytd);
+  document.getElementById('rv-month').textContent = fmt(month);
+  document.getElementById('rv-mrr').textContent   = fmt(retainers);
+  document.getElementById('rv-avg').textContent   = fmt(avg);
+  const tbody = document.getElementById('revenue-tbody');
+  if(!data.length) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--tan);padding:32px;">No revenue logged yet.</td></tr>'; return; }
+  tbody.innerHTML = data.sort((a,b)=>b.date>a.date?1:-1).map(r=>`
+    <tr>
+      <td style="font-weight:500;">${r.client}</td>
+      <td style="font-size:12px;color:var(--mid);">${revTypeLabels[r.type]||r.type}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--forest);font-weight:500;">${fmt(r.amount)}</td>
+      <td style="font-size:12px;color:var(--tan);">${r.date||'—'}</td>
+      <td style="font-size:12px;color:var(--mid);max-width:240px;">${r.notes||'—'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-secondary btn-sm" onclick="openRevenueModal(${r.id})" style="margin-right:6px;">Edit</button>
+        <button class="btn btn-danger" onclick="deleteRevenue(${r.id})">×</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ── DASHBOARD ──────────────────────────────────────
+function renderDashboard() {
+  const prospects = load('prospects');
+  const sessions  = load('sessions');
+  const revenue   = load('revenue');
+  const clients   = prospects.filter(p=>p.stage==='client').length;
+  const active    = prospects.filter(p=>p.stage!=='lost').length;
+  const mrr       = revenue.filter(r=>r.type==='retainer').reduce((s,r)=>s+r.amount,0);
+  document.getElementById('m-prospects').textContent = active;
+  document.getElementById('m-sessions').textContent  = sessions.length;
+  document.getElementById('m-clients').textContent   = clients;
+  document.getElementById('m-mrr').textContent       = fmt(mrr);
+  const stageOrder = ['lead','session','proposal','client','lost'];
+  const pl = document.getElementById('dash-pipeline-list');
+  if(!prospects.length) { pl.innerHTML='<div style="color:var(--tan);font-size:13px;">No contacts yet.</div>'; }
+  else {
+    const byStage = {};
+    prospects.forEach(p=>{ (byStage[p.stage]||(byStage[p.stage]=[])).push(p); });
+    pl.innerHTML = stageOrder.filter(s=>byStage[s]?.length).map(s=>`
+      <div style="margin-bottom:10px;">
+        <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tan);margin-bottom:5px;">${stageLabels[s]} (${byStage[s].length})</div>
+        ${byStage[s].slice(0,3).map(p=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--cream);">${p.name} <span style="color:var(--tan);font-size:11px;">· ${p.company}</span></div>`).join('')}
+      </div>`).join('');
+  }
+  const sl = document.getElementById('dash-sessions-list');
+  if(!sessions.length) { sl.innerHTML='<div style="color:var(--tan);font-size:13px;">No sessions yet.</div>'; }
+  else {
+    sl.innerHTML = sessions.slice(0,5).map(s=>`
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--cream);font-size:13px;">
+        <div>${s.name} <span style="font-size:11px;color:var(--tan);">· ${s.date}</span></div>
+        <div style="font-family:'DM Mono',monospace;color:var(--forest);font-size:12px;">${fmt(s.total)}</div>
+      </div>`).join('');
+  }
+}
+
+// ── MODALS ─────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
