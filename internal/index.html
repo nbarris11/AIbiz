@@ -124,6 +124,29 @@ textarea { resize: vertical; min-height: 80px; }
 .btn-danger { background: transparent; color: var(--ember); border: 1px solid var(--ember); font-size: 11px; padding: 6px 12px; }
 .btn-danger:hover { background: var(--ember); color: var(--white); }
 .btn-sm { padding: 6px 14px; font-size: 11px; }
+.editor-stack { display: grid; gap: 20px; }
+.editor-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.editor-actions-left { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.editor-inline-note { font-size: 12px; color: var(--tan); line-height: 1.6; }
+.editor-section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.editor-subtitle { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--tan); margin: 18px 0 12px; }
+.editor-repeat { padding: 16px 18px; border: 1px solid var(--light); border-radius: 4px; background: var(--parch); margin-top: 12px; }
+.editor-repeat:first-of-type { margin-top: 0; }
+.token-input { max-width: 360px; font-family: 'DM Mono', monospace; }
+.status-message { font-size: 12px; color: var(--tan); min-height: 18px; }
+.status-message.success { color: var(--forest); }
+.status-message.error { color: var(--ember); }
+.editor-link-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+@media (max-width: 980px) {
+  .editor-section-grid,
+  .form-grid,
+  .form-grid-3,
+  .metric-row,
+  .pipeline {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* ── CALCULATOR ────────────────────────────────────── */
 .calc-result {
@@ -228,6 +251,10 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="nav-item" onclick="showPage('revenue')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         Revenue Tracker
+      </div>
+      <div class="nav-item" onclick="showPage('site-editor')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        Site Editor
       </div>
     </nav>
     <div class="sidebar-footer">v4 · For internal use only</div>
@@ -462,6 +489,279 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
 
+    <!-- ── SITE EDITOR ── -->
+    <div class="page" id="page-site-editor">
+      <div class="page-header">
+        <div class="page-title">Site Editor</div>
+        <div class="page-sub">Update homepage copy, links, and the about image without editing code</div>
+      </div>
+
+      <div class="editor-actions">
+        <div class="editor-actions-left">
+          <input
+            type="text"
+            id="gh-token"
+            class="token-input"
+            placeholder="GitHub token with Contents read/write access"
+          >
+          <button class="btn btn-primary" type="button" onclick="saveSiteContent()">Save to GitHub</button>
+          <button class="btn btn-secondary" type="button" onclick="renderSiteEditor()">Reload Form</button>
+        </div>
+        <div class="editor-link-row">
+          <a class="btn btn-secondary" href="../index.html" target="_blank" rel="noreferrer">Open Homepage</a>
+          <a class="btn btn-secondary" href="../blog.html" target="_blank" rel="noreferrer">Open Blog</a>
+        </div>
+      </div>
+
+      <div class="status-message" id="site-editor-status"></div>
+
+      <div class="card">
+        <div class="card-title">How This Works</div>
+        <p class="editor-inline-note">
+          Paste a GitHub personal access token, update the fields you want, then click
+          <strong>Save to GitHub</strong>. The editor updates
+          <code>content/site-content.js</code> in your repo, and Vercel will redeploy the site
+          automatically. Use a fine-grained token with Contents read/write access to this repo, or
+          a classic token with <code>repo</code> scope.
+        </p>
+      </div>
+
+      <div class="editor-stack">
+        <div class="card">
+          <div class="card-title">Site Settings</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="field-calendlyUrl">Calendly URL</label>
+              <input type="text" id="field-calendlyUrl">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="field-email">Primary Email</label>
+              <input type="text" id="field-email">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="field-domain">Public Domain</label>
+              <input type="text" id="field-domain">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="field-location">Location</label>
+              <input type="text" id="field-location">
+            </div>
+            <div class="form-group" style="grid-column:1 / -1;">
+              <label class="form-label" for="field-about-image-url">About Image URL</label>
+              <input type="text" id="field-about-image-url" placeholder="https://...">
+              <div class="form-note">Paste a public image URL to replace the placeholder graphic.</div>
+            </div>
+            <div class="form-group" style="grid-column:1 / -1;">
+              <label class="form-label" for="field-about-image-alt">About Image Alt Text</label>
+              <input type="text" id="field-about-image-alt">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Hero</div>
+          <div class="form-group">
+            <label class="form-label" for="field-hero-eyebrow">Eyebrow</label>
+            <input type="text" id="field-hero-eyebrow">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-hero-headline">Headline</label>
+            <input type="text" id="field-hero-headline">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-hero-subheadline">Subheadline</label>
+            <textarea id="field-hero-subheadline"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-hero-guarantee">Guarantee Badge</label>
+            <input type="text" id="field-hero-guarantee">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-hero-stats">Hero Stats</label>
+            <textarea id="field-hero-stats"></textarea>
+            <div class="form-note">One line per stat.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Services</div>
+          <div class="form-group">
+            <label class="form-label" for="field-services-headline">Section Headline</label>
+            <input type="text" id="field-services-headline">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-services-intro">Intro Paragraph</label>
+            <textarea id="field-services-intro"></textarea>
+          </div>
+
+          <div class="editor-repeat">
+            <div class="editor-subtitle">Service Card 1</div>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="field-service-1-title">Title</label><input type="text" id="field-service-1-title"></div>
+              <div class="form-group"><label class="form-label" for="field-service-1-meta">Price Line</label><input type="text" id="field-service-1-meta"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-service-1-body">Body</label><textarea id="field-service-1-body"></textarea></div>
+            </div>
+          </div>
+
+          <div class="editor-repeat">
+            <div class="editor-subtitle">Service Card 2</div>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="field-service-2-title">Title</label><input type="text" id="field-service-2-title"></div>
+              <div class="form-group"><label class="form-label" for="field-service-2-meta">Price Line</label><input type="text" id="field-service-2-meta"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-service-2-body">Body</label><textarea id="field-service-2-body"></textarea></div>
+            </div>
+          </div>
+
+          <div class="editor-repeat">
+            <div class="editor-subtitle">Service Card 3</div>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="field-service-3-badge">Badge</label><input type="text" id="field-service-3-badge"></div>
+              <div class="form-group"><label class="form-label" for="field-service-3-title">Title</label><input type="text" id="field-service-3-title"></div>
+              <div class="form-group"><label class="form-label" for="field-service-3-meta">Price Line</label><input type="text" id="field-service-3-meta"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-service-3-body">Body</label><textarea id="field-service-3-body"></textarea></div>
+            </div>
+          </div>
+
+          <div class="editor-repeat">
+            <div class="editor-subtitle">Service Card 4</div>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="field-service-4-title">Title</label><input type="text" id="field-service-4-title"></div>
+              <div class="form-group"><label class="form-label" for="field-service-4-meta">Price Line</label><input type="text" id="field-service-4-meta"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-service-4-body">Body</label><textarea id="field-service-4-body"></textarea></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Who We Serve</div>
+          <div class="form-group">
+            <label class="form-label" for="field-who-headline">Section Headline</label>
+            <input type="text" id="field-who-headline">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-who-intro">Intro Paragraph</label>
+            <textarea id="field-who-intro"></textarea>
+          </div>
+          <div class="editor-repeat">
+            <div class="editor-subtitle">Industry Cards</div>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="field-focus-1-title">Card 1 Title</label><input type="text" id="field-focus-1-title"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-focus-1-body">Card 1 Body</label><textarea id="field-focus-1-body"></textarea></div>
+              <div class="form-group"><label class="form-label" for="field-focus-2-title">Card 2 Title</label><input type="text" id="field-focus-2-title"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-focus-2-body">Card 2 Body</label><textarea id="field-focus-2-body"></textarea></div>
+              <div class="form-group"><label class="form-label" for="field-focus-3-title">Card 3 Title</label><input type="text" id="field-focus-3-title"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-focus-3-body">Card 3 Body</label><textarea id="field-focus-3-body"></textarea></div>
+              <div class="form-group"><label class="form-label" for="field-focus-4-title">Card 4 Title</label><input type="text" id="field-focus-4-title"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-focus-4-body">Card 4 Body</label><textarea id="field-focus-4-body"></textarea></div>
+            </div>
+          </div>
+          <div class="editor-repeat">
+            <div class="editor-subtitle">Footnote Callout</div>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="field-note-label">Label</label><input type="text" id="field-note-label"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-note-copy">Copy</label><textarea id="field-note-copy"></textarea></div>
+              <div class="form-group"><label class="form-label" for="field-note-link-text">Link Text</label><input type="text" id="field-note-link-text"></div>
+              <div class="form-group"><label class="form-label" for="field-note-link-href">Link URL</label><input type="text" id="field-note-link-href"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Process</div>
+          <div class="form-group">
+            <label class="form-label" for="field-process-headline">Section Headline</label>
+            <input type="text" id="field-process-headline">
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label" for="field-process-1-title">Step 1 Title</label><input type="text" id="field-process-1-title"></div>
+            <div class="form-group"><label class="form-label" for="field-process-1-time">Step 1 Time</label><input type="text" id="field-process-1-time"></div>
+            <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-process-1-body">Step 1 Body</label><textarea id="field-process-1-body"></textarea></div>
+            <div class="form-group"><label class="form-label" for="field-process-2-title">Step 2 Title</label><input type="text" id="field-process-2-title"></div>
+            <div class="form-group"><label class="form-label" for="field-process-2-time">Step 2 Time</label><input type="text" id="field-process-2-time"></div>
+            <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-process-2-body">Step 2 Body</label><textarea id="field-process-2-body"></textarea></div>
+            <div class="form-group"><label class="form-label" for="field-process-3-title">Step 3 Title</label><input type="text" id="field-process-3-title"></div>
+            <div class="form-group"><label class="form-label" for="field-process-3-time">Step 3 Time</label><input type="text" id="field-process-3-time"></div>
+            <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-process-3-body">Step 3 Body</label><textarea id="field-process-3-body"></textarea></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">About</div>
+          <div class="form-group">
+            <label class="form-label" for="field-about-headline">Headline</label>
+            <input type="text" id="field-about-headline">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-about-p1">Paragraph 1</label>
+            <textarea id="field-about-p1"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-about-p2">Paragraph 2</label>
+            <textarea id="field-about-p2"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-about-chips">Credential Chips</label>
+            <textarea id="field-about-chips"></textarea>
+            <div class="form-note">One line per chip.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Partners</div>
+          <div class="form-group">
+            <label class="form-label" for="field-partners-headline">Headline</label>
+            <input type="text" id="field-partners-headline">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-partners-body">Body</label>
+            <textarea id="field-partners-body"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-partners-chips">Partner Chips</label>
+            <textarea id="field-partners-chips"></textarea>
+            <div class="form-note">One line per chip.</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="field-partners-cta-text">CTA Text</label>
+              <input type="text" id="field-partners-cta-text">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="field-partners-cta-href">CTA URL</label>
+              <input type="text" id="field-partners-cta-href">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Contact</div>
+          <div class="form-group">
+            <label class="form-label" for="field-contact-headline">Headline</label>
+            <input type="text" id="field-contact-headline">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-contact-body">Body</label>
+            <textarea id="field-contact-body"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-contact-trust">Trust Signals</label>
+            <textarea id="field-contact-trust"></textarea>
+            <div class="form-note">One line per trust signal.</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="field-contact-cta-text">CTA Text</label>
+              <input type="text" id="field-contact-cta-text">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="field-contact-meta">Footer Meta Line</label>
+              <input type="text" id="field-contact-meta">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -581,9 +881,14 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<script src="../content/site-content.js"></script>
 <script>
 // ── PASSPHRASE ─────────────────────────────────────
 const PASSPHRASE = 'sidecar2026';
+const CONTENT_REPO_OWNER = 'nbarris11';
+const CONTENT_REPO_NAME = 'AIbiz';
+const CONTENT_BRANCH = 'main';
+const CONTENT_PATH = 'content/site-content.js';
 
 function tryLogin() {
   const v = document.getElementById('pw-input').value;
@@ -610,6 +915,7 @@ function showPage(id) {
   if(id==='prospects') renderProspects();
   if(id==='sessions') renderSessions();
   if(id==='revenue') renderRevenue();
+  if(id==='site-editor') renderSiteEditor();
 }
 
 // ── INIT ───────────────────────────────────────────
@@ -619,8 +925,260 @@ function initApp() {
   document.getElementById('c-date').value = today;
   document.getElementById('rm-date').value = today;
   document.getElementById('pm-lastcontact').value = today;
+  const savedToken = sessionStorage.getItem('sidecar_github_token');
+  if (savedToken) {
+    document.getElementById('gh-token').value = savedToken;
+  }
   calc();
   renderDashboard();
+  renderSiteEditor();
+}
+
+// ── SITE EDITOR ────────────────────────────────────
+function cloneContentData() {
+  return JSON.parse(JSON.stringify(window.SIDECAR_SITE_CONTENT || {}));
+}
+
+function listToTextarea(list) {
+  return (list || []).join('\n');
+}
+
+function textareaToList(value) {
+  return value
+    .split('\n')
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function setEditorStatus(message, type='') {
+  const el = document.getElementById('site-editor-status');
+  el.textContent = message;
+  el.className = `status-message${type ? ` ${type}` : ''}`;
+}
+
+function renderSiteEditor() {
+  const content = cloneContentData();
+  const settings = content.settings || {};
+  const hero = content.hero || {};
+  const services = content.services || {};
+  const serviceCards = services.cards || [];
+  const who = content.whoWeServe || {};
+  const whoCards = who.cards || [];
+  const note = who.note || {};
+  const process = content.process || {};
+  const steps = process.steps || [];
+  const about = content.about || {};
+  const partners = content.partners || {};
+  const contact = content.contact || {};
+
+  document.getElementById('field-calendlyUrl').value = settings.calendlyUrl || '';
+  document.getElementById('field-email').value = settings.email || '';
+  document.getElementById('field-domain').value = settings.domain || '';
+  document.getElementById('field-location').value = settings.location || '';
+  document.getElementById('field-about-image-url').value = about.imageUrl || '';
+  document.getElementById('field-about-image-alt').value = about.imageAlt || '';
+
+  document.getElementById('field-hero-eyebrow').value = hero.eyebrow || '';
+  document.getElementById('field-hero-headline').value = hero.headline || '';
+  document.getElementById('field-hero-subheadline').value = hero.subheadline || '';
+  document.getElementById('field-hero-guarantee').value = hero.guarantee || '';
+  document.getElementById('field-hero-stats').value = listToTextarea(hero.stats);
+
+  document.getElementById('field-services-headline').value = services.headline || '';
+  document.getElementById('field-services-intro').value = services.intro || '';
+  for (let i = 0; i < 4; i += 1) {
+    const card = serviceCards[i] || {};
+    document.getElementById(`field-service-${i + 1}-title`).value = card.title || '';
+    document.getElementById(`field-service-${i + 1}-meta`).value = card.meta || '';
+    document.getElementById(`field-service-${i + 1}-body`).value = card.body || '';
+  }
+  document.getElementById('field-service-3-badge').value = serviceCards[2]?.badge || '';
+
+  document.getElementById('field-who-headline').value = who.headline || '';
+  document.getElementById('field-who-intro').value = who.intro || '';
+  for (let i = 0; i < 4; i += 1) {
+    const card = whoCards[i] || {};
+    document.getElementById(`field-focus-${i + 1}-title`).value = card.title || '';
+    document.getElementById(`field-focus-${i + 1}-body`).value = card.body || '';
+  }
+  document.getElementById('field-note-label').value = note.label || '';
+  document.getElementById('field-note-copy').value = note.copy || '';
+  document.getElementById('field-note-link-text').value = note.linkText || '';
+  document.getElementById('field-note-link-href').value = note.linkHref || '';
+
+  document.getElementById('field-process-headline').value = process.headline || '';
+  for (let i = 0; i < 3; i += 1) {
+    const step = steps[i] || {};
+    document.getElementById(`field-process-${i + 1}-title`).value = step.title || '';
+    document.getElementById(`field-process-${i + 1}-time`).value = step.time || '';
+    document.getElementById(`field-process-${i + 1}-body`).value = step.body || '';
+  }
+
+  document.getElementById('field-about-headline').value = about.headline || '';
+  document.getElementById('field-about-p1').value = about.paragraphs?.[0] || '';
+  document.getElementById('field-about-p2').value = about.paragraphs?.[1] || '';
+  document.getElementById('field-about-chips').value = listToTextarea(about.chips);
+
+  document.getElementById('field-partners-headline').value = partners.headline || '';
+  document.getElementById('field-partners-body').value = partners.body || '';
+  document.getElementById('field-partners-chips').value = listToTextarea(partners.chips);
+  document.getElementById('field-partners-cta-text').value = partners.ctaText || '';
+  document.getElementById('field-partners-cta-href').value = partners.ctaHref || '';
+
+  document.getElementById('field-contact-headline').value = contact.headline || '';
+  document.getElementById('field-contact-body').value = contact.body || '';
+  document.getElementById('field-contact-trust').value = listToTextarea(contact.trustSignals);
+  document.getElementById('field-contact-cta-text').value = contact.ctaText || '';
+  document.getElementById('field-contact-meta').value = contact.meta || '';
+}
+
+function buildSiteContentFromForm() {
+  const existing = cloneContentData();
+
+  existing.settings = {
+    ...existing.settings,
+    calendlyUrl: document.getElementById('field-calendlyUrl').value.trim(),
+    email: document.getElementById('field-email').value.trim(),
+    domain: document.getElementById('field-domain').value.trim(),
+    location: document.getElementById('field-location').value.trim(),
+  };
+
+  existing.hero = {
+    ...existing.hero,
+    eyebrow: document.getElementById('field-hero-eyebrow').value.trim(),
+    headline: document.getElementById('field-hero-headline').value.trim(),
+    subheadline: document.getElementById('field-hero-subheadline').value.trim(),
+    guarantee: document.getElementById('field-hero-guarantee').value.trim(),
+    stats: textareaToList(document.getElementById('field-hero-stats').value).slice(0, 3),
+  };
+
+  existing.services = {
+    ...existing.services,
+    headline: document.getElementById('field-services-headline').value.trim(),
+    intro: document.getElementById('field-services-intro').value.trim(),
+    cards: [0, 1, 2, 3].map(index => ({
+      number: existing.services?.cards?.[index]?.number || String(index + 1).padStart(2, '0'),
+      title: document.getElementById(`field-service-${index + 1}-title`).value.trim(),
+      meta: document.getElementById(`field-service-${index + 1}-meta`).value.trim(),
+      body: document.getElementById(`field-service-${index + 1}-body`).value.trim(),
+      badge: index === 2 ? document.getElementById('field-service-3-badge').value.trim() : '',
+    })),
+  };
+
+  existing.whoWeServe = {
+    ...existing.whoWeServe,
+    headline: document.getElementById('field-who-headline').value.trim(),
+    intro: document.getElementById('field-who-intro').value.trim(),
+    cards: [0, 1, 2, 3].map(index => ({
+      ...existing.whoWeServe?.cards?.[index],
+      title: document.getElementById(`field-focus-${index + 1}-title`).value.trim(),
+      body: document.getElementById(`field-focus-${index + 1}-body`).value.trim(),
+    })),
+    note: {
+      ...existing.whoWeServe?.note,
+      label: document.getElementById('field-note-label').value.trim(),
+      copy: document.getElementById('field-note-copy').value.trim(),
+      linkText: document.getElementById('field-note-link-text').value.trim(),
+      linkHref: document.getElementById('field-note-link-href').value.trim(),
+    },
+  };
+
+  existing.process = {
+    ...existing.process,
+    headline: document.getElementById('field-process-headline').value.trim(),
+    steps: [0, 1, 2].map(index => ({
+      number: existing.process?.steps?.[index]?.number || String(index + 1),
+      title: document.getElementById(`field-process-${index + 1}-title`).value.trim(),
+      time: document.getElementById(`field-process-${index + 1}-time`).value.trim(),
+      body: document.getElementById(`field-process-${index + 1}-body`).value.trim(),
+    })),
+  };
+
+  existing.about = {
+    ...existing.about,
+    headline: document.getElementById('field-about-headline').value.trim(),
+    paragraphs: [
+      document.getElementById('field-about-p1').value.trim(),
+      document.getElementById('field-about-p2').value.trim(),
+    ],
+    chips: textareaToList(document.getElementById('field-about-chips').value).slice(0, 6),
+    imageUrl: document.getElementById('field-about-image-url').value.trim(),
+    imageAlt: document.getElementById('field-about-image-alt').value.trim(),
+  };
+
+  existing.partners = {
+    ...existing.partners,
+    headline: document.getElementById('field-partners-headline').value.trim(),
+    body: document.getElementById('field-partners-body').value.trim(),
+    chips: textareaToList(document.getElementById('field-partners-chips').value).slice(0, 6),
+    ctaText: document.getElementById('field-partners-cta-text').value.trim(),
+    ctaHref: document.getElementById('field-partners-cta-href').value.trim(),
+  };
+
+  existing.contact = {
+    ...existing.contact,
+    headline: document.getElementById('field-contact-headline').value.trim(),
+    body: document.getElementById('field-contact-body').value.trim(),
+    trustSignals: textareaToList(document.getElementById('field-contact-trust').value).slice(0, 3),
+    ctaText: document.getElementById('field-contact-cta-text').value.trim(),
+    meta: document.getElementById('field-contact-meta').value.trim(),
+  };
+
+  return existing;
+}
+
+async function saveSiteContent() {
+  const token = document.getElementById('gh-token').value.trim();
+  if (!token) {
+    setEditorStatus('Add a GitHub token first so the editor can save to your repo.', 'error');
+    return;
+  }
+
+  sessionStorage.setItem('sidecar_github_token', token);
+  const contentData = buildSiteContentFromForm();
+  const jsContent = `window.SIDECAR_SITE_CONTENT = ${JSON.stringify(contentData, null, 2)};\n`;
+  const apiUrl = `https://api.github.com/repos/${CONTENT_REPO_OWNER}/${CONTENT_REPO_NAME}/contents/${CONTENT_PATH}`;
+
+  setEditorStatus('Saving content to GitHub...', '');
+
+  try {
+    const getResponse = await fetch(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+      },
+    });
+
+    if (!getResponse.ok) {
+      throw new Error(`Could not read the content file (${getResponse.status}).`);
+    }
+
+    const currentFile = await getResponse.json();
+    const putResponse = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: 'Update site content from internal editor',
+        content: btoa(unescape(encodeURIComponent(jsContent))),
+        sha: currentFile.sha,
+        branch: CONTENT_BRANCH,
+      }),
+    });
+
+    if (!putResponse.ok) {
+      const errorBody = await putResponse.json().catch(() => ({}));
+      throw new Error(errorBody.message || `GitHub save failed (${putResponse.status}).`);
+    }
+
+    window.SIDECAR_SITE_CONTENT = contentData;
+    setEditorStatus('Saved to GitHub. Vercel should redeploy in the next minute or two.', 'success');
+  } catch (error) {
+    setEditorStatus(error.message || 'Something went wrong while saving.', 'error');
+  }
 }
 
 // ── CALCULATOR ─────────────────────────────────────
