@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /preview/
+Disallow: /internal/
+Disallow: /coming-soon.html
+
+Sitemap: https://www.sidecaradvisory.com/sitemap.xml

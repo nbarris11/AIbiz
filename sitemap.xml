@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Update /preview/ URLs to final production URLs when the main site launches. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.sidecaradvisory.com/preview/</loc>
+    <lastmod>2026-04-06</lastmod>
+  </url>
+  <url>
+    <loc>https://www.sidecaradvisory.com/preview/contact.html</loc>
+    <lastmod>2026-04-06</lastmod>
+  </url>
+  <url>
+    <loc>https://www.sidecaradvisory.com/preview/blog.html</loc>
+    <lastmod>2026-04-06</lastmod>
+  </url>
+  <url>
+    <loc>https://www.sidecaradvisory.com/preview/ai-for-insurance-agencies-guide.html</loc>
+    <lastmod>2026-04-06</lastmod>
+  </url>
+  <url>
+    <loc>https://www.sidecaradvisory.com/preview/ai-for-law-firms-guide.html</loc>
+    <lastmod>2026-04-06</lastmod>
+  </url>
+  <url>
+    <loc>https://www.sidecaradvisory.com/preview/privacy.html</loc>
+    <lastmod>2026-04-06</lastmod>
+  </url>
+  <url>
+    <loc>https://www.sidecaradvisory.com/preview/terms.html</loc>
+    <lastmod>2026-04-06</lastmod>
+  </url>
+</urlset>

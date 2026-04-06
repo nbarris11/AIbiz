@@ -666,6 +666,14 @@ p {
   text-align: center;
 }
 
+.focus-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 18px;
+  margin-top: 24px;
+}
+
 .focus-note-label {
   margin-bottom: 12px;
   color: var(--tan);
@@ -1130,6 +1138,20 @@ p {
 
 .footer-links a:hover,
 .footer-links a:focus-visible {
+  color: var(--parchment);
+}
+
+.footer-detail {
+  color: var(--tan);
+  line-height: 1.6;
+}
+
+.footer-detail a {
+  color: var(--tan);
+}
+
+.footer-detail a:hover,
+.footer-detail a:focus-visible {
   color: var(--parchment);
 }
 

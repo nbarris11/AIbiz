@@ -7,6 +7,7 @@ window.SIDECAR_SITE_CONTENT = {
     email: "hello@sidecaradvisory.com",
     domain: "sidecaradvisory.com",
     location: "Metro Detroit, MI",
+    serviceArea: "Serving small businesses across Metro Detroit, Michigan.",
   },
   hero: {
     eyebrow: "AI ADVISORY FOR SMALL BUSINESS",
@@ -180,7 +181,7 @@ window.SIDECAR_SITE_CONTENT = {
       "Based in Metro Detroit",
     ],
     imageUrl: "",
-    imageAlt: "Sidecar Advisory founder portrait",
+    imageAlt: "Founder portrait of Sidecar Advisory",
   },
   partners: {
     eyebrow: "FOR PROFESSIONALS",

@@ -2,6 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "routes": [
     {
+      "src": "^/robots\\.txt$",
+      "dest": "/robots.txt"
+    },
+    {
+      "src": "^/sitemap\\.xml$",
+      "dest": "/sitemap.xml"
+    },
+    {
       "src": "^/preview$",
       "status": 308,
       "headers": {
