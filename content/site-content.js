@@ -3,6 +3,7 @@ window.SIDECAR_SITE_CONTENT = {
     calendlyUrl: "https://calendly.com/sidecaradvisory/30min",
     bookingAnchor: "#schedule",
     bookingPageUrl: "index.html#schedule",
+    contactPageUrl: "contact.html",
     email: "hello@sidecaradvisory.com",
     domain: "sidecaradvisory.com",
     location: "Metro Detroit, MI",

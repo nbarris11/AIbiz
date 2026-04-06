@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact | Sidecar Advisory</title>
+    <meta
+      name="description"
+      content="Contact Sidecar Advisory for general questions, partnerships, referrals, media inquiries, or anything that is not a Clarity Session."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,600&family=Epilogue:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .contact-page-hero {
+        padding-top: 160px;
+        padding-bottom: 48px;
+      }
+
+      .contact-page-grid {
+        display: grid;
+        gap: 28px;
+      }
+
+      .contact-info-card,
+      .contact-form-card {
+        background: rgba(255, 255, 255, 0.62);
+        border: 1px solid rgba(156, 139, 110, 0.22);
+        border-radius: 28px;
+        box-shadow: var(--card-shadow);
+        padding: 28px;
+      }
+
+      .contact-page-copy {
+        max-width: 720px;
+        margin-bottom: 16px;
+      }
+
+      .contact-page-copy h1 {
+        max-width: 12ch;
+      }
+
+      .contact-page-copy p {
+        font-size: 1.04rem;
+        line-height: 1.75;
+      }
+
+      .contact-info-stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .contact-info-label {
+        color: var(--tan);
+        font-size: 0.76rem;
+        font-weight: 500;
+        letter-spacing: 0.28em;
+        margin-bottom: 8px;
+      }
+
+      .contact-info-card h2,
+      .contact-form-card h2 {
+        margin-bottom: 12px;
+      }
+
+      .contact-info-card p,
+      .contact-form-card p {
+        margin-bottom: 0;
+      }
+
+      .contact-email-link {
+        color: var(--forest);
+        font-size: 1.05rem;
+        font-weight: 500;
+      }
+
+      .contact-email-link:hover,
+      .contact-email-link:focus-visible {
+        color: var(--saddle);
+      }
+
+      .contact-bullet-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .contact-bullet-list p {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        color: var(--tan-dark);
+      }
+
+      .contact-bullet-list .checkmark {
+        margin-top: 2px;
+      }
+
+      .contact-secondary-cta {
+        display: grid;
+        gap: 14px;
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid rgba(156, 139, 110, 0.22);
+      }
+
+      .contact-secondary-cta p {
+        color: var(--tan-dark);
+      }
+
+      .contact-form {
+        display: grid;
+        gap: 18px;
+        margin-top: 22px;
+      }
+
+      .contact-form-row {
+        display: grid;
+        gap: 18px;
+      }
+
+      .contact-field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .contact-field label {
+        color: var(--saddle);
+        font-size: 0.92rem;
+        font-weight: 500;
+      }
+
+      .contact-field input,
+      .contact-field select,
+      .contact-field textarea {
+        width: 100%;
+        border: 1px solid rgba(156, 139, 110, 0.4);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.78);
+        color: var(--saddle);
+        font: inherit;
+        padding: 14px 16px;
+      }
+
+      .contact-field textarea {
+        min-height: 180px;
+        resize: vertical;
+      }
+
+      .contact-field input:focus,
+      .contact-field select:focus,
+      .contact-field textarea:focus {
+        outline: 2px solid rgba(61, 107, 94, 0.22);
+        border-color: var(--forest);
+      }
+
+      .contact-form-note {
+        color: var(--tan);
+        font-size: 0.94rem;
+        line-height: 1.7;
+      }
+
+      .contact-form-status {
+        min-height: 1.5em;
+        color: var(--forest);
+        font-size: 0.94rem;
+      }
+
+      .contact-page-footer {
+        padding-top: 18px;
+      }
+
+      @media (min-width: 820px) {
+        .contact-page-grid {
+          grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr);
+          align-items: start;
+        }
+
+        .contact-form-row {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header" id="top">
+      <div class="container nav-shell">
+        <a class="brand" href="index.html" aria-label="Sidecar Advisory home">
+          <svg class="brand-icon" viewBox="0 0 52 40" fill="none" aria-hidden="true">
+            <circle cx="12" cy="30" r="6.5" />
+            <circle cx="40" cy="30" r="6.5" />
+            <path d="M18.5 30H30.5C34 30 36.5 27.5 36.5 24V21.5C36.5 18.5 34.5 16 31.5 16H24.5L19 20.5H14" />
+            <path d="M26 10V24" stroke-dasharray="1 4" />
+          </svg>
+          <span class="brand-text">
+            <span class="brand-wordmark">Sidecar Advisory</span>
+            <span class="brand-tagline">
+              <span class="brand-rule" aria-hidden="true"></span>
+              <span>AI-POWERED BUSINESS GROWTH</span>
+              <span class="brand-rule" aria-hidden="true"></span>
+            </span>
+          </span>
+        </a>
+
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="primary-nav"
+          aria-label="Toggle navigation"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav class="site-nav" id="primary-nav" aria-label="Primary">
+          <a href="index.html#services">Services</a>
+          <a href="index.html#who-we-serve">Who We Serve</a>
+          <a href="index.html#process">How It Works</a>
+          <a href="index.html#about">About</a>
+          <a href="index.html#partners">Partners</a>
+          <a class="nav-active" href="contact.html" aria-current="page">Contact</a>
+          <a href="blog.html">Blog</a>
+          <a
+            class="button button-outline nav-cta"
+            href="index.html#schedule"
+            data-link-content="settings.bookingPageUrl"
+          >
+            Book a Free Clarity Session
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="section contact-page-hero">
+        <div class="container">
+          <div class="contact-page-copy reveal">
+            <p class="eyebrow">CONTACT</p>
+            <h1>Not ready for a Clarity Session? Send me a note.</h1>
+            <p>
+              Use this page for general questions, referral partnerships, speaking inquiries,
+              media requests, or anything else that does not need a booked working session.
+            </p>
+          </div>
+
+          <div class="contact-page-grid">
+            <aside class="contact-info-card reveal" aria-label="Contact details">
+              <div class="contact-info-stack">
+                <div>
+                  <p class="contact-info-label">EMAIL</p>
+                  <a
+                    class="contact-email-link"
+                    href="mailto:hello@sidecaradvisory.com"
+                    data-content="settings.email"
+                    data-content-attr-text="true"
+                  >
+                    hello@sidecaradvisory.com
+                  </a>
+                </div>
+
+                <div>
+                  <p class="contact-info-label">BEST FOR</p>
+                  <div class="contact-bullet-list">
+                    <p><span class="checkmark" aria-hidden="true"></span><span>General questions about Sidecar Advisory</span></p>
+                    <p><span class="checkmark" aria-hidden="true"></span><span>Referral partner and collaboration inquiries</span></p>
+                    <p><span class="checkmark" aria-hidden="true"></span><span>Speaking, media, and community opportunities</span></p>
+                    <p><span class="checkmark" aria-hidden="true"></span><span>Businesses that are still figuring out the right next step</span></p>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="contact-info-label">LOCATION</p>
+                  <p data-content="settings.location">Metro Detroit, MI</p>
+                </div>
+              </div>
+
+              <div class="contact-secondary-cta">
+                <p>Already know you want help identifying savings opportunities?</p>
+                <a
+                  class="button button-primary"
+                  href="index.html#schedule"
+                  data-link-content="settings.bookingPageUrl"
+                >
+                  Book a Free Clarity Session
+                </a>
+              </div>
+            </aside>
+
+            <section class="contact-form-card reveal" aria-labelledby="contact-form-title">
+              <p class="eyebrow">SEND A MESSAGE</p>
+              <h2 id="contact-form-title">Tell me what you’re looking for.</h2>
+              <p>
+                Fill this out and your email app will open with everything pre-filled. If you
+                prefer, you can always email me directly at
+                <a class="contact-email-link" href="mailto:hello@sidecaradvisory.com">hello@sidecaradvisory.com</a>.
+              </p>
+
+              <form class="contact-form" id="contact-form">
+                <div class="contact-form-row">
+                  <div class="contact-field">
+                    <label for="contact-name">Name</label>
+                    <input id="contact-name" name="name" type="text" autocomplete="name" required />
+                  </div>
+                  <div class="contact-field">
+                    <label for="contact-email">Email</label>
+                    <input id="contact-email" name="email" type="email" autocomplete="email" required />
+                  </div>
+                </div>
+
+                <div class="contact-form-row">
+                  <div class="contact-field">
+                    <label for="contact-company">Company</label>
+                    <input id="contact-company" name="company" type="text" autocomplete="organization" />
+                  </div>
+                  <div class="contact-field">
+                    <label for="contact-reason">Reason for reaching out</label>
+                    <select id="contact-reason" name="reason">
+                      <option value="General question">General question</option>
+                      <option value="Referral partnership">Referral partnership</option>
+                      <option value="Speaking or media request">Speaking or media request</option>
+                      <option value="Not sure yet">Not sure yet</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="contact-field">
+                  <label for="contact-message">Message</label>
+                  <textarea
+                    id="contact-message"
+                    name="message"
+                    placeholder="What can I help with?"
+                    required
+                  ></textarea>
+                </div>
+
+                <button class="button button-primary" type="submit">Open Email Draft</button>
+                <p class="contact-form-note">
+                  This keeps things simple for now while making sure your message still goes
+                  straight to my inbox.
+                </p>
+                <p class="contact-form-status" id="contact-form-status" aria-live="polite"></p>
+              </form>
+            </section>
+          </div>
+
+          <div class="footer-bar contact-page-footer">
+            <div class="footer-brand">
+              <svg class="footer-icon" viewBox="0 0 52 40" fill="none" aria-hidden="true">
+                <circle cx="12" cy="30" r="6.5" />
+                <circle cx="40" cy="30" r="6.5" />
+                <path d="M18.5 30H30.5C34 30 36.5 27.5 36.5 24V21.5C36.5 18.5 34.5 16 31.5 16H24.5L19 20.5H14" />
+                <path d="M26 10V24" stroke-dasharray="1 4" />
+              </svg>
+              <span>Sidecar Advisory</span>
+            </div>
+            <p>© 2026 Sidecar Advisory LLC. All rights reserved.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="content/site-content.js"></script>
+    <script src="script.js"></script>
+    <script>
+      const email = window.SIDECAR_SITE_CONTENT?.settings?.email || "hello@sidecaradvisory.com";
+      const contactForm = document.querySelector("#contact-form");
+      const contactStatus = document.querySelector("#contact-form-status");
+
+      document.querySelectorAll("[data-content='settings.email']").forEach((node) => {
+        node.textContent = email;
+        node.setAttribute("href", `mailto:${email}`);
+      });
+
+      if (contactForm) {
+        contactForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const formData = new FormData(contactForm);
+          const name = String(formData.get("name") || "").trim();
+          const senderEmail = String(formData.get("email") || "").trim();
+          const company = String(formData.get("company") || "").trim();
+          const reason = String(formData.get("reason") || "").trim();
+          const message = String(formData.get("message") || "").trim();
+
+          const subject = `${reason || "Contact inquiry"} from ${name || "Website visitor"}`;
+          const body = [
+            `Name: ${name}`,
+            `Email: ${senderEmail}`,
+            `Company: ${company || "N/A"}`,
+            `Reason: ${reason || "N/A"}`,
+            "",
+            "Message:",
+            message,
+          ].join("\n");
+
+          const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          window.location.href = mailtoUrl;
+
+          if (contactStatus) {
+            contactStatus.textContent = `If your email app did not open, email me directly at ${email}.`;
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
