@@ -2,7 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "routes": [
     {
-      "src": "^/preview/?$",
+      "src": "^/preview$",
+      "status": 308,
+      "headers": {
+        "Location": "/preview/"
+      }
+    },
+    {
+      "src": "^/preview/$",
       "dest": "/index.html"
     },
     {
