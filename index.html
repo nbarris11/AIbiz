@@ -72,7 +72,7 @@
         </button>
 
         <nav class="site-nav" id="primary-nav" aria-label="Primary">
-          <a href="#services">Services</a>
+          <a href="#services">Work With Us</a>
           <a href="#who-we-serve">Who We Serve</a>
           <a href="#process">How It Works</a>
           <a href="#about">About</a>
@@ -124,6 +124,10 @@
                 <span aria-hidden="true">→</span>
               </a>
             </div>
+            <p class="hero-path-note" data-content="hero.pathNote">
+              Start with a free Clarity Session, launch your first workflow with the Starter Pack,
+              and stay supported with the AI Co-Pilot if it makes sense.
+            </p>
             <p class="guarantee-badge" data-content="hero.guarantee">
               Founder-led implementation help for small teams that need practical workflow support.
             </p>
@@ -143,14 +147,116 @@
         </div>
       </section>
 
-      <section class="section section-services" id="services">
+      <section class="section section-path" id="services">
+        <div class="container">
+          <div class="section-head centered-head reveal">
+            <p class="eyebrow" data-content="offerPath.eyebrow">WORK WITH US</p>
+            <h2 data-content="offerPath.headline">A simple path to practical AI</h2>
+            <p class="section-subcopy" data-content="offerPath.intro">
+              Most clients start with a free Clarity Session, move into a focused Starter Pack, and
+              stay supported with ongoing monthly help as the business grows.
+            </p>
+            <p class="section-helper-copy" data-content="offerPath.helper">
+              Most clients begin with a Clarity Session.
+            </p>
+          </div>
+
+          <div class="path-grid">
+            <article class="path-card reveal">
+              <span class="path-label" data-content="offerPath.cards.0.label">Start Here</span>
+              <h3 data-content="offerPath.cards.0.title">Clarity Session</h3>
+              <p class="path-copy" data-content="offerPath.cards.0.body">
+                A free 45-minute working session to identify where workflow friction is slowing the
+                business down and what to fix first.
+              </p>
+              <ul class="path-detail-list" aria-label="Clarity Session details">
+                <li data-content="offerPath.cards.0.details.0">45 minutes</li>
+                <li data-content="offerPath.cards.0.details.1">Free</li>
+                <li data-content="offerPath.cards.0.details.2">
+                  Leaves you with a savings estimate, priority workflows, and a clear recommendation
+                </li>
+              </ul>
+              <a
+                class="button button-outline"
+                href="#schedule"
+                data-link-content="settings.bookingAnchor"
+                data-content="offerPath.cards.0.cta"
+                data-content-attr-text="true"
+              >
+                Book a Free Clarity Session
+              </a>
+            </article>
+
+            <article class="path-card path-card-featured reveal">
+              <span class="path-label path-label-featured" data-content="offerPath.cards.1.label"
+                >Most Popular</span
+              >
+              <h3 data-content="offerPath.cards.1.title">Starter Pack</h3>
+              <p class="path-copy" data-content="offerPath.cards.1.body">
+                A focused 30-day implementation to get your first practical workflow improvements
+                live without overcomplicating the business.
+              </p>
+              <ul class="path-detail-list" aria-label="Starter Pack details">
+                <li data-content="offerPath.cards.1.details.0">About 30 days</li>
+                <li data-content="offerPath.cards.1.details.1">$2,500-$3,500</li>
+                <li data-content="offerPath.cards.1.details.2">
+                  Best for 3-5 recurring admin bottlenecks
+                </li>
+                <li data-content="offerPath.cards.1.details.3">
+                  Outcome: core automations live, team trained, cleaner weekly workflow
+                </li>
+              </ul>
+              <a
+                class="button button-primary"
+                href="#core-offers"
+                data-content="offerPath.cards.1.cta"
+                data-content-attr-text="true"
+              >
+                See the Starter Pack
+              </a>
+            </article>
+
+            <article class="path-card reveal">
+              <span class="path-label" data-content="offerPath.cards.2.label">Ongoing Support</span>
+              <h3 data-content="offerPath.cards.2.title">AI Co-Pilot Retainer</h3>
+              <p class="path-copy" data-content="offerPath.cards.2.body">
+                Monthly support for businesses that want a steady implementation partner after
+                launch.
+              </p>
+              <ul class="path-detail-list" aria-label="AI Co-Pilot Retainer details">
+                <li data-content="offerPath.cards.2.details.0">Month-to-month</li>
+                <li data-content="offerPath.cards.2.details.1">
+                  $750 / $1,500 / $2,500 per month
+                </li>
+                <li data-content="offerPath.cards.2.details.2">
+                  Monitoring, tuning, fresh automations, and ongoing support
+                </li>
+              </ul>
+              <a
+                class="button button-outline"
+                href="contact.html"
+                data-link-content="settings.contactPageUrl"
+                data-content="offerPath.cards.2.cta"
+                data-content-attr-text="true"
+              >
+                Ask About Ongoing Support
+              </a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-services" id="core-offers">
         <div class="container">
           <div class="section-head centered-head reveal">
             <p class="eyebrow" data-content="services.eyebrow">WHAT WE DO</p>
-            <h2 data-content="services.headline">Six ways we ride with you.</h2>
+            <h2 data-content="services.headline">Three simple ways to work with Sidecar</h2>
             <p class="section-subcopy service-intro" data-content="services.intro">
-              Every engagement starts with a Clarity Session so you can see where the workflow
-              friction is, what to prioritize first, and what level of support makes sense.
+              Most businesses do not need a dozen AI services. They need a clear starting point, a
+              practical first implementation, and the right ongoing support if it makes sense.
+            </p>
+            <p class="section-helper-copy" data-content="services.helper">
+              The Starter Pack is the best first paid engagement for most small businesses.
             </p>
           </div>
 
@@ -159,11 +265,11 @@
               <span class="service-number" aria-hidden="true" data-content="services.cards.0.number"
                 >01</span
               >
-              <span class="popular-pill" data-content="services.cards.0.badge">Best Place to Start</span>
+              <span class="popular-pill" data-content="services.cards.0.badge">Start Here</span>
               <h3 data-content="services.cards.0.title">AI Clarity Session</h3>
               <p class="service-summary">
-                A practical review of where workflow friction, admin drag, and manual follow-up are
-                slowing the business down.
+                A practical review of your current workflows, where admin is piling up, and which
+                fixes are worth doing first.
               </p>
               <dl class="service-detail-list">
                 <div>
@@ -185,13 +291,16 @@
               </dl>
             </article>
 
-            <article class="service-card reveal">
+            <article class="service-card service-card-featured reveal">
               <span class="service-number" aria-hidden="true" data-content="services.cards.1.number"
                 >02</span
               >
-              <span class="popular-pill" data-content="services.cards.1.badge" hidden></span>
+              <span class="popular-pill" data-content="services.cards.1.badge">Most Popular</span>
               <h3 data-content="services.cards.1.title">AI Starter Pack</h3>
-              <p class="service-summary">A first implementation built around the few workflows that matter most.</p>
+              <p class="service-summary">
+                A practical first implementation for small teams that need meaningful workflow wins
+                without overcomplicating the business.
+              </p>
               <dl class="service-detail-list">
                 <div>
                   <dt>Best for</dt>
@@ -212,12 +321,63 @@
               </dl>
             </article>
 
-            <article class="service-card reveal">
+            <article class="service-card service-card-retainer reveal">
               <span class="service-number" aria-hidden="true" data-content="services.cards.2.number"
                 >03</span
               >
-              <span class="popular-pill" data-content="services.cards.2.badge" hidden></span>
-              <h3 data-content="services.cards.2.title">Full Practice Automation</h3>
+              <span class="popular-pill" data-content="services.cards.2.badge">Ongoing Support</span>
+              <h3 data-content="services.cards.2.title">AI Co-Pilot Retainer</h3>
+              <p class="service-summary">
+                Stay supported after launch so your workflows keep getting better.
+              </p>
+              <dl class="service-detail-list">
+                <div>
+                  <dt>Best for</dt>
+                  <dd>Firms that want a steady implementation partner, not one project and done.</dd>
+                </div>
+                <div>
+                  <dt>Timeline</dt>
+                  <dd>Month-to-month support</dd>
+                </div>
+                <div>
+                  <dt>Pricing</dt>
+                  <dd>$750, $1,500, or $2,500 per month depending on support level.</dd>
+                </div>
+                <div>
+                  <dt>Outcome</dt>
+                  <dd>Monitoring, tuning, fresh automations, and an expert who stays in the loop.</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+          <p class="section-helper-copy services-helper-note" data-content="services.retainNote">
+            Ongoing support is available after launch through the AI Co-Pilot Retainer.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section-additional-services" id="additional-services">
+        <div class="container">
+          <div class="section-head centered-head reveal">
+            <p class="eyebrow" data-content="additionalServices.eyebrow">ADDITIONAL SERVICES</p>
+            <h2 data-content="additionalServices.headline">
+              Additional services for larger or specialized needs
+            </h2>
+            <p class="section-subcopy" data-content="additionalServices.intro">
+              For businesses with more advanced needs, Sidecar Advisory also offers broader
+              implementation, custom workflow builds, and team training.
+            </p>
+          </div>
+
+          <div class="services-grid services-grid-secondary">
+            <article class="service-card service-card-secondary reveal">
+              <span
+                class="service-number"
+                aria-hidden="true"
+                data-content="additionalServices.cards.0.number"
+                >04</span
+              >
+              <h3 data-content="additionalServices.cards.0.title">Full Practice Automation</h3>
               <p class="service-summary">A broader operational build for firms that want systems, not one-off fixes.</p>
               <dl class="service-detail-list">
                 <div>
@@ -239,12 +399,14 @@
               </dl>
             </article>
 
-            <article class="service-card reveal">
-              <span class="service-number" aria-hidden="true" data-content="services.cards.3.number"
-                >04</span
+            <article class="service-card service-card-secondary reveal">
+              <span
+                class="service-number"
+                aria-hidden="true"
+                data-content="additionalServices.cards.1.number"
+                >05</span
               >
-              <span class="popular-pill" data-content="services.cards.3.badge" hidden></span>
-              <h3 data-content="services.cards.3.title">Custom AI Integration</h3>
+              <h3 data-content="additionalServices.cards.1.title">Custom AI Integration</h3>
               <p class="service-summary">Custom work for firms with unique systems, data, or client-facing processes.</p>
               <dl class="service-detail-list">
                 <div>
@@ -266,39 +428,14 @@
               </dl>
             </article>
 
-            <article class="service-card service-card-retainer reveal">
-              <span class="service-number" aria-hidden="true" data-content="services.cards.4.number"
-                >05</span
-              >
-              <span class="popular-pill" data-content="services.cards.4.badge">Ongoing Support</span>
-              <h3 data-content="services.cards.4.title">AI Co-Pilot Retainer</h3>
-              <p class="service-summary">Stay supported after launch so your workflows keep getting better.</p>
-              <dl class="service-detail-list">
-                <div>
-                  <dt>Best for</dt>
-                  <dd>Firms that want a steady implementation partner, not one project and done.</dd>
-                </div>
-                <div>
-                  <dt>Timeline</dt>
-                  <dd>Month-to-month support</dd>
-                </div>
-                <div>
-                  <dt>Pricing</dt>
-                  <dd>$750, $1,500, or $2,500 per month depending on support level.</dd>
-                </div>
-                <div>
-                  <dt>Outcome</dt>
-                  <dd>Monitoring, tuning, fresh automations, and an expert who stays in the loop.</dd>
-                </div>
-              </dl>
-            </article>
-
-            <article class="service-card reveal">
-              <span class="service-number" aria-hidden="true" data-content="services.cards.5.number"
+            <article class="service-card service-card-secondary reveal">
+              <span
+                class="service-number"
+                aria-hidden="true"
+                data-content="additionalServices.cards.2.number"
                 >06</span
               >
-              <span class="popular-pill" data-content="services.cards.5.badge" hidden></span>
-              <h3 data-content="services.cards.5.title">Workshops & Training</h3>
+              <h3 data-content="additionalServices.cards.2.title">Workshops & Training</h3>
               <p class="service-summary">Hands-on training for teams that need practical AI fluency, not theory.</p>
               <dl class="service-detail-list">
                 <div>
@@ -603,13 +740,11 @@
               <div class="process-icon">
                 <span data-content="process.steps.1.number">2</span>
               </div>
-              <h3 data-content="process.steps.1.title">Implementation</h3>
-              <p class="process-time" data-content="process.steps.1.time">
-                Project-based · 30–90 days
-              </p>
+              <h3 data-content="process.steps.1.title">Launch a Starter Pack</h3>
+              <p class="process-time" data-content="process.steps.1.time">About 30 days</p>
               <p data-content="process.steps.1.body">
-                We set up the right tools, connect the workflow, and train the team so it gets used
-                in real day-to-day work.
+                We implement the highest-value workflow improvements first, get the tools working,
+                and train the team so the changes stick.
               </p>
             </article>
 
@@ -617,11 +752,11 @@
               <div class="process-icon">
                 <span data-content="process.steps.2.number">3</span>
               </div>
-              <h3 data-content="process.steps.2.title">AI Co-Pilot</h3>
+              <h3 data-content="process.steps.2.title">Continue with AI Co-Pilot</h3>
               <p class="process-time" data-content="process.steps.2.time">Ongoing</p>
               <p data-content="process.steps.2.body">
-                We stay close after launch, monitor what is working, and keep improving the process
-                as your business changes.
+                After launch, we stay close, improve what is working, and help you keep building
+                without adding internal overhead.
               </p>
             </article>
           </div>
@@ -723,8 +858,9 @@
             <p class="eyebrow">READY TO TALK IT THROUGH?</p>
             <h2 data-content="contact.headline">Ready to ride?</h2>
             <p class="closing-cta-copy">
-              Book a free 45-minute Clarity Session to see which workflows are worth improving
-              first. If you are not sure yet, use the contact page and send a note.
+              Book a free 45-minute Clarity Session to see what is worth improving first. Most
+              clients start there, move into a focused Starter Pack, and continue with ongoing
+              support only if it makes sense.
             </p>
             <div class="closing-cta-actions">
               <a

@@ -14,6 +14,8 @@ window.SIDECAR_SITE_CONTENT = {
     headline: "Practical AI implementation for Metro Detroit service businesses.",
     subheadline:
       "Sidecar Advisory helps small professional service firms improve the workflows that usually get stuck first: client follow-up, intake and scheduling, admin work, reporting, document handling, and internal team communication.",
+    pathNote:
+      "Start with a free Clarity Session, launch your first workflow with the Starter Pack, and stay supported with the AI Co-Pilot if it makes sense.",
     guarantee:
       "Founder-led implementation help for small teams that need practical workflow support.",
     stats: [
@@ -23,11 +25,61 @@ window.SIDECAR_SITE_CONTENT = {
       "Metro Detroit based and founder-led",
     ],
   },
+  offerPath: {
+    eyebrow: "WORK WITH US",
+    headline: "A simple path to practical AI",
+    intro:
+      "Most clients start with a free Clarity Session, move into a focused Starter Pack, and stay supported with ongoing monthly help as the business grows.",
+    helper: "Most clients begin with a Clarity Session.",
+    cards: [
+      {
+        label: "Start Here",
+        title: "Clarity Session",
+        body:
+          "A free 45-minute working session to identify where workflow friction is slowing the business down and what to fix first.",
+        details: [
+          "45 minutes",
+          "Free",
+          "Leaves you with a savings estimate, priority workflows, and a clear recommendation",
+        ],
+        cta: "Book a Free Clarity Session",
+      },
+      {
+        label: "Most Popular",
+        title: "Starter Pack",
+        body:
+          "A focused 30-day implementation to get your first practical workflow improvements live without overcomplicating the business.",
+        details: [
+          "About 30 days",
+          "$2,500-$3,500",
+          "Best for 3-5 recurring admin bottlenecks",
+          "Outcome: core automations live, team trained, cleaner weekly workflow",
+        ],
+        cta: "See the Starter Pack",
+      },
+      {
+        label: "Ongoing Support",
+        title: "AI Co-Pilot Retainer",
+        body:
+          "Monthly support for businesses that want a steady implementation partner after launch.",
+        details: [
+          "Month-to-month",
+          "$750 / $1,500 / $2,500 per month",
+          "Monitoring, tuning, fresh automations, and ongoing support",
+        ],
+        cta: "Ask About Ongoing Support",
+      },
+    ],
+  },
   services: {
     eyebrow: "WHAT WE DO",
-    headline: "Six ways we ride with you.",
+    headline: "Three simple ways to work with Sidecar",
     intro:
-      "Every engagement starts with a Clarity Session so you can see where the workflow friction is, what to prioritize first, and what level of support makes sense.",
+      "Most businesses do not need a dozen AI services. They need a clear starting point, a practical first implementation, and the right ongoing support if it makes sense.",
+    helper:
+      "The Starter Pack is the best first paid engagement for most small businesses.",
+    retainNote:
+      "Ongoing support is available after launch through the AI Co-Pilot Retainer.",
     cards: [
       {
         number: "01",
@@ -35,7 +87,7 @@ window.SIDECAR_SITE_CONTENT = {
         meta: "Free · 45 min",
         body:
           "A practical review of your current workflows, where admin is piling up, and which fixes are worth doing first. You leave with priority opportunities, a clear next-step plan, and a documented savings estimate.",
-        badge: "",
+        badge: "Start Here",
       },
       {
         number: "02",
@@ -43,39 +95,35 @@ window.SIDECAR_SITE_CONTENT = {
         meta: "$2,500–$3,500 · 3–5 core automations · 30 days",
         body:
           "A practical first implementation for small teams. We prioritize the highest-impact workflows, build the core automations, and get your team using them quickly.",
-        badge: "",
+        badge: "Most Popular",
       },
       {
         number: "03",
-        title: "Full Practice Automation",
-        meta: "$5,000–$9,000 · 8–12 workflows · 60–90 days",
-        body:
-          "A deeper transformation for firms ready to redesign how work gets done. We map the workflows, build the systems, train the team, and drive adoption across the business.",
-        badge: "",
-      },
-      {
-        number: "04",
-        title: "Custom AI Integration",
-        meta: "$10,000+ · Complex or bespoke builds · 90+ days",
-        body:
-          "For firms with specialized systems, data flows, or client experiences that need something beyond off-the-shelf automation. We design and implement the right custom solution.",
-        badge: "",
-      },
-      {
-        number: "05",
         title: "AI Co-Pilot Retainer",
         meta: "Essentials $750/mo · Growth $1,500/mo · Partner $2,500/mo",
         body:
           "Ongoing support once the foundation is in place. Essentials includes 2 hours of support, monthly check-ins, and tool monitoring. Growth adds 5 hours, bi-weekly calls, and one new automation each month. Partner includes 10 hours, weekly calls, and priority response.",
-        badge: "Most Popular",
+        badge: "Ongoing Support",
+      },
+    ],
+  },
+  additionalServices: {
+    eyebrow: "ADDITIONAL SERVICES",
+    headline: "Additional services for larger or specialized needs",
+    intro:
+      "For businesses with more advanced needs, Sidecar Advisory also offers broader implementation, custom workflow builds, and team training.",
+    cards: [
+      {
+        number: "04",
+        title: "Full Practice Automation",
+      },
+      {
+        number: "05",
+        title: "Custom AI Integration",
       },
       {
         number: "06",
         title: "Workshops & Training",
-        meta: "$75–$150/person · Group",
-        body:
-          "Half-day hands-on workshops for teams, chambers, and industry groups. Walk away with tools you can use the same day.",
-        badge: "",
       },
     ],
   },
@@ -154,17 +202,17 @@ window.SIDECAR_SITE_CONTENT = {
       },
       {
         number: "2",
-        title: "Implementation",
-        time: "Project-based · 30–90 days",
+        title: "Launch a Starter Pack",
+        time: "About 30 days",
         body:
-          "We build, configure, and train your team on the AI tools that will deliver those savings. Most projects take 30–90 days.",
+          "We implement the highest-value workflow improvements first, get the tools working, and train the team so the changes stick.",
       },
       {
         number: "3",
-        title: "AI Co-Pilot",
+        title: "Continue with AI Co-Pilot",
         time: "Ongoing",
         body:
-          "We stay in your corner — monitoring performance, adding new automations, and keeping you ahead of the curve.",
+          "After launch, we stay close, improve what is working, and help you keep building without adding internal overhead.",
       },
     ],
   },
