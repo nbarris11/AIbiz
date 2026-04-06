@@ -10,7 +10,7 @@
       "dest": "/$1"
     },
     {
-      "src": "^/(?!internal(?:/.*)?$)(?!preview(?:/.*)?$)(?!coming-soon\\.html$).*",
+      "src": "^/(?!internal(?:/.*)?$)(?!preview(?:/.*)?$)(?!content(?:/.*)?$)(?!coming-soon\\.html$).*",
       "dest": "/coming-soon.html"
     }
   ]
