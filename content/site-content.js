@@ -71,42 +71,6 @@ window.SIDECAR_SITE_CONTENT = {
       },
     ],
   },
-  services: {
-    eyebrow: "WHAT WE DO",
-    headline: "Three simple ways to work with Sidecar",
-    intro:
-      "Most businesses do not need a dozen AI services. They need a clear starting point, a practical first implementation, and the right ongoing support if it makes sense.",
-    helper:
-      "The Starter Pack is the best first paid engagement for most small businesses.",
-    retainNote:
-      "Ongoing support is available after launch through the AI Co-Pilot Retainer.",
-    cards: [
-      {
-        number: "01",
-        title: "AI Clarity Session",
-        meta: "Free · 45 min",
-        body:
-          "A practical review of your current workflows, where admin is piling up, and which fixes are worth doing first. You leave with priority opportunities, a clear next-step plan, and a documented savings estimate.",
-        badge: "Start Here",
-      },
-      {
-        number: "02",
-        title: "AI Starter Pack",
-        meta: "$2,500–$3,500 · 3–5 core automations · 30 days",
-        body:
-          "A practical first implementation for small teams. We prioritize the highest-impact workflows, build the core automations, and get your team using them quickly.",
-        badge: "Most Popular",
-      },
-      {
-        number: "03",
-        title: "AI Co-Pilot Retainer",
-        meta: "Essentials $750/mo · Growth $1,500/mo · Partner $2,500/mo",
-        body:
-          "Ongoing support once the foundation is in place. Essentials includes 2 hours of support, monthly check-ins, and tool monitoring. Growth adds 5 hours, bi-weekly calls, and one new automation each month. Partner includes 10 hours, weekly calls, and priority response.",
-        badge: "Ongoing Support",
-      },
-    ],
-  },
   additionalServices: {
     eyebrow: "ADDITIONAL SERVICES",
     headline: "Additional services for larger or specialized needs",
