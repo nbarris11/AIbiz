@@ -475,7 +475,15 @@
     Sidecar Advisory
     <span>AI-Powered Business Growth</span>
   </a>
-  <a href="index.html#contact" class="nav-cta">Book a Free Call</a>
+  <a
+    href="https://calendly.com/your-link"
+    class="nav-cta"
+    target="_blank"
+    rel="noreferrer"
+    data-calendly-link
+  >
+    Book a Free Clarity Session
+  </a>
 </nav>
 
 <header class="article-header">
@@ -717,8 +725,10 @@
 
   <div class="article-cta">
     <h3>Not sure where to start?</h3>
-    <p>Book a free 30-minute discovery call. We will look at your agency's specific workflows and tell you exactly where AI will make the biggest difference — no obligation, no pitch.</p>
-    <a href="index.html#contact">Book Your Free Call</a>
+    <p>Book a free 45-minute Clarity Session. We'll look at your agency's specific workflows, identify at least $5,000 in annual savings, and tell you exactly where AI can make the biggest difference — no risk, no obligation.</p>
+    <a href="https://calendly.com/your-link" target="_blank" rel="noreferrer" data-calendly-link>
+      Book a Free Clarity Session
+    </a>
   </div>
 
   <div class="author-bio">
@@ -759,6 +769,16 @@
   <p>sidecaradvisory.com &nbsp;·&nbsp; hello@sidecaradvisory.com &nbsp;·&nbsp; Metro Detroit, MI</p>
   <p style="margin-top: 12px;">&#169; 2026 Sidecar Advisory LLC. All rights reserved.</p>
 </footer>
+
+<script src="content/site-content.js"></script>
+<script>
+  const calendlyUrl = window.SIDECAR_SITE_CONTENT?.settings?.calendlyUrl;
+  if (calendlyUrl) {
+    document.querySelectorAll("[data-calendly-link]").forEach((link) => {
+      link.setAttribute("href", calendlyUrl);
+    });
+  }
+</script>
 
 </body>
 </html>

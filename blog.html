@@ -723,8 +723,14 @@
           <a href="index.html#partners">Partners</a>
           <a href="index.html#contact">Contact</a>
           <a class="nav-active" href="blog.html" aria-current="page">Blog</a>
-          <a class="button button-outline" href="https://calendly.com/your-link" target="_blank" rel="noreferrer">
-            Book a Free Call
+          <a
+            class="button button-outline"
+            href="https://calendly.com/your-link"
+            target="_blank"
+            rel="noreferrer"
+            data-calendly-link
+          >
+            Book a Free Clarity Session
           </a>
         </nav>
       </div>
@@ -925,7 +931,8 @@
 
           <p class="signup-message" id="signup-message" aria-live="polite"></p>
           <p class="signup-reassurance">
-            Join 200+ Metro Detroit business owners. Unsubscribe anytime.
+            Join Metro Detroit business owners getting smarter about AI every week. Unsubscribe
+            anytime.
           </p>
         </div>
       </section>
@@ -946,7 +953,15 @@
       </div>
     </footer>
 
+    <script src="content/site-content.js"></script>
     <script>
+      const calendlyUrl = window.SIDECAR_SITE_CONTENT?.settings?.calendlyUrl;
+      if (calendlyUrl) {
+        document.querySelectorAll("[data-calendly-link]").forEach((link) => {
+          link.setAttribute("href", calendlyUrl);
+        });
+      }
+
       const header = document.querySelector(".site-header");
       const navToggle = document.querySelector(".nav-toggle");
       const primaryNav = document.querySelector("#blog-primary-nav");

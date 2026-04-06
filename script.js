@@ -61,9 +61,9 @@ function applySiteContent() {
     }
   }
 
-  const popularPill = document.querySelector(".popular-pill");
-  if (popularPill && !popularPill.textContent.trim()) {
-    popularPill.hidden = true;
+  const popularPills = document.querySelectorAll(".popular-pill");
+  for (const pill of popularPills) {
+    pill.hidden = !pill.textContent.trim();
   }
 }
 

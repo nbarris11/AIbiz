@@ -1,16 +1,17 @@
 window.SIDECAR_SITE_CONTENT = {
   settings: {
-    calendlyUrl: "https://calendly.com/your-link",
+    calendlyUrl: "https://calendly.com/sidecaradvisory/30min",
     email: "hello@sidecaradvisory.com",
     domain: "sidecaradvisory.com",
     location: "Metro Detroit, MI",
   },
   hero: {
     eyebrow: "AI ADVISORY FOR SMALL BUSINESS",
-    headline: "We ride alongside your business.",
+    headline: "AI That Actually Works for Your Business.",
     subheadline:
       "I help professional service firms in Metro Detroit get back 10+ hours a week by implementing AI that actually works — guaranteed.",
-    guarantee: "Clarity Session Guarantee — find $5K in savings or it's free",
+    guarantee:
+      "We'll identify at least $5,000 in annual savings — or the session is free. No risk. No obligation.",
     stats: [
       "82% of small businesses believe AI is essential to staying competitive",
       "The #1 barrier is skills — not budget",
@@ -19,36 +20,52 @@ window.SIDECAR_SITE_CONTENT = {
   },
   services: {
     eyebrow: "WHAT WE DO",
-    headline: "Four ways we ride with you.",
+    headline: "How we help you put AI to work.",
     intro:
-      "Every engagement starts with a Clarity Session — a structured 90-minute deep-dive into your business where we identify your top AI opportunities and deliver a written action plan. Most clients see a clear path to $5,000+ in annual savings before the session ends.",
+      "Every engagement starts with a Clarity Session — a 45-minute structured conversation where we identify at least $5,000 in annual savings for your business. If we can't find it, you don't pay.",
     cards: [
       {
         number: "01",
         title: "AI Clarity Session",
-        meta: "$300–$500 · One-time",
+        meta: "Free · 45 min",
         body:
-          "A 90-minute paid session where we audit your business, identify your top AI opportunities, and deliver a written action plan within 48 hours.",
+          "A focused working session where we dig into your business, identify at least $5,000 in annual savings, and show you where AI can create the fastest ROI. We'll identify at least $5,000 in annual savings — or the session is free. No risk. No obligation.",
         badge: "",
       },
       {
         number: "02",
-        title: "AI Implementation",
-        meta: "$1,500–$5,000 · Per project",
+        title: "AI Starter Pack",
+        meta: "$2,500–$3,500 · 3–5 core automations · 30 days",
         body:
-          "We set up and configure the right AI tools for your business — chatbots, automations, marketing AI, reporting — fully tested and ready to use.",
+          "A practical first implementation for small teams. We prioritize the highest-impact workflows, build the core automations, and get your team using them quickly.",
         badge: "",
       },
       {
         number: "03",
-        title: "Fractional AI Advisor",
-        meta: "$500–$1,500/month · Ongoing",
+        title: "Full Practice Automation",
+        meta: "$5,000–$9,000 · 8–12 workflows · 60–90 days",
         body:
-          "Your on-call AI partner. Monthly check-ins, proactive recommendations, staff training, and priority support as your business evolves.",
-        badge: "Most Popular",
+          "A deeper transformation for firms ready to redesign how work gets done. We map the workflows, build the systems, train the team, and drive adoption across the business.",
+        badge: "",
       },
       {
         number: "04",
+        title: "Custom AI Integration",
+        meta: "$10,000+ · Complex or bespoke builds · 90+ days",
+        body:
+          "For firms with specialized systems, data flows, or client experiences that need something beyond off-the-shelf automation. We design and implement the right custom solution.",
+        badge: "",
+      },
+      {
+        number: "05",
+        title: "AI Co-Pilot Retainer",
+        meta: "Essentials $750/mo · Growth $1,500/mo · Partner $2,500/mo",
+        body:
+          "Ongoing support once the foundation is in place. Essentials includes 2 hours of support, monthly check-ins, and tool monitoring. Growth adds 5 hours, bi-weekly calls, and one new automation each month. Partner includes 10 hours, weekly calls, and priority response.",
+        badge: "Most Popular",
+      },
+      {
+        number: "06",
         title: "Workshops & Training",
         meta: "$75–$150/person · Group",
         body:
@@ -56,6 +73,13 @@ window.SIDECAR_SITE_CONTENT = {
         badge: "",
       },
     ],
+  },
+  guarantee: {
+    eyebrow: "NO-RISK START",
+    headline: "The Guarantee",
+    body:
+      "Every engagement starts with a Clarity Session — a 45-minute conversation where we dig into your business and identify at least $5,000 in annual savings. If we can't find it, you don't pay. No risk. No obligation. We can make this guarantee because we've built a rigorous savings framework that targets the specific places small businesses lose time and money — manual admin, redundant software, outsourced tasks that AI can handle. We don't guess. We calculate.",
+    callout: "$5,000+ in annual savings — guaranteed, or the session is free.",
   },
   whoWeServe: {
     eyebrow: "OUR FOCUS",
@@ -92,30 +116,48 @@ window.SIDECAR_SITE_CONTENT = {
       linkHref: "mailto:hello@sidecaradvisory.com?subject=AI Inquiry",
     },
   },
+  results: {
+    eyebrow: "RESULTS",
+    headline: "Results",
+    cards: [
+      {
+        meta: "Insurance agency · Troy, MI",
+        body: "Cut renewal processing from 4 hours to 40 minutes.",
+      },
+      {
+        meta: "Law firm · Royal Oak, MI",
+        body: "Reduced client intake admin from 6 hours a week to under 90 minutes.",
+      },
+      {
+        meta: "Accounting firm · Rochester Hills, MI",
+        body: "Turned monthly reporting prep from a full day into a 2-hour review.",
+      },
+    ],
+  },
   process: {
     eyebrow: "THE PROCESS",
     headline: "Simple from day one.",
     steps: [
       {
         number: "1",
-        title: "Free Discovery Call",
-        time: "30 min",
+        title: "Book a Clarity Session",
+        time: "45 min · Free",
         body:
-          "We learn about your business, your challenges, and where AI could make the biggest difference.",
+          "We learn about your business and identify at least $5,000 in annual savings. If we can't find it, you pay nothing.",
       },
       {
         number: "2",
-        title: "AI Clarity Session",
-        time: "90 min",
+        title: "Implementation",
+        time: "Project-based · 30–90 days",
         body:
-          "A paid deep-dive into your operations. You leave with a clear, prioritized action plan — whether you work with us or not.",
+          "We build, configure, and train your team on the AI tools that will deliver those savings. Most projects take 30–90 days.",
       },
       {
         number: "3",
-        title: "Implementation & Support",
-        time: "Project-based",
+        title: "AI Co-Pilot",
+        time: "Ongoing",
         body:
-          "We build, configure, and train. Then we stay in your corner as your Fractional AI Advisor.",
+          "We stay in your corner — monitoring performance, adding new automations, and keeping you ahead of the curve.",
       },
     ],
   },
@@ -123,13 +165,13 @@ window.SIDECAR_SITE_CONTENT = {
     eyebrow: "ABOUT SIDECAR ADVISORY",
     headline: "A business partner, not a tech vendor.",
     paragraphs: [
-      "Sidecar Advisory was founded on a simple belief: small businesses deserve the same AI advantages as large corporations — delivered by someone who understands how businesses actually run, not just how the technology works.",
-      "We bring a business and operations background to every engagement. That means we speak your language, focus on outcomes over tools, and measure success the same way you do: in time saved, costs cut, and revenue grown.",
+      "I'm Neil Barris, founder of Sidecar Advisory. I'm rooted in Metro Detroit, and my background is in business and operations — the kind of work where you learn how teams really function, where margins disappear, and where time gets lost in the shuffle.",
+      "I started Sidecar Advisory because small businesses deserve practical AI help from someone who understands the business side first. I'm a business person who uses AI — not a tech person who consults on business. That means every recommendation starts with workflow, client experience, and real savings, not shiny tools.",
     ],
     chips: [
+      "Neil Barris, Founder",
+      "Metro Detroit Roots",
       "Business & Operations Background",
-      "Metro Detroit Based",
-      "Outcome-Focused",
     ],
     imageUrl: "",
     imageAlt: "Sidecar Advisory founder portrait",
@@ -150,13 +192,13 @@ window.SIDECAR_SITE_CONTENT = {
   contact: {
     headline: "Ready to ride?",
     body:
-      "Book a free 30-minute discovery call. No pressure, no pitch — just an honest conversation about your business and where AI might genuinely help.",
+      "Book a free 45-minute Clarity Session. We'll identify at least $5,000 in annual savings — or the session is free. No risk. No obligation.",
     trustSignals: [
-      "Free 30-min call",
-      "No obligation",
-      "Clarity Session guarantee",
+      "Free 45-minute Clarity Session",
+      "$5,000+ in annual savings identified or you don't pay",
+      "No risk. No obligation.",
     ],
-    ctaText: "Book Your Free Call",
+    ctaText: "Book a Free Clarity Session",
     meta: "hello@sidecaradvisory.com · sidecaradvisory.com · Metro Detroit, MI",
   },
 };

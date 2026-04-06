@@ -615,7 +615,6 @@ textarea { resize: vertical; min-height: 80px; }
           <div class="editor-repeat">
             <div class="editor-subtitle">Service Card 3</div>
             <div class="form-grid">
-              <div class="form-group"><label class="form-label" for="field-service-3-badge">Badge</label><input type="text" id="field-service-3-badge"></div>
               <div class="form-group"><label class="form-label" for="field-service-3-title">Title</label><input type="text" id="field-service-3-title"></div>
               <div class="form-group"><label class="form-label" for="field-service-3-meta">Price Line</label><input type="text" id="field-service-3-meta"></div>
               <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-service-3-body">Body</label><textarea id="field-service-3-body"></textarea></div>
@@ -628,6 +627,25 @@ textarea { resize: vertical; min-height: 80px; }
               <div class="form-group"><label class="form-label" for="field-service-4-title">Title</label><input type="text" id="field-service-4-title"></div>
               <div class="form-group"><label class="form-label" for="field-service-4-meta">Price Line</label><input type="text" id="field-service-4-meta"></div>
               <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-service-4-body">Body</label><textarea id="field-service-4-body"></textarea></div>
+            </div>
+          </div>
+
+          <div class="editor-repeat">
+            <div class="editor-subtitle">Service Card 5</div>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="field-service-5-badge">Badge</label><input type="text" id="field-service-5-badge"></div>
+              <div class="form-group"><label class="form-label" for="field-service-5-title">Title</label><input type="text" id="field-service-5-title"></div>
+              <div class="form-group"><label class="form-label" for="field-service-5-meta">Price Line</label><input type="text" id="field-service-5-meta"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-service-5-body">Body</label><textarea id="field-service-5-body"></textarea></div>
+            </div>
+          </div>
+
+          <div class="editor-repeat">
+            <div class="editor-subtitle">Service Card 6</div>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="field-service-6-title">Title</label><input type="text" id="field-service-6-title"></div>
+              <div class="form-group"><label class="form-label" for="field-service-6-meta">Price Line</label><input type="text" id="field-service-6-meta"></div>
+              <div class="form-group" style="grid-column:1 / -1;"><label class="form-label" for="field-service-6-body">Body</label><textarea id="field-service-6-body"></textarea></div>
             </div>
           </div>
         </div>
@@ -986,13 +1004,13 @@ function renderSiteEditor() {
 
   document.getElementById('field-services-headline').value = services.headline || '';
   document.getElementById('field-services-intro').value = services.intro || '';
-  for (let i = 0; i < 4; i += 1) {
+  for (let i = 0; i < 6; i += 1) {
     const card = serviceCards[i] || {};
     document.getElementById(`field-service-${i + 1}-title`).value = card.title || '';
     document.getElementById(`field-service-${i + 1}-meta`).value = card.meta || '';
     document.getElementById(`field-service-${i + 1}-body`).value = card.body || '';
   }
-  document.getElementById('field-service-3-badge').value = serviceCards[2]?.badge || '';
+  document.getElementById('field-service-5-badge').value = serviceCards[4]?.badge || '';
 
   document.getElementById('field-who-headline').value = who.headline || '';
   document.getElementById('field-who-intro').value = who.intro || '';
@@ -1056,12 +1074,12 @@ function buildSiteContentFromForm() {
     ...existing.services,
     headline: document.getElementById('field-services-headline').value.trim(),
     intro: document.getElementById('field-services-intro').value.trim(),
-    cards: [0, 1, 2, 3].map(index => ({
+    cards: [0, 1, 2, 3, 4, 5].map(index => ({
       number: existing.services?.cards?.[index]?.number || String(index + 1).padStart(2, '0'),
       title: document.getElementById(`field-service-${index + 1}-title`).value.trim(),
       meta: document.getElementById(`field-service-${index + 1}-meta`).value.trim(),
       body: document.getElementById(`field-service-${index + 1}-body`).value.trim(),
-      badge: index === 2 ? document.getElementById('field-service-3-badge').value.trim() : '',
+      badge: index === 4 ? document.getElementById('field-service-5-badge').value.trim() : '',
     })),
   };
 
