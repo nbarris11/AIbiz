@@ -2,7 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "routes": [
     {
-      "src": "^/(?!internal(?:/.*)?$)(?!coming-soon\\.html$).*",
+      "src": "^/preview/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/preview/(.*)$",
+      "dest": "/$1"
+    },
+    {
+      "src": "^/(?!internal(?:/.*)?$)(?!preview(?:/.*)?$)(?!coming-soon\\.html$).*",
       "dest": "/coming-soon.html"
     }
   ]
