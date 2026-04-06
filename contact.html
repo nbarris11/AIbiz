@@ -317,6 +317,7 @@
                 always email me directly at
                 <a class="contact-email-link" href="mailto:hello@sidecaradvisory.com">hello@sidecaradvisory.com</a>.
               </p>
+              <p class="contact-form-note">Messages are sent through a hosted contact form and routed directly to Sidecar Advisory.</p>
               <p class="contact-form-note">You'll hear back within 1 business day.</p>
 
               <form class="contact-form" id="contact-form" novalidate>
@@ -364,9 +365,16 @@
                     required
                   ></textarea>
                 </div>
+                <input
+                  type="hidden"
+                  name="_subject"
+                  value="New Sidecar Advisory contact form submission"
+                />
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_template" value="table" />
                 <input type="text" name="_honey" tabindex="-1" autocomplete="off" hidden />
 
-                <button class="button button-primary" type="submit">Send Message</button>
+                <button class="button button-primary" type="submit" id="contact-submit-button">Send Message</button>
                 <p class="contact-form-status" id="contact-form-status" aria-live="polite"></p>
               </form>
 
@@ -405,6 +413,7 @@
       const contactForm = document.querySelector("#contact-form");
       const contactStatus = document.querySelector("#contact-form-status");
       const contactSuccessCard = document.querySelector("#contact-success-card");
+      const contactSubmitButton = document.querySelector("#contact-submit-button");
 
       document.querySelectorAll("[data-content='settings.email']").forEach((node) => {
         node.textContent = email;
@@ -418,6 +427,9 @@
           const formData = new FormData(contactForm);
           const name = String(formData.get("name") || "").trim();
           const senderEmail = String(formData.get("email") || "").trim();
+          const company = String(formData.get("company") || "").trim();
+          const businessType = String(formData.get("business_type") || "").trim();
+          const reason = String(formData.get("reason") || "").trim();
           const message = String(formData.get("message") || "").trim();
           const honey = String(formData.get("_honey") || "").trim();
 
@@ -427,18 +439,60 @@
             return;
           }
 
+          if (contactSubmitButton) {
+            contactSubmitButton.disabled = true;
+            contactSubmitButton.textContent = "Sending...";
+          }
+
           contactStatus.textContent = "Submitting...";
           contactStatus.classList.remove("is-error");
 
-          // TODO: Replace this placeholder success flow with a real form endpoint when backend handling is ready.
-          window.setTimeout(() => {
-            contactForm.reset();
-            contactForm.hidden = true;
-            if (contactSuccessCard) {
-              contactSuccessCard.classList.add("is-visible");
-            }
-            contactStatus.textContent = "";
-          }, 500);
+          const payload = {
+            name,
+            email: senderEmail,
+            company,
+            business_type: businessType,
+            reason,
+            message,
+            _subject: "New Sidecar Advisory contact form submission",
+            _captcha: "false",
+            _template: "table",
+            source_page: `${window.location.origin}${window.location.pathname}`,
+          };
+
+          fetch(`https://formsubmit.co/ajax/${encodeURIComponent(email)}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(payload),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Submission failed");
+              }
+
+              return response.json();
+            })
+            .then(() => {
+              contactForm.reset();
+              contactForm.hidden = true;
+              if (contactSuccessCard) {
+                contactSuccessCard.classList.add("is-visible");
+              }
+              contactStatus.textContent = "";
+            })
+            .catch(() => {
+              contactStatus.textContent = `Something went wrong. Please try again or email ${email} directly.`;
+              contactStatus.classList.add("is-error");
+            })
+            .finally(() => {
+              if (contactSubmitButton) {
+                contactSubmitButton.disabled = false;
+                contactSubmitButton.textContent = "Send Message";
+              }
+            });
         });
       }
     </script>
