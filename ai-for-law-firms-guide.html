@@ -440,10 +440,10 @@
 
 <script src="content/site-content.js"></script>
 <script>
-  const calendlyUrl = window.SIDECAR_SITE_CONTENT?.settings?.calendlyUrl;
-  if (calendlyUrl) {
+  const bookingUrl = window.SIDECAR_SITE_CONTENT?.settings?.bookingPageUrl;
+  if (bookingUrl) {
     document.querySelectorAll("[data-calendly-link]").forEach((link) => {
-      link.setAttribute("href", calendlyUrl);
+      link.setAttribute("href", bookingUrl);
     });
   }
 </script>

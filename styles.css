@@ -773,18 +773,28 @@ p {
   color: var(--saddle);
 }
 
-.contact-shell {
-  text-align: center;
-}
-
 .section-contact h2 {
   color: var(--parchment);
   font-style: normal;
 }
 
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.contact-panel {
+  padding: 30px 26px;
+  border: 1px solid rgba(212, 196, 168, 0.24);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+}
+
 .contact-copy {
-  max-width: 760px;
-  margin: 0 auto;
+  max-width: 640px;
 }
 
 .contact-copy p {
@@ -796,7 +806,7 @@ p {
 .contact-trust {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 12px 20px;
   margin-top: 28px;
   color: var(--tan);
@@ -841,16 +851,37 @@ p {
 }
 
 .contact-scheduler {
-  margin-top: 32px;
-  padding: 14px;
+  padding: 18px;
   border: 1px solid rgba(212, 196, 168, 0.24);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.contact-scheduler-head {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.contact-scheduler-head .eyebrow {
+  margin-bottom: 10px;
+}
+
+.contact-scheduler-head h3 {
+  margin-bottom: 10px;
+  color: var(--parchment);
+  font-size: 2rem;
+}
+
+.contact-scheduler-head p {
+  color: var(--tan);
+  font-size: 0.98rem;
+  font-weight: 300;
 }
 
 .contact-scheduler .calendly-inline-widget {
   overflow: hidden;
   border-radius: 12px;
+  background: var(--white);
 }
 
 .footer-bar {
@@ -949,6 +980,10 @@ p {
 
   .results-grid-home {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .contact-layout {
+    grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.15fr);
   }
 
   .footer-bar {

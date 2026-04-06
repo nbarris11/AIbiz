@@ -58,11 +58,8 @@
           <a href="blog.html">Blog</a>
           <a
             class="button button-outline nav-cta"
-            href="https://calendly.com/your-link"
-            target="_blank"
-            rel="noreferrer"
-            data-content="settings.calendlyUrl"
-            data-content-attr="href"
+            href="#schedule"
+            data-link-content="settings.bookingAnchor"
           >
             Book a Free Clarity Session
           </a>
@@ -85,11 +82,8 @@
             <div class="hero-actions">
               <a
                 class="button button-primary"
-                href="https://calendly.com/your-link"
-                target="_blank"
-                rel="noreferrer"
-                data-content="settings.calendlyUrl"
-                data-content-attr="href"
+                href="#schedule"
+                data-link-content="settings.bookingAnchor"
               >
                 Book a Free Clarity Session
               </a>
@@ -504,54 +498,62 @@
 
       <section class="section section-contact" id="contact">
         <div class="container contact-shell">
-          <div class="contact-copy reveal">
-            <h2 data-content="contact.headline">Ready to ride?</h2>
-            <p data-content="contact.body">
-              Book a free 45-minute Clarity Session. We'll identify at least $5,000 in annual
-              savings — guaranteed. No risk. No obligation.
-            </p>
-          </div>
+          <div class="contact-layout">
+            <div class="contact-panel reveal">
+              <div class="contact-copy">
+                <h2 data-content="contact.headline">Ready to ride?</h2>
+                <p data-content="contact.body">
+                  Book a free 45-minute Clarity Session. We'll identify at least $5,000 in annual
+                  savings — guaranteed. No risk. No obligation.
+                </p>
+              </div>
 
-          <div class="contact-trust reveal" aria-label="Contact trust signals">
-            <p>
-              <span class="checkmark" aria-hidden="true"></span
-              ><span data-content="contact.trustSignals.0">Free 45-minute Clarity Session</span>
-            </p>
-            <p>
-              <span class="checkmark" aria-hidden="true"></span
-              ><span data-content="contact.trustSignals.1"
-                >$5,000+ in annual savings — guaranteed</span
+              <div class="contact-trust" aria-label="Contact trust signals">
+                <p>
+                  <span class="checkmark" aria-hidden="true"></span
+                  ><span data-content="contact.trustSignals.0">Free 45-minute Clarity Session</span>
+                </p>
+                <p>
+                  <span class="checkmark" aria-hidden="true"></span
+                  ><span data-content="contact.trustSignals.1"
+                    >$5,000+ in annual savings — guaranteed</span
+                  >
+                </p>
+                <p>
+                  <span class="checkmark" aria-hidden="true"></span
+                  ><span data-content="contact.trustSignals.2">No risk. No obligation.</span>
+                </p>
+              </div>
+
+              <a
+                class="button button-primary contact-cta"
+                href="#schedule"
+                data-content="contact.ctaText"
+                data-content-attr-text="true"
+                data-link-content="settings.bookingAnchor"
               >
-            </p>
-            <p>
-              <span class="checkmark" aria-hidden="true"></span
-              ><span data-content="contact.trustSignals.2">No risk. No obligation.</span>
-            </p>
-          </div>
+                Book a Free Clarity Session
+              </a>
 
-          <a
-            class="button button-primary contact-cta reveal"
-            href="https://calendly.com/your-link"
-            target="_blank"
-            rel="noreferrer"
-            data-content="contact.ctaText"
-            data-content-attr-text="true"
-            data-link-content="settings.calendlyUrl"
-          >
-            Book a Free Clarity Session
-          </a>
+              <p class="contact-meta" data-content="contact.meta">
+                hello@sidecaradvisory.com · sidecaradvisory.com · Metro Detroit, MI
+              </p>
+            </div>
 
-          <p class="contact-meta reveal" data-content="contact.meta">
-            hello@sidecaradvisory.com · sidecaradvisory.com · Metro Detroit, MI
-          </p>
+            <div class="contact-scheduler reveal" id="schedule">
+              <div class="contact-scheduler-head">
+                <p class="eyebrow">BOOK YOUR SESSION</p>
+                <h3>Pick a time that works for you.</h3>
+                <p>Use the scheduler below to reserve your free Clarity Session.</p>
+              </div>
 
-          <div class="contact-scheduler reveal" id="schedule">
-            <div
-              class="calendly-inline-widget"
-              data-content="settings.calendlyUrl"
-              data-content-attr="data-url"
-              style="min-width: 320px; height: 700px"
-            ></div>
+              <div
+                class="calendly-inline-widget"
+                data-content="settings.calendlyUrl"
+                data-content-attr="data-url"
+                style="min-width: 320px; height: 760px"
+              ></div>
+            </div>
           </div>
 
           <div class="footer-bar">
@@ -574,11 +576,8 @@
       <p>Free 45-minute Clarity Session</p>
       <a
         class="button button-primary"
-        href="https://calendly.com/your-link"
-        target="_blank"
-        rel="noreferrer"
-        data-content="settings.calendlyUrl"
-        data-content-attr="href"
+        href="#schedule"
+        data-link-content="settings.bookingAnchor"
       >
         Book a Free Clarity Session
       </a>
