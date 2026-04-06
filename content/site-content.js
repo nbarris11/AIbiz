@@ -20,16 +20,16 @@ window.SIDECAR_SITE_CONTENT = {
   },
   services: {
     eyebrow: "WHAT WE DO",
-    headline: "How we help you put AI to work.",
+    headline: "Six ways we ride with you.",
     intro:
-      "Every engagement starts with a Clarity Session — a 45-minute structured conversation where we identify at least $5,000 in annual savings for your business. If we can't find it, you don't pay.",
+      "Every engagement starts with a Clarity Session — a 45-minute structured conversation where we identify your best opportunities. Guaranteed — details below.",
     cards: [
       {
         number: "01",
         title: "AI Clarity Session",
         meta: "Free · 45 min",
         body:
-          "A focused working session where we dig into your business, identify at least $5,000 in annual savings, and show you where AI can create the fastest ROI. We'll identify at least $5,000 in annual savings — or the session is free. No risk. No obligation.",
+          "A focused working session where we dig into your business, identify at least $5,000 in annual savings, and show you where AI can create the fastest ROI. If we can't find $5K+ in savings, you don't pay.",
         badge: "",
       },
       {
@@ -118,7 +118,9 @@ window.SIDECAR_SITE_CONTENT = {
   },
   results: {
     eyebrow: "RESULTS",
-    headline: "Results",
+    headline: "Early Wins",
+    intro:
+      "Representative outcomes based on common savings identified for firms like these.",
     cards: [
       {
         meta: "Insurance agency · Troy, MI",
@@ -143,7 +145,7 @@ window.SIDECAR_SITE_CONTENT = {
         title: "Book a Clarity Session",
         time: "45 min · Free",
         body:
-          "We learn about your business and identify at least $5,000 in annual savings. If we can't find it, you pay nothing.",
+          "We learn about your business and identify where the savings are. If we can't find $5K+ in savings, you don't pay.",
       },
       {
         number: "2",
