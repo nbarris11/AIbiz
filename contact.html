@@ -169,6 +169,24 @@
         font-size: 0.94rem;
       }
 
+      .contact-form-status.is-error {
+        color: var(--ember);
+      }
+
+      .contact-success-card {
+        display: none;
+        margin-top: 22px;
+        padding: 22px;
+        border: 1px solid rgba(61, 107, 94, 0.22);
+        border-radius: 18px;
+        background: rgba(61, 107, 94, 0.08);
+      }
+
+      .contact-success-card.is-visible {
+        display: grid;
+        gap: 10px;
+      }
+
       .contact-page-footer {
         padding-top: 18px;
       }
@@ -241,10 +259,10 @@
         <div class="container">
           <div class="contact-page-copy reveal">
             <p class="eyebrow">CONTACT</p>
-            <h1>Not ready for a Clarity Session? Send me a note.</h1>
+            <h1>Contact Sidecar Advisory.</h1>
             <p>
-              Use this page for general questions, referral partnerships, speaking inquiries,
-              media requests, or anything else that does not need a booked working session.
+              Use this page for general questions, partnership inquiries, speaking requests, or
+              anything that does not need a scheduled Clarity Session.
             </p>
           </div>
 
@@ -295,12 +313,13 @@
               <p class="eyebrow">SEND A MESSAGE</p>
               <h2 id="contact-form-title">Tell me what you’re looking for.</h2>
               <p>
-                Fill this out and your email app will open with everything pre-filled. If you
-                prefer, you can always email me directly at
+                Fill out the form below and your message will go straight to Sidecar Advisory. If
+                you prefer, you can always email me directly at
                 <a class="contact-email-link" href="mailto:hello@sidecaradvisory.com">hello@sidecaradvisory.com</a>.
               </p>
+              <p class="contact-form-note">You'll hear back within 1 business day.</p>
 
-              <form class="contact-form" id="contact-form">
+              <form class="contact-form" id="contact-form" novalidate>
                 <div class="contact-form-row">
                   <div class="contact-field">
                     <label for="contact-name">Name</label>
@@ -317,6 +336,13 @@
                     <label for="contact-company">Company</label>
                     <input id="contact-company" name="company" type="text" autocomplete="organization" />
                   </div>
+                  <div class="contact-field">
+                    <label for="contact-business-type">Business type</label>
+                    <input id="contact-business-type" name="business_type" type="text" placeholder="Law firm, accounting firm, agency, etc." />
+                  </div>
+                </div>
+
+                <div class="contact-form-row">
                   <div class="contact-field">
                     <label for="contact-reason">Reason for reaching out</label>
                     <select id="contact-reason" name="reason">
@@ -339,13 +365,17 @@
                   ></textarea>
                 </div>
 
-                <button class="button button-primary" type="submit">Open Email Draft</button>
-                <p class="contact-form-note">
-                  This keeps things simple for now while making sure your message still goes
-                  straight to my inbox.
-                </p>
+                <input type="hidden" name="_subject" value="New Sidecar Advisory contact form submission" />
+                <input type="text" name="_honey" tabindex="-1" autocomplete="off" hidden />
+
+                <button class="button button-primary" type="submit">Send Message</button>
                 <p class="contact-form-status" id="contact-form-status" aria-live="polite"></p>
               </form>
+
+              <div class="contact-success-card" id="contact-success-card" aria-live="polite">
+                <h3>Message received.</h3>
+                <p>Thanks for reaching out. Your note has been submitted and Sidecar Advisory will reply within 1 business day.</p>
+              </div>
             </section>
           </div>
 
@@ -359,6 +389,11 @@
               </svg>
               <span>Sidecar Advisory</span>
             </div>
+            <div class="footer-links" aria-label="Footer links">
+              <a href="privacy.html">Privacy Policy</a>
+              <a href="terms.html">Terms of Use</a>
+              <a href="contact.html">Contact</a>
+            </div>
             <p>© 2026 Sidecar Advisory LLC. All rights reserved.</p>
           </div>
         </div>
@@ -371,6 +406,7 @@
       const email = window.SIDECAR_SITE_CONTENT?.settings?.email || "hello@sidecaradvisory.com";
       const contactForm = document.querySelector("#contact-form");
       const contactStatus = document.querySelector("#contact-form-status");
+      const contactSuccessCard = document.querySelector("#contact-success-card");
 
       document.querySelectorAll("[data-content='settings.email']").forEach((node) => {
         node.textContent = email;
@@ -385,25 +421,59 @@
           const name = String(formData.get("name") || "").trim();
           const senderEmail = String(formData.get("email") || "").trim();
           const company = String(formData.get("company") || "").trim();
+          const businessType = String(formData.get("business_type") || "").trim();
           const reason = String(formData.get("reason") || "").trim();
           const message = String(formData.get("message") || "").trim();
+          const honey = String(formData.get("_honey") || "").trim();
 
-          const subject = `${reason || "Contact inquiry"} from ${name || "Website visitor"}`;
-          const body = [
-            `Name: ${name}`,
-            `Email: ${senderEmail}`,
-            `Company: ${company || "N/A"}`,
-            `Reason: ${reason || "N/A"}`,
-            "",
-            "Message:",
+          if (!name || !senderEmail || !message || honey) {
+            contactStatus.textContent = "Please complete the required fields before submitting.";
+            contactStatus.classList.add("is-error");
+            return;
+          }
+
+          contactStatus.textContent = "Sending...";
+          contactStatus.classList.remove("is-error");
+
+          const payload = {
+            name,
+            email: senderEmail,
+            company,
+            business_type: businessType,
+            reason,
             message,
-          ].join("\n");
+            _subject: "New Sidecar Advisory contact form submission",
+            _captcha: "false",
+            _template: "table",
+          };
 
-          const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-          window.location.href = mailtoUrl;
+          fetch(`https://formsubmit.co/ajax/${encodeURIComponent(email)}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(payload),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Submission failed");
+              }
 
-          if (contactStatus) {
-            contactStatus.textContent = `If your email app did not open, email me directly at ${email}.`;
+              return response.json();
+            })
+            .then(() => {
+              contactForm.reset();
+              contactForm.hidden = true;
+              if (contactSuccessCard) {
+                contactSuccessCard.classList.add("is-visible");
+              }
+              contactStatus.textContent = "";
+            })
+            .catch(() => {
+              contactStatus.textContent = `Something went wrong. Please try again or email ${email} directly.`;
+              contactStatus.classList.add("is-error");
+            });
           }
         });
       }

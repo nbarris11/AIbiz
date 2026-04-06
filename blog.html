@@ -311,6 +311,14 @@
         font-weight: 300;
       }
 
+      .blog-hero-note {
+        margin-top: 18px;
+        color: var(--tan);
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
       .filter-shell {
         padding: 0 0 24px;
       }
@@ -332,7 +340,7 @@
         border-radius: 20px;
         background: transparent;
         color: var(--tan);
-        padding: 8px 18px;
+        padding: 7px 15px;
         font: inherit;
         font-size: 13px;
         font-weight: 500;
@@ -361,8 +369,10 @@
         grid-template-columns: 1fr;
         overflow: hidden;
         margin-bottom: 48px;
-        border-radius: 16px;
+        border: 1px solid rgba(156, 139, 110, 0.18);
+        border-radius: 20px;
         background: var(--saddle);
+        box-shadow: var(--card-shadow);
       }
 
       .featured-copy {
@@ -393,6 +403,13 @@
         color: var(--tan);
         font-size: 16px;
         font-weight: 300;
+      }
+
+      .featured-kicker {
+        margin-top: 18px;
+        color: var(--parchment);
+        font-size: 13px;
+        line-height: 1.7;
       }
 
       .featured-meta {
@@ -522,6 +539,12 @@
 
       .card-footer span:last-child {
         transition: color 160ms ease;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 18px;
       }
 
       .blog-card:hover .card-footer span:last-child,
@@ -740,11 +763,13 @@
       <section class="blog-hero">
         <div class="container blog-hero-copy reveal">
           <p class="eyebrow">THE SIDECAR BLOG</p>
-          <h1>Practical AI for the businesses that keep Michigan running.</h1>
+          <h1>Practical AI guidance for small professional service firms.</h1>
           <p class="blog-hero-subtext">
-            No hype. No jargon. Just clear, actionable guidance on using AI to save time, cut
-            costs, and grow — written specifically for professional service firms.
+            Plain-English articles on workflows, implementation, and where AI actually helps in a
+            small business office. Focused on Metro Detroit firms, but useful anywhere practical
+            operations matter.
           </p>
+          <p class="blog-hero-note">Small library. Carefully written. Built to be useful.</p>
         </div>
       </section>
 
@@ -757,7 +782,6 @@
             <button class="filter-pill" type="button" data-filter="real-estate">Real Estate</button>
             <button class="filter-pill" type="button" data-filter="accounting">Accounting</button>
             <button class="filter-pill" type="button" data-filter="tools">Tools &amp; How-To</button>
-            <button class="filter-pill" type="button" data-filter="case-studies">Case Studies</button>
           </div>
         </div>
       </section>
@@ -769,9 +793,12 @@
               <span class="featured-badge">FEATURED</span>
               <h2 id="featured-article-title">The Complete AI Guide for Insurance Agencies in 2026</h2>
               <p class="featured-excerpt">
-                Everything your agency needs to know about AI — from automating follow-up emails to
-                AI-powered CRM. We cover the tools that actually work, the ones that don't, and
-                exactly how to get started without disrupting your team.
+                A grounded guide to where AI helps an independent agency first: follow-up,
+                renewals, client communication, and internal admin that keeps piling up.
+              </p>
+              <p class="featured-kicker">
+                Built for owners and operators who want practical next steps, not another round of
+                vague AI advice.
               </p>
               <div class="featured-meta">
                 <svg class="clock-icon" viewBox="0 0 12 12" aria-hidden="true">
@@ -798,8 +825,8 @@
               <span class="category-badge">Insurance</span>
               <h3>AI for Insurance Agencies: 7 Tasks You Can Automate This Week</h3>
               <p>
-                From renewal reminders to quote follow-up sequences, these are the highest-ROI
-                automations for independent insurance agencies.
+                A practical short list of the admin and servicing tasks that are usually worth
+                fixing first.
               </p>
               <div class="card-footer">
                 <span>6 min read</span>
@@ -811,8 +838,8 @@
               <span class="category-badge">Law Firms</span>
               <h3>How AI Is Changing Client Intake for Small Law Firms</h3>
               <p>
-                A step-by-step look at how a 4-person firm automated their intake process and
-                saved 8 hours a week — without a developer.
+                A practical look at where intake, scheduling, and follow-up can become more
+                repeatable in a small firm.
               </p>
               <div class="card-footer">
                 <span>8 min read</span>
@@ -824,8 +851,8 @@
               <span class="category-badge">Tools &amp; How-To</span>
               <h3>Zapier for Beginners: Automate Your Follow-Up Without Writing Code</h3>
               <p>
-                The easiest automation tool available, explained in plain English with a real
-                workflow you can copy in 20 minutes.
+                A plain-English walkthrough of when Zapier is useful, when it is not, and one easy
+                workflow to start with.
               </p>
               <div class="card-footer">
                 <span>5 min read</span>
@@ -837,8 +864,8 @@
               <span class="category-badge">Real Estate</span>
               <h3>AI Tools for Real Estate Offices: What Actually Works in 2026</h3>
               <p>
-                We tested 12 AI tools for real estate. Here are the 4 that delivered real time
-                savings and the 3 that were a waste of money.
+                A grounded review of where AI can help an office with lead response, listing prep,
+                and transaction support.
               </p>
               <div class="card-footer">
                 <span>7 min read</span>
@@ -847,11 +874,11 @@
             </a>
 
             <a class="blog-card reveal" href="#" data-category="case-studies">
-              <span class="category-badge">Case Studies</span>
-              <h3>Before and After: What AI Did for a Troy Accounting Firm</h3>
+              <span class="category-badge">Examples</span>
+              <h3>What a better monthly reporting process can look like with AI support</h3>
               <p>
-                A real look at 90 days of AI implementation — the wins, the surprises, and the
-                one thing they wish they had done sooner.
+                An anonymized example of how recurring prep work can move from manual assembly to a
+                cleaner review process.
               </p>
               <div class="card-footer">
                 <span>6 min read</span>
@@ -863,8 +890,8 @@
               <span class="category-badge">Tools &amp; How-To</span>
               <h3>ChatGPT for Client Emails: Write Better Responses in Half the Time</h3>
               <p>
-                A practical guide to using ChatGPT for professional correspondence — with real
-                before/after examples from service businesses.
+                A simple framework for using AI as a drafting assistant without sounding robotic or
+                careless.
               </p>
               <div class="card-footer">
                 <span>4 min read</span>
@@ -876,8 +903,8 @@
               <span class="category-badge">Accounting</span>
               <h3>AI for Accounting Firms: The 5 Workflows to Automate First</h3>
               <p>
-                Document sorting, deadline tracking, and client communication — these are the
-                highest-impact starting points for accountants using AI.
+                The best early candidates for firms that are heavy on recurring requests, files,
+                and reporting cycles.
               </p>
               <div class="card-footer">
                 <span>7 min read</span>
@@ -887,10 +914,10 @@
 
             <a class="blog-card reveal" href="ai-for-insurance-agencies-guide.html" data-category="insurance">
               <span class="category-badge">Insurance</span>
-              <h3>The AI-Powered Insurance Agency: A 6-Month Transformation Story</h3>
+              <h3>What changes after an agency cleans up follow-up and renewal workflows</h3>
               <p>
-                From skeptic to convert — how one Metro Detroit agency went from zero AI tools to
-                saving 15 hours a week across their team.
+                An anonymized operational example of what usually improves once the basics are set
+                up properly.
               </p>
               <div class="card-footer">
                 <span>9 min read</span>
@@ -900,10 +927,10 @@
 
             <a class="blog-card reveal" href="ai-for-law-firms-guide.html" data-category="law-firms">
               <span class="category-badge">Law Firms</span>
-              <h3>5 Ways AI Can Help Your Law Firm Bill More and Stress Less</h3>
+              <h3>5 ways AI can reduce admin drag in a small law practice</h3>
               <p>
-                From narrative generation to deadline reminders, these are the AI applications
-                that directly impact a law firm's bottom line.
+                A more practical look at the workflows that give time back without changing the
+                core legal work.
               </p>
               <div class="card-footer">
                 <span>6 min read</span>
@@ -919,9 +946,8 @@
           <p class="eyebrow">STAY AHEAD</p>
           <h2>The AI Weekly for Professional Services</h2>
           <p>
-            One email per week. The most useful AI developments for insurance agencies, law firms,
-            real estate offices, and accountants — curated and explained in plain English. No
-            spam, ever.
+            One useful email each week with workflow ideas, implementation notes, and grounded AI
+            examples for service businesses. No hype and no daily noise.
           </p>
 
           <form class="signup-form" id="signup-form" action="#">
@@ -949,6 +975,11 @@
           </svg>
           <span>Sidecar Advisory</span>
         </a>
+        <div class="footer-links" aria-label="Footer links">
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="terms.html">Terms of Use</a>
+          <a href="contact.html">Contact</a>
+        </div>
         <p>© 2026 Sidecar Advisory LLC. All rights reserved.</p>
       </div>
     </footer>

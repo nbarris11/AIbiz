@@ -10,15 +10,15 @@ window.SIDECAR_SITE_CONTENT = {
   },
   hero: {
     eyebrow: "AI ADVISORY FOR SMALL BUSINESS",
-    headline: "AI That Actually Works for Your Business.",
+    headline: "AI workflow help for Metro Detroit service businesses.",
     subheadline:
-      "I help professional service firms in Metro Detroit get back 10+ hours a week by implementing AI that actually works — guaranteed.",
+      "Sidecar Advisory helps small professional service firms clean up the repetitive work that slows the week down: follow-up, intake, scheduling, admin tasks, reporting, and document-heavy processes.",
     guarantee:
-      "We'll identify at least $5,000 in annual savings — guaranteed. No risk. No obligation.",
+      "Free 45-minute Clarity Session. We review where time, money, and manual work are getting stuck.",
     stats: [
-      "82% of small businesses believe AI is essential to staying competitive",
-      "The #1 barrier is skills — not budget",
-      "ROI visible within 30–60 days",
+      "45-minute working session focused on practical workflows, not a software demo",
+      "Implementation-minded guidance for small teams that need clear next steps",
+      "Simple rollout plans built around the way your office already works",
     ],
   },
   services: {
@@ -81,7 +81,7 @@ window.SIDECAR_SITE_CONTENT = {
     eyebrow: "NO-RISK START",
     headline: "The Guarantee",
     body:
-      "Every engagement starts with a Clarity Session — a 45-minute conversation where we dig into your business and identify at least $5,000 in annual savings. Guaranteed. No risk. No obligation. We can make this guarantee because we've built a rigorous savings framework that targets the specific places small businesses lose time and money — manual admin, redundant software, outsourced tasks that AI can handle. We don't guess. We calculate.",
+      "Every engagement starts with a Clarity Session. We look at where time is being spent, where handoffs break down, and which tasks are still too manual for the way your business works today. The guarantee is based on a real review process, not a generic AI pitch.",
     callout: "$5,000+ in annual savings — guaranteed.",
   },
   whoWeServe: {
@@ -114,7 +114,7 @@ window.SIDECAR_SITE_CONTENT = {
     note: {
       label: "NOT IN PROFESSIONAL SERVICES?",
       copy:
-        "Sidecar Advisory works with all types of small businesses. Professional services is where we focus first — but if you are a restaurant, retailer, manufacturer, or anything in between, reach out. If we can help, we will tell you honestly. If we cannot, we will point you in the right direction.",
+        "Sidecar Advisory focuses on professional services first, but the work is still about small-business operations. If your business runs on repeat admin, client communication, and process bottlenecks, reach out. If it is a fit, I will tell you.",
       linkText: "Send us a note → hello@sidecaradvisory.com",
       linkHref: "mailto:hello@sidecaradvisory.com?subject=AI Inquiry",
     },
@@ -170,17 +170,13 @@ window.SIDECAR_SITE_CONTENT = {
     eyebrow: "ABOUT SIDECAR ADVISORY",
     headline: "A business partner, not a tech vendor.",
     paragraphs: [
-      "Before starting Sidecar Advisory, I spent nearly a decade in enterprise customer success — managing $5M+ client portfolios and helping Fortune 5, Fortune 10, and Fortune 500 companies actually get value from the technology they were paying for. Not just set it up. Actually use it.",
-      "I've worked inside some of the most complex technology environments in the world — at Dynatrace and O'Reilly — where I led onboarding, built adoption programs, and sat across the table from executives at the largest companies on the planet to show them why their tools weren't working and exactly how to fix it. Before that, I trained Samsung's sales and retail teams across the country, turning complicated technology into something anyone could understand and use.",
-      "What I learned across all of it: most businesses don't have a technology problem. They have an implementation problem. The tools exist. The gap is knowing which ones actually matter, how to connect them, and how to make them work for the way your business runs.",
-      "That's exactly what I do at Sidecar Advisory — and I've been doing it with AI long before it was a buzzword. I've built custom AI workflows, automated client-facing processes end to end, and created agent-based systems that handle work people used to do manually. I know what's possible because I've built it — not read about it.",
-      "I started Sidecar Advisory because small businesses in Metro Detroit deserve the same caliber of implementation that Fortune 500 companies pay millions for — without the enterprise price tag or the tech-speak.",
-      "Book a free Clarity Session and in 45 minutes, I'll show you exactly where AI can save your business time and money. If I can't find $5,000 in annual savings, I'll tell you that too — no pitch, no obligation.",
-      "Based in Metro Detroit. Built for businesses like yours.",
+      "Before starting Sidecar Advisory, I spent nearly a decade helping companies actually use the technology they were paying for. My work was always about adoption, value, and fixing the gap between buying software and getting results from it.",
+      "That background matters here because small businesses do not need more tech talk. They need someone who can simplify the choices, set things up cleanly, and make sure the workflow actually fits the way the business runs.",
+      "Sidecar Advisory brings that implementation mindset to Metro Detroit firms that want practical help with AI, automation, and day-to-day operations. Founder-led, plain-English, and built around real business use.",
     ],
     chips: [
       "Nearly 10 Years in Enterprise Customer Success",
-      "Fortune 5, 10 & 500 Experience",
+      "Adoption and Implementation Focus",
       "Based in Metro Detroit",
     ],
     imageUrl: "",
@@ -190,11 +186,11 @@ window.SIDECAR_SITE_CONTENT = {
     eyebrow: "FOR PROFESSIONALS",
     headline: "Do you serve small businesses?",
     body:
-      "If your clients are small business owners — and they ask you about AI, technology, or staying competitive — we should talk. Sidecar Advisory partners with bookkeepers, CPAs, attorneys, insurance brokers, and marketing agencies to make sure their clients get the right guidance.",
+      "If your clients ask about AI, workflow issues, or how to get more out of their tools, this is built for you. Sidecar Advisory works well alongside CPAs, bookkeepers, attorneys, brokers, agencies, and trusted advisors who serve small businesses.",
     chips: [
-      "$250 referral fee per engaged client",
-      "We refer back to our partners",
-      "No pitch — just trusted advice",
+      "$250 referral fee when a referred client engages",
+      "Clear scope and no awkward overlap with your relationship",
+      "Trusted implementation help you can confidently point clients to",
     ],
     ctaText: "Become a Referral Partner",
     ctaHref: "mailto:hello@sidecaradvisory.com?subject=Referral Partner Inquiry",

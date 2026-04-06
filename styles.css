@@ -297,6 +297,25 @@ p {
   font-weight: 300;
 }
 
+.hero-workflows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.hero-workflow-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgba(156, 139, 110, 0.26);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--saddle);
+  font-size: 0.88rem;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -479,6 +498,40 @@ p {
   line-height: 0.98;
 }
 
+.guarantee-framework {
+  display: grid;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.framework-card {
+  padding: 18px 20px;
+  border: 1px solid rgba(156, 139, 110, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.framework-card h3 {
+  margin-bottom: 8px;
+  font-size: 1.35rem;
+}
+
+.framework-card p,
+.guarantee-note,
+.guarantee-callout-copy {
+  color: var(--tan-dark);
+  font-size: 0.98rem;
+  font-weight: 300;
+}
+
+.guarantee-note {
+  margin-top: 18px;
+}
+
+.guarantee-callout-copy {
+  margin-top: 14px;
+}
+
 .service-card {
   position: relative;
   overflow: hidden;
@@ -487,6 +540,11 @@ p {
   border-radius: 12px;
   background: var(--parchment);
   box-shadow: var(--card-shadow);
+}
+
+.service-card-retainer {
+  border-color: rgba(61, 107, 94, 0.3);
+  background: linear-gradient(180deg, rgba(61, 107, 94, 0.08), rgba(255, 255, 255, 0.92));
 }
 
 .service-number {
@@ -506,6 +564,40 @@ p {
   color: var(--tan);
   font-size: 0.95rem;
   font-weight: 400;
+}
+
+.service-summary {
+  margin-bottom: 16px;
+  color: var(--saddle);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.service-detail-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.service-detail-list div {
+  display: grid;
+  gap: 4px;
+}
+
+.service-detail-list dt {
+  color: var(--tan);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.service-detail-list dd {
+  margin: 0;
+  color: var(--tan-dark);
+  font-size: 0.96rem;
+  line-height: 1.6;
 }
 
 .popular-pill {
@@ -538,6 +630,23 @@ p {
 .focus-card h3 {
   margin-top: 18px;
   font-size: 1.65rem;
+}
+
+.focus-kicker {
+  margin-top: 12px;
+  color: var(--saddle);
+  font-size: 0.98rem;
+}
+
+.focus-list {
+  padding-left: 18px;
+  margin: 16px 0 0;
+  color: var(--tan-dark);
+}
+
+.focus-list li {
+  margin-bottom: 10px;
+  line-height: 1.65;
 }
 
 .focus-icon {
@@ -619,6 +728,28 @@ p {
   line-height: 1.75;
 }
 
+.result-title {
+  margin-bottom: 14px;
+  font-size: 1.65rem;
+}
+
+.result-impact,
+.results-footnote {
+  color: var(--tan);
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+.result-impact {
+  margin-top: 14px;
+}
+
+.results-footnote {
+  max-width: 760px;
+  margin: 24px auto 0;
+  text-align: center;
+}
+
 .process-grid {
   position: relative;
   display: grid;
@@ -656,6 +787,10 @@ p {
   display: grid;
   grid-template-columns: 1fr;
   gap: 30px;
+}
+
+.about-copy p + p {
+  margin-top: 16px;
 }
 
 .about-visual {
@@ -712,6 +847,19 @@ p {
   background: var(--parchment);
   color: var(--tan);
   font-size: 0.92rem;
+}
+
+.about-bullets {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.about-bullets p {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: var(--tan-dark);
 }
 
 .partners-shell {
@@ -776,6 +924,47 @@ p {
 .section-contact h2 {
   color: var(--parchment);
   font-style: normal;
+}
+
+.section-closing-cta {
+  padding-bottom: 34px;
+}
+
+.section-scheduler {
+  padding-top: 0;
+  background: var(--saddle);
+}
+
+.closing-cta-shell {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.closing-cta-copy {
+  max-width: 620px;
+  margin: 16px auto 0;
+  color: var(--tan);
+  font-size: 1.06rem;
+}
+
+.closing-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.button-light {
+  border-color: rgba(255, 255, 255, 0.42);
+  color: var(--parchment);
+}
+
+.button-light:hover,
+.button-light:focus-visible {
+  background: var(--parchment);
+  color: var(--saddle);
 }
 
 .contact-layout {
@@ -851,6 +1040,8 @@ p {
 }
 
 .contact-scheduler {
+  max-width: 980px;
+  margin: 0 auto;
   padding: 18px;
   border: 1px solid rgba(212, 196, 168, 0.24);
   border-radius: 18px;
@@ -906,6 +1097,21 @@ p {
   width: 34px;
   height: 26px;
   stroke: var(--tan);
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+}
+
+.footer-links a {
+  color: var(--tan);
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  color: var(--parchment);
 }
 
 .mobile-cta-bar {
@@ -972,6 +1178,10 @@ p {
   .guarantee-shell {
     grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
     align-items: center;
+  }
+
+  .guarantee-framework {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .focus-grid {

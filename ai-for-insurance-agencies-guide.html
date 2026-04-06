@@ -192,6 +192,14 @@
     font-weight: 500;
     color: var(--saddle);
   }
+  .article-note {
+    background: rgba(61, 107, 94, 0.08);
+    border: 1px solid rgba(61, 107, 94, 0.16);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 28px 0;
+  }
+  .article-note p { margin: 0; font-size: 14px; color: var(--tan-dark); }
 
   /* PULL QUOTE */
   .pull-quote {
@@ -455,6 +463,8 @@
     color: var(--tan);
     font-weight: 300;
   }
+  .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 18px; margin-top: 14px; }
+  .footer-links a { color: var(--tan); text-decoration: none; }
 
   @media (max-width: 768px) {
     .article-header h1 { font-size: 34px; }
@@ -492,7 +502,7 @@
   <h1>AI for Insurance Agencies: The Complete 2026 Guide</h1>
   <p class="subtitle">Everything your independent agency needs to know about AI — from automating follow-up to AI-powered client communication. Plain English, real tools, no hype.</p>
   <div class="article-meta">
-    <span>By Sidecar Advisory</span>
+    <span>By Neil Barris, Founder</span>
     <span>&#x2022; 12 min read</span>
     <span>&#x2022; Updated April 2026</span>
   </div>
@@ -518,6 +528,10 @@
   <p>This guide is different. It is written for independent agencies with 2 to 20 producers who are too busy serving clients to spend weeks researching AI tools. We will cover exactly what works, what doesn't, what it actually costs, and how to get started without disrupting the team that is holding everything together.</p>
 
   <p>No jargon. No hype. Just the practical stuff.</p>
+
+  <div class="article-note">
+    <p>Any quantified examples in this article are planning figures or illustrative workflow examples. Add source citations or agency-specific operating data before using them as hard benchmarks.</p>
+  </div>
 
   <div class="pull-quote">
     <p>"The agencies seeing the biggest wins from AI are not the biggest ones. They are the most intentional ones — the ones who picked two or three specific problems and solved them completely."</p>
@@ -725,7 +739,7 @@
 
   <div class="article-cta">
     <h3>Not sure where to start?</h3>
-    <p>Book a free 45-minute Clarity Session. We'll look at your agency's specific workflows, identify at least $5,000 in annual savings, and tell you exactly where AI can make the biggest difference — no risk, no obligation.</p>
+    <p>Book a free 45-minute Clarity Session or reach out directly if you want to talk through whether your agency is a fit before booking.</p>
     <a href="https://calendly.com/your-link" target="_blank" rel="noreferrer" data-calendly-link>
       Book a Free Clarity Session
     </a>
@@ -734,8 +748,8 @@
   <div class="author-bio">
     <div class="author-avatar">SA</div>
     <div class="author-bio-text">
-      <h4>Sidecar Advisory</h4>
-      <p>We help professional service firms in Metro Detroit implement AI that actually works. Business and operations background — we speak your language, not the tech industry's. <a href="index.html" style="color: var(--forest);">Learn more about us.</a></p>
+      <h4>Neil Barris, Founder</h4>
+      <p>Neil works with professional service firms that want practical AI help tied to day-to-day operations. The focus is clean implementation, team adoption, and plain-English guidance. <a href="index.html" style="color: var(--forest);">Learn more about Sidecar Advisory.</a></p>
     </div>
   </div>
 
@@ -767,6 +781,11 @@
 <footer>
   <div class="f-logo">Sidecar Advisory</div>
   <p>sidecaradvisory.com &nbsp;·&nbsp; hello@sidecaradvisory.com &nbsp;·&nbsp; Metro Detroit, MI</p>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Use</a>
+    <a href="contact.html">Contact</a>
+  </div>
   <p style="margin-top: 12px;">&#169; 2026 Sidecar Advisory LLC. All rights reserved.</p>
 </footer>
 
