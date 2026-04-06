@@ -11,7 +11,7 @@ window.SIDECAR_SITE_CONTENT = {
     subheadline:
       "I help professional service firms in Metro Detroit get back 10+ hours a week by implementing AI that actually works — guaranteed.",
     guarantee:
-      "We'll identify at least $5,000 in annual savings — or the session is free. No risk. No obligation.",
+      "We'll identify at least $5,000 in annual savings — guaranteed. No risk. No obligation.",
     stats: [
       "82% of small businesses believe AI is essential to staying competitive",
       "The #1 barrier is skills — not budget",
@@ -29,7 +29,7 @@ window.SIDECAR_SITE_CONTENT = {
         title: "AI Clarity Session",
         meta: "Free · 45 min",
         body:
-          "A focused working session where we dig into your business, identify at least $5,000 in annual savings, and show you where AI can create the fastest ROI. If we can't find $5K+ in savings, you don't pay.",
+          "A focused working session where we dig into your business, identify at least $5,000 in annual savings, and show you where AI can create the fastest ROI. Guaranteed — details below.",
         badge: "",
       },
       {
@@ -78,8 +78,8 @@ window.SIDECAR_SITE_CONTENT = {
     eyebrow: "NO-RISK START",
     headline: "The Guarantee",
     body:
-      "Every engagement starts with a Clarity Session — a 45-minute conversation where we dig into your business and identify at least $5,000 in annual savings. If we can't find it, you don't pay. No risk. No obligation. We can make this guarantee because we've built a rigorous savings framework that targets the specific places small businesses lose time and money — manual admin, redundant software, outsourced tasks that AI can handle. We don't guess. We calculate.",
-    callout: "$5,000+ in annual savings — guaranteed, or the session is free.",
+      "Every engagement starts with a Clarity Session — a 45-minute conversation where we dig into your business and identify at least $5,000 in annual savings. Guaranteed. No risk. No obligation. We can make this guarantee because we've built a rigorous savings framework that targets the specific places small businesses lose time and money — manual admin, redundant software, outsourced tasks that AI can handle. We don't guess. We calculate.",
+    callout: "$5,000+ in annual savings — guaranteed.",
   },
   whoWeServe: {
     eyebrow: "OUR FOCUS",
@@ -145,7 +145,7 @@ window.SIDECAR_SITE_CONTENT = {
         title: "Book a Clarity Session",
         time: "45 min · Free",
         body:
-          "We learn about your business and identify where the savings are. If we can't find $5K+ in savings, you don't pay.",
+          "We learn about your business and identify where the savings are. Guaranteed — details below.",
       },
       {
         number: "2",
@@ -194,10 +194,10 @@ window.SIDECAR_SITE_CONTENT = {
   contact: {
     headline: "Ready to ride?",
     body:
-      "Book a free 45-minute Clarity Session. We'll identify at least $5,000 in annual savings — or the session is free. No risk. No obligation.",
+      "Book a free 45-minute Clarity Session. We'll identify at least $5,000 in annual savings — guaranteed. No risk. No obligation.",
     trustSignals: [
       "Free 45-minute Clarity Session",
-      "$5,000+ in annual savings identified or you don't pay",
+      "$5,000+ in annual savings — guaranteed",
       "No risk. No obligation.",
     ],
     ctaText: "Book a Free Clarity Session",
