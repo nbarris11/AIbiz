@@ -458,57 +458,89 @@
           </div>
 
           <div class="results-grid-home">
-            <article class="result-card reveal">
-              <p class="result-meta">Insurance agency · Troy, MI</p>
-              <p class="result-body">
-                <strong>Before:</strong> Renewal processing required multiple manual follow-ups and
-                took about 4 hours.
-              </p>
-              <p class="result-body">
-                <strong>After:</strong> Automated reminders and internal task routing reduced that
-                process to about 40 minutes.
-              </p>
-              <p class="result-impact">
-                <strong>Operational impact:</strong> Faster follow-up, less admin bottleneck, and
-                more time for client-facing work.
-              </p>
+            <!-- Future case study slot: client label, industry, challenge, solution, result, and optional testimonial quote can be added within this structure. -->
+            <article class="result-card case-study-card reveal">
+              <header class="case-study-header">
+                <p class="result-meta case-study-label">Insurance agency · Troy, MI</p>
+              </header>
+              <div class="case-study-body">
+                <div class="case-study-section case-study-challenge">
+                  <p class="result-body">
+                    <strong>Before:</strong> Renewal processing required multiple manual follow-ups and
+                    took about 4 hours.
+                  </p>
+                </div>
+                <div class="case-study-section case-study-solution">
+                  <p class="result-body">
+                    <strong>After:</strong> Automated reminders and internal task routing reduced that
+                    process to about 40 minutes.
+                  </p>
+                </div>
+                <div class="case-study-section case-study-result">
+                  <p class="result-impact">
+                    <strong>Operational impact:</strong> Faster follow-up, less admin bottleneck, and
+                    more time for client-facing work.
+                  </p>
+                </div>
+              </div>
             </article>
 
-            <article class="result-card reveal">
-              <p class="result-meta">Law firm · Royal Oak, MI</p>
-              <p class="result-body">
-                <strong>Before:</strong> Intake involved repeated emails, missing details, and
-                calendar back-and-forth across the week.
-              </p>
-              <p class="result-body">
-                <strong>After:</strong> A more structured intake and scheduling workflow reduced
-                admin time to a shorter review step.
-              </p>
-              <p class="result-impact">
-                <strong>Operational impact:</strong> Less owner time spent chasing information and
-                cleaner internal handoffs.
-              </p>
+            <!-- Future case study slot: replace the label below with a named client or anonymized client descriptor when real proof is available. -->
+            <article class="result-card case-study-card reveal">
+              <header class="case-study-header">
+                <p class="result-meta case-study-label">Law firm · Royal Oak, MI</p>
+              </header>
+              <div class="case-study-body">
+                <div class="case-study-section case-study-challenge">
+                  <p class="result-body">
+                    <strong>Before:</strong> Intake involved repeated emails, missing details, and
+                    calendar back-and-forth across the week.
+                  </p>
+                </div>
+                <div class="case-study-section case-study-solution">
+                  <p class="result-body">
+                    <strong>After:</strong> A more structured intake and scheduling workflow reduced
+                    admin time to a shorter review step.
+                  </p>
+                </div>
+                <div class="case-study-section case-study-result">
+                  <p class="result-impact">
+                    <strong>Operational impact:</strong> Less owner time spent chasing information and
+                    cleaner internal handoffs.
+                  </p>
+                </div>
+              </div>
             </article>
 
-            <article class="result-card reveal">
-              <p class="result-meta">Accounting firm · Rochester Hills, MI</p>
-              <p class="result-body">
-                <strong>Before:</strong> Monthly reporting prep started from scratch and took most
-                of a day to assemble.
-              </p>
-              <p class="result-body">
-                <strong>After:</strong> Inputs, summaries, and recurring client communication were
-                standardized into a repeatable process.
-              </p>
-              <p class="result-impact">
-                <strong>Operational impact:</strong> A long prep cycle became a shorter review-and-approval workflow.
-              </p>
+            <!-- Future case study slot: optional testimonial quote can be inserted after the result section without changing the card layout. -->
+            <article class="result-card case-study-card reveal">
+              <header class="case-study-header">
+                <p class="result-meta case-study-label">Accounting firm · Rochester Hills, MI</p>
+              </header>
+              <div class="case-study-body">
+                <div class="case-study-section case-study-challenge">
+                  <p class="result-body">
+                    <strong>Before:</strong> Monthly reporting prep started from scratch and took most
+                    of a day to assemble.
+                  </p>
+                </div>
+                <div class="case-study-section case-study-solution">
+                  <p class="result-body">
+                    <strong>After:</strong> Inputs, summaries, and recurring client communication were
+                    standardized into a repeatable process.
+                  </p>
+                </div>
+                <div class="case-study-section case-study-result">
+                  <p class="result-impact">
+                    <strong>Operational impact:</strong> A long prep cycle became a shorter review-and-approval workflow.
+                  </p>
+                </div>
+              </div>
             </article>
           </div>
           <p class="results-footnote">
-            These are anonymized representative examples based on the kinds of workflow improvements
-            reviewed in Clarity Sessions. They are meant to show the shape of the work, not present
-            named client testimonials.
+            These are representative examples based on the kinds of workflow improvements reviewed in
+            Clarity Sessions. Named client case studies may be added here over time.
           </p>
         </div>
       </section>
@@ -619,10 +651,25 @@
             </p>
           </div>
 
-          <div class="partner-chip-row reveal" aria-label="Referral partner benefits">
-            <span class="partner-chip" data-content="partners.chips.0">$250 referral fee when a referred client engages</span>
-            <span class="partner-chip" data-content="partners.chips.1">Clear scope and no awkward overlap with your relationship</span>
-            <span class="partner-chip" data-content="partners.chips.2">Trusted implementation help you can confidently point clients to</span>
+          <div class="partner-benefits-grid reveal" aria-label="Referral partner benefits">
+            <article class="partner-benefit-card">
+              <p class="partner-benefit-number">01</p>
+              <p class="partner-benefit-copy" data-content="partners.chips.0">
+                $250 referral fee when a referred client engages
+              </p>
+            </article>
+            <article class="partner-benefit-card">
+              <p class="partner-benefit-number">02</p>
+              <p class="partner-benefit-copy" data-content="partners.chips.1">
+                Clear scope with no awkward overlap in your client relationship
+              </p>
+            </article>
+            <article class="partner-benefit-card">
+              <p class="partner-benefit-number">03</p>
+              <p class="partner-benefit-copy" data-content="partners.chips.2">
+                Practical implementation help you can confidently send clients to
+              </p>
+            </article>
           </div>
 
           <a

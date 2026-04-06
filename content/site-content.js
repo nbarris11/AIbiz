@@ -189,8 +189,8 @@ window.SIDECAR_SITE_CONTENT = {
       "If your clients ask about AI, workflow issues, or how to get more out of their tools, this is built for you. Sidecar Advisory works well alongside CPAs, bookkeepers, attorneys, brokers, agencies, and trusted advisors who serve small businesses.",
     chips: [
       "$250 referral fee when a referred client engages",
-      "Clear scope and no awkward overlap with your relationship",
-      "Trusted implementation help you can confidently point clients to",
+      "Clear scope with no awkward overlap in your client relationship",
+      "Practical implementation help you can confidently send clients to",
     ],
     ctaText: "Become a Referral Partner",
     ctaHref: "mailto:hello@sidecaradvisory.com?subject=Referral Partner Inquiry",

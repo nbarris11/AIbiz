@@ -744,6 +744,21 @@ p {
   text-align: center;
 }
 
+.case-study-card {
+  display: grid;
+  gap: 14px;
+}
+
+.case-study-body {
+  display: grid;
+  gap: 12px;
+}
+
+.case-study-section {
+  display: grid;
+  gap: 6px;
+}
+
 .process-grid {
   position: relative;
   display: grid;
@@ -883,24 +898,34 @@ p {
   font-weight: 300;
 }
 
-.partner-chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
+.partner-benefits-grid {
+  display: grid;
+  gap: 14px;
   margin-top: 28px;
 }
 
-.partner-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 38px;
-  padding: 8px 18px;
+.partner-benefit-card {
+  display: grid;
+  gap: 10px;
+  padding: 20px 22px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+}
+
+.partner-benefit-number {
+  color: var(--tan);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.partner-benefit-copy {
   color: var(--parchment);
-  font-size: 13px;
-  font-weight: 400;
+  font-size: 0.98rem;
+  line-height: 1.65;
 }
 
 .button-partner-outline {
@@ -1179,6 +1204,10 @@ p {
 
   .contact-layout {
     grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.15fr);
+  }
+
+  .partner-benefits-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .footer-bar {
