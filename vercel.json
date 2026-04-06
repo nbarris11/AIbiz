@@ -1,13 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "/coming-soon.html"
-    },
-    {
-      "source": "/:path((?!internal(?:/.*)?$)(?!coming-soon\\.html$).*)",
-      "destination": "/coming-soon.html"
+      "src": "^/(?!internal(?:/.*)?$)(?!coming-soon\\.html$).*",
+      "dest": "/coming-soon.html"
     }
   ]
 }
