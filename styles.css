@@ -337,9 +337,7 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 14px;
-  margin-right: auto;
-  margin-left: auto;
+  margin-top: 18px;
   padding: 10px 16px;
   border: 1px solid rgba(61, 107, 94, 0.3);
   border-radius: 999px;
@@ -352,26 +350,20 @@ p {
 
 .hero-stats {
   display: grid;
-  gap: 16px;
-  margin-top: 40px;
-  color: var(--tan);
+  gap: 12px;
+  margin-top: 34px;
+  color: var(--tan-dark);
   font-size: 13px;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .hero-stats p {
-  position: relative;
-  padding-left: 18px;
-}
-
-.hero-stats p::before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  left: 0;
-  width: 1px;
-  background: var(--tan-light);
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(156, 139, 110, 0.2);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.62);
+  line-height: 1.6;
 }
 
 .hero-circle {
@@ -502,6 +494,13 @@ p {
   display: grid;
   gap: 14px;
   margin-top: 26px;
+}
+
+.guarantee-method-label {
+  margin: 26px 0 0;
+  color: var(--saddle);
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .framework-card {
@@ -726,11 +725,6 @@ p {
   font-size: 1.05rem;
   font-weight: 300;
   line-height: 1.75;
-}
-
-.result-title {
-  margin-bottom: 14px;
-  font-size: 1.65rem;
 }
 
 .result-impact,
@@ -1155,20 +1149,11 @@ p {
   }
 
   .hero-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .hero-stats p {
-    padding: 0 18px;
-  }
-
-  .hero-stats p:first-child {
-    padding-left: 0;
-  }
-
-  .hero-stats p:first-child::before {
-    display: none;
+    padding: 14px 18px;
   }
 
   .services-grid {

@@ -10,29 +10,30 @@ window.SIDECAR_SITE_CONTENT = {
   },
   hero: {
     eyebrow: "AI ADVISORY FOR SMALL BUSINESS",
-    headline: "AI workflow help for Metro Detroit service businesses.",
+    headline: "Practical AI implementation for Metro Detroit service businesses.",
     subheadline:
-      "Sidecar Advisory helps small professional service firms clean up the repetitive work that slows the week down: follow-up, intake, scheduling, admin tasks, reporting, and document-heavy processes.",
+      "Sidecar Advisory helps small professional service firms improve the workflows that usually get stuck first: client follow-up, intake and scheduling, admin work, reporting, document handling, and internal team communication.",
     guarantee:
-      "Free 45-minute Clarity Session. We review where time, money, and manual work are getting stuck.",
+      "Founder-led implementation help for small teams that need practical workflow support.",
     stats: [
-      "45-minute working session focused on practical workflows, not a software demo",
-      "Implementation-minded guidance for small teams that need clear next steps",
-      "Simple rollout plans built around the way your office already works",
+      "45-minute working session built around your current workflows",
+      "Professional services focused and designed for small teams",
+      "Plain-English implementation guidance with clear next steps",
+      "Metro Detroit based and founder-led",
     ],
   },
   services: {
     eyebrow: "WHAT WE DO",
     headline: "Six ways we ride with you.",
     intro:
-      "Every engagement starts with a Clarity Session — a 45-minute structured conversation where we identify your best opportunities. Guaranteed — details below.",
+      "Every engagement starts with a Clarity Session so you can see where the workflow friction is, what to prioritize first, and what level of support makes sense.",
     cards: [
       {
         number: "01",
         title: "AI Clarity Session",
         meta: "Free · 45 min",
         body:
-          "A focused working session where we dig into your business, identify at least $5,000 in annual savings, and show you where AI can create the fastest ROI. Guaranteed — details below.",
+          "A practical review of your current workflows, where admin is piling up, and which fixes are worth doing first. You leave with priority opportunities, a clear next-step plan, and a documented savings estimate.",
         badge: "",
       },
       {
@@ -81,7 +82,7 @@ window.SIDECAR_SITE_CONTENT = {
     eyebrow: "NO-RISK START",
     headline: "The Guarantee",
     body:
-      "Every engagement starts with a Clarity Session. We look at where time is being spent, where handoffs break down, and which tasks are still too manual for the way your business works today. The guarantee is based on a real review process, not a generic AI pitch.",
+      "Every engagement starts with a Clarity Session. We review where time is going, where handoffs break down, and which tasks are still too manual for the way your business runs today. The guarantee is based on a working review of your actual workflows and tools, not a generic AI pitch.",
     callout: "$5,000+ in annual savings — guaranteed.",
   },
   whoWeServe: {
@@ -123,19 +124,19 @@ window.SIDECAR_SITE_CONTENT = {
     eyebrow: "RESULTS",
     headline: "Early Wins",
     intro:
-      "Representative outcomes based on common savings identified for firms like these.",
+      "Representative examples based on common workflow improvements for firms like these.",
     cards: [
       {
         meta: "Insurance agency · Troy, MI",
-        body: "Cut renewal processing from 4 hours to 40 minutes.",
+        body: "Before: Renewal processing required multiple manual follow-ups and took about 4 hours. After: Automated reminders and internal task routing reduced that process to about 40 minutes. Operational impact: Faster follow-up, less admin bottleneck, and more time for client-facing work.",
       },
       {
         meta: "Law firm · Royal Oak, MI",
-        body: "Reduced client intake admin from 6 hours a week to under 90 minutes.",
+        body: "Before: Intake involved repeated emails, missing details, and calendar back-and-forth across the week. After: A more structured intake and scheduling workflow reduced admin time to a shorter review step. Operational impact: Less owner time spent chasing information and cleaner internal handoffs.",
       },
       {
         meta: "Accounting firm · Rochester Hills, MI",
-        body: "Turned monthly reporting prep from a full day into a 2-hour review.",
+        body: "Before: Monthly reporting prep started from scratch and took most of a day to assemble. After: Inputs, summaries, and recurring client communication were standardized into a repeatable process. Operational impact: A long prep cycle became a shorter review-and-approval workflow.",
       },
     ],
   },
@@ -148,7 +149,7 @@ window.SIDECAR_SITE_CONTENT = {
         title: "Book a Clarity Session",
         time: "45 min · Free",
         body:
-          "We learn about your business and identify where the savings are. Guaranteed — details below.",
+          "We review your current workflows, spot where time is getting lost, and leave with a shortlist of the best opportunities.",
       },
       {
         number: "2",
@@ -170,13 +171,12 @@ window.SIDECAR_SITE_CONTENT = {
     eyebrow: "ABOUT SIDECAR ADVISORY",
     headline: "A business partner, not a tech vendor.",
     paragraphs: [
-      "Before starting Sidecar Advisory, I spent nearly a decade helping companies actually use the technology they were paying for. My work was always about adoption, value, and fixing the gap between buying software and getting results from it.",
-      "That background matters here because small businesses do not need more tech talk. They need someone who can simplify the choices, set things up cleanly, and make sure the workflow actually fits the way the business runs.",
-      "Sidecar Advisory brings that implementation mindset to Metro Detroit firms that want practical help with AI, automation, and day-to-day operations. Founder-led, plain-English, and built around real business use.",
+      "Before starting Sidecar Advisory, I spent nearly a decade helping companies get real value from the technology they were already paying for. That work was always about adoption, implementation, and making complicated tools usable in day-to-day operations.",
+      "Most small businesses do not have a technology problem. They have an implementation problem. Sidecar Advisory brings that mindset to Metro Detroit firms that want practical AI help tied to the way the business actually runs.",
     ],
     chips: [
-      "Nearly 10 Years in Enterprise Customer Success",
-      "Adoption and Implementation Focus",
+      "Nearly 10 years in customer success and adoption work",
+      "Implementation and workflow focused",
       "Based in Metro Detroit",
     ],
     imageUrl: "",
@@ -198,11 +198,11 @@ window.SIDECAR_SITE_CONTENT = {
   contact: {
     headline: "Ready to ride?",
     body:
-      "Book a free 45-minute Clarity Session. We'll identify at least $5,000 in annual savings — guaranteed. No risk. No obligation.",
+      "Book a free 45-minute Clarity Session and get a practical look at where AI can help your business first.",
     trustSignals: [
       "Free 45-minute Clarity Session",
-      "$5,000+ in annual savings — guaranteed",
-      "No risk. No obligation.",
+      "Practical workflow review",
+      "Metro Detroit, MI",
     ],
     ctaText: "Book a Free Clarity Session",
     meta: "hello@sidecaradvisory.com · sidecaradvisory.com · Metro Detroit, MI",
