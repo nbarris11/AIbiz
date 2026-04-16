@@ -6,30 +6,84 @@
     <title>AI Advisory for Small Businesses in Metro Detroit | Sidecar Advisory</title>
     <meta
       name="description"
-      content="Practical AI advisory and implementation for small businesses in Metro Detroit. Sidecar Advisory helps professional service firms improve follow-up, intake, admin, reporting, and workflow automation."
+      content="Practical AI help for Metro Detroit insurance agencies, law firms, accountants, and real estate offices. Save 10+ hours a week. Free Clarity Session — $5,000 savings guaranteed."
     />
-    <!-- Update /preview/ canonicals to final production URLs when the site launches outside preview. -->
-    <link rel="canonical" href="https://www.sidecaradvisory.com/preview/" />
+    <link rel="canonical" href="https://www.sidecaradvisory.com/" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <!-- TODO: Upload favicon.ico and apple-touch-icon.png to the repo root -->
+    <!-- Open Graph -->
+    <meta property="og:title" content="AI Advisory for Metro Detroit Professional Service Firms | Sidecar Advisory" />
+    <meta property="og:description" content="Practical AI help for Metro Detroit insurance agencies, law firms, accountants, and real estate offices. Save 10+ hours a week. Free Clarity Session — $5,000 savings guaranteed." />
+    <meta property="og:image" content="https://www.sidecaradvisory.com/assets/og-image.png" />
+    <!-- TODO: Provide a 1200x630 og-image.png with wordmark and tagline -->
+    <meta property="og:url" content="https://www.sidecaradvisory.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sidecar Advisory" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AI Advisory for Metro Detroit Professional Service Firms | Sidecar Advisory" />
+    <meta name="twitter:description" content="Practical AI help for Metro Detroit insurance agencies, law firms, accountants, and real estate offices. Save 10+ hours a week. Free Clarity Session — $5,000 savings guaranteed." />
+    <meta name="twitter:image" content="https://www.sidecaradvisory.com/assets/og-image.png" />
+    <!-- Schema: Organization -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "Sidecar Advisory",
-        "url": "https://www.sidecaradvisory.com/preview/",
+        "name": "Sidecar Advisory LLC",
+        "url": "https://www.sidecaradvisory.com",
+        "logo": "https://www.sidecaradvisory.com/assets/logo.png",
+        "founder": {
+          "@type": "Person",
+          "name": "Neil Barris"
+        },
+        "areaServed": {
+          "@type": "Place",
+          "name": "Metro Detroit, Michigan"
+        },
         "email": "hello@sidecaradvisory.com",
-        "description": "Practical AI advisory and implementation for small businesses in Metro Detroit, with a focus on professional service firms and workflow automation."
+        "description": "AI implementation for Metro Detroit small professional service firms."
       }
     </script>
+    <!-- Schema: Services -->
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "ProfessionalService",
-        "name": "Sidecar Advisory",
-        "url": "https://www.sidecaradvisory.com/preview/",
-        "email": "hello@sidecaradvisory.com",
-        "areaServed": "Metro Detroit, Michigan",
-        "description": "AI advisory and implementation for small businesses, including workflow automation, intake improvements, follow-up systems, reporting support, and practical AI rollout for professional service firms."
-      }
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": "AI Clarity Session",
+          "provider": { "@type": "Organization", "name": "Sidecar Advisory LLC" },
+          "description": "A free 45-minute working session to review workflows, identify at least $5,000 in annual savings, and deliver a prioritized list of highest-ROI AI improvements. Free if the savings threshold is not met.",
+          "areaServed": "Metro Detroit, Michigan",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": "AI Starter Pack",
+          "provider": { "@type": "Organization", "name": "Sidecar Advisory LLC" },
+          "description": "A focused 30-day implementation to get the first practical workflow improvements live. Best for 3–5 recurring admin bottlenecks.",
+          "areaServed": "Metro Detroit, Michigan",
+          "offers": { "@type": "Offer", "lowPrice": "2500", "highPrice": "3500", "priceCurrency": "USD" }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": "Full Practice Automation",
+          "provider": { "@type": "Organization", "name": "Sidecar Advisory LLC" },
+          "description": "Broader AI and automation implementation for professional service firms with more complex or advanced workflow needs.",
+          "areaServed": "Metro Detroit, Michigan"
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": "AI Co-Pilot Retainer",
+          "provider": { "@type": "Organization", "name": "Sidecar Advisory LLC" },
+          "description": "Month-to-month AI implementation support. Monitoring, tuning, new automations, and ongoing guidance after the initial engagement.",
+          "areaServed": "Metro Detroit, Michigan",
+          "offers": { "@type": "Offer", "lowPrice": "750", "highPrice": "2500", "priceCurrency": "USD" }
+        }
+      ]
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -77,8 +131,8 @@
           <a href="#process">How It Works</a>
           <a href="#about">About</a>
           <a href="#partners">Partners</a>
-          <a href="contact.html" data-link-content="settings.contactPageUrl">Contact</a>
-          <a href="blog.html">Blog</a>
+          <a href="/contact/" data-link-content="settings.contactPageUrl">Contact</a>
+          <a href="/blog/">Blog</a>
           <a
             class="button button-outline nav-cta"
             href="#schedule"
@@ -98,19 +152,13 @@
           <div class="hero-copy reveal">
             <p class="eyebrow" data-content="hero.eyebrow">AI ADVISORY FOR SMALL BUSINESS</p>
             <h1 data-content="hero.headline">
-              Practical AI implementation for Metro Detroit service businesses.
+              Get back 10+ hours a week. Guaranteed.
             </h1>
             <p class="hero-subhead" data-content="hero.subheadline">
-              Sidecar Advisory helps small professional service firms improve the workflows that
-              usually get stuck first: client follow-up, intake and scheduling, admin work,
-              reporting, document handling, and internal team communication.
+              I help Metro Detroit professional service firms — insurance agencies, law firms,
+              accountants, real estate offices — implement AI that actually works. In 45 minutes
+              I'll find at least $5,000 in annual savings for your business, or the session is free.
             </p>
-            <div class="hero-workflows" aria-label="Example workflows">
-              <span class="hero-workflow-pill">Client follow-up</span>
-              <span class="hero-workflow-pill">Intake and scheduling</span>
-              <span class="hero-workflow-pill">Admin and reporting</span>
-              <span class="hero-workflow-pill">Documents and communication</span>
-            </div>
             <div class="hero-actions">
               <a
                 class="button button-primary"
@@ -234,7 +282,7 @@
               </ul>
               <a
                 class="button button-outline"
-                href="contact.html"
+                href="/contact/"
                 data-link-content="settings.contactPageUrl"
                 data-content="offerPath.cards.2.cta"
                 data-content-attr-text="true"
@@ -355,12 +403,12 @@
           <div class="guarantee-shell reveal">
             <div class="guarantee-copy">
               <p class="eyebrow" data-content="guarantee.eyebrow">NO-RISK START</p>
-              <h2 data-content="guarantee.headline">The Guarantee</h2>
+              <h2 data-content="guarantee.headline">The $5,000 Guarantee</h2>
               <p class="guarantee-body" data-content="guarantee.body">
-                Every engagement starts with a Clarity Session. We look at where time is being
-                spent, where handoffs break down, and which tasks are still too manual for the way
-                your business works today. The guarantee is based on a real review process, not a
-                generic AI pitch.
+                The Clarity Session is a 45-minute working session where I review your current
+                workflows, spot where time and money are being lost, and give you a prioritized list
+                of the highest-ROI AI improvements for your business. If I can't identify at least
+                $5,000 in annual savings during the session, you don't pay. That's the deal.
               </p>
               <div class="guarantee-method">
                 <p class="guarantee-method-label">How we calculate savings opportunities</p>
@@ -392,7 +440,7 @@
             <aside class="guarantee-callout" aria-label="Guarantee callout">
               <p class="guarantee-callout-label">Guaranteed Outcome</p>
               <p class="guarantee-callout-value" data-content="guarantee.callout">
-                $5,000+ in annual savings — guaranteed.
+                $5,000+ in annual savings — or the session is free.
               </p>
               <p class="guarantee-callout-copy">
                 If the review does not uncover that level of opportunity, we will tell you plainly.
@@ -425,6 +473,7 @@
                 <li>Document-heavy admin that slows producers and account managers down</li>
                 <li>Better consistency across follow-up and servicing work</li>
               </ul>
+              <a class="focus-note-link" href="/insurance-agencies/">Learn more →</a>
             </article>
 
             <article class="focus-card reveal">
@@ -442,6 +491,7 @@
                 <li>Document summaries, drafting support, and internal handoff notes</li>
                 <li>Less admin drag around non-billable work</li>
               </ul>
+              <a class="focus-note-link" href="/law-firms/">Learn more →</a>
             </article>
 
             <article class="focus-card reveal">
@@ -457,6 +507,7 @@
                 <li>Internal communication around transactions and deadlines</li>
                 <li>Faster response times without adding more admin overhead</li>
               </ul>
+              <a class="focus-note-link" href="/real-estate/">Learn more →</a>
             </article>
 
             <article class="focus-card reveal">
@@ -474,6 +525,7 @@
                 <li>Cleaner recurring reporting and monthly-close support workflows</li>
                 <li>More capacity during busy seasons without chaos behind the scenes</li>
               </ul>
+              <a class="focus-note-link" href="/accounting-firms/">Learn more →</a>
             </article>
           </div>
 
@@ -496,13 +548,13 @@
           </div>
 
           <div class="focus-link-row reveal" aria-label="Related guides">
-            <a class="focus-note-link" href="ai-for-insurance-agencies-guide.html">
+            <a class="focus-note-link" href="/insurance-agencies/">
               AI implementation for insurance agencies
             </a>
-            <a class="focus-note-link" href="ai-for-law-firms-guide.html">
+            <a class="focus-note-link" href="/law-firms/">
               AI workflow help for law firms
             </a>
-            <a class="focus-note-link" href="blog.html">More practical AI guides for small service teams</a>
+            <a class="focus-note-link" href="/blog/">More practical AI guides for small service teams</a>
           </div>
         </div>
       </section>
@@ -511,7 +563,7 @@
         <div class="container">
           <div class="section-head centered-head reveal">
             <p class="eyebrow" data-content="results.eyebrow">RESULTS</p>
-            <h2 data-content="results.headline">Early Wins</h2>
+            <h2 data-content="results.headline">What a typical engagement looks like</h2>
             <p class="section-subcopy" data-content="results.intro">
               Representative examples based on common workflow improvements for firms like these.
             </p>
@@ -521,7 +573,7 @@
             <!-- Future case study slot: client label, industry, challenge, solution, result, and optional testimonial quote can be added within this structure. -->
             <article class="result-card case-study-card reveal">
               <header class="case-study-header">
-                <p class="result-meta case-study-label">Insurance agency · Troy, MI</p>
+                <p class="result-meta case-study-label">Insurance agency engagement</p>
               </header>
               <div class="case-study-body">
                 <div class="case-study-section case-study-challenge">
@@ -548,7 +600,7 @@
             <!-- Future case study slot: replace the label below with a named client or anonymized client descriptor when real proof is available. -->
             <article class="result-card case-study-card reveal">
               <header class="case-study-header">
-                <p class="result-meta case-study-label">Law firm · Royal Oak, MI</p>
+                <p class="result-meta case-study-label">Law firm engagement</p>
               </header>
               <div class="case-study-body">
                 <div class="case-study-section case-study-challenge">
@@ -575,7 +627,7 @@
             <!-- Future case study slot: optional testimonial quote can be inserted after the result section without changing the card layout. -->
             <article class="result-card case-study-card reveal">
               <header class="case-study-header">
-                <p class="result-meta case-study-label">Accounting firm · Rochester Hills, MI</p>
+                <p class="result-meta case-study-label">Accounting firm engagement</p>
               </header>
               <div class="case-study-body">
                 <div class="case-study-section case-study-challenge">
@@ -599,8 +651,8 @@
             </article>
           </div>
           <p class="results-footnote">
-            These are representative examples based on the kinds of workflow improvements reviewed in
-            Clarity Sessions. Named client case studies may be added here over time.
+            These are illustrative examples of the kinds of workflow improvements typically reviewed
+            in a Clarity Session. Real client case studies will be added here as engagements complete.
           </p>
         </div>
       </section>
@@ -762,7 +814,7 @@
               >
                 Book a Free Clarity Session
               </a>
-              <a class="button button-outline button-light" href="contact.html">Contact Sidecar Advisory</a>
+              <a class="button button-outline button-light" href="/contact/">Contact Sidecar Advisory</a>
             </div>
             <p class="contact-meta" data-content="contact.meta">
               hello@sidecaradvisory.com · sidecaradvisory.com · Metro Detroit, MI
@@ -785,10 +837,10 @@
 
             <div
               class="calendly-inline-widget"
-              data-content="settings.calendlyUrl"
-              data-content-attr="data-url"
-              style="min-width: 320px; height: 760px"
+              data-url="https://calendly.com/sidecaradvisory/30min"
+              style="min-width: 320px; height: 700px"
             ></div>
+            <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
           </div>
 
           <div class="footer-bar">
@@ -806,11 +858,17 @@
               <a href="mailto:hello@sidecaradvisory.com">hello@sidecaradvisory.com</a>
             </p>
             <div class="footer-links" aria-label="Footer links">
-              <a href="privacy.html">Privacy Policy</a>
-              <a href="terms.html">Terms of Use</a>
-              <a href="contact.html">Contact</a>
+              <a href="/privacy/">Privacy Policy</a>
+              <a href="/terms/">Terms of Use</a>
+              <a href="/contact/">Contact</a>
             </div>
             <p>© 2026 Sidecar Advisory LLC. All rights reserved.</p>
+            <div itemscope itemtype="https://schema.org/LocalBusiness">
+              <p itemprop="name">Sidecar Advisory LLC</p>
+              <p itemprop="areaServed">Serving Metro Detroit, Michigan</p>
+              <p itemprop="email">hello@sidecaradvisory.com</p>
+              <!-- TODO: Add itemprop="telephone" once Google Voice number is set up -->
+            </div>
           </div>
         </div>
       </section>

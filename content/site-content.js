@@ -2,8 +2,8 @@ window.SIDECAR_SITE_CONTENT = {
   settings: {
     calendlyUrl: "https://calendly.com/sidecaradvisory/30min",
     bookingAnchor: "#schedule",
-    bookingPageUrl: "index.html#schedule",
-    contactPageUrl: "contact.html",
+    bookingPageUrl: "https://calendly.com/sidecaradvisory/30min",
+    contactPageUrl: "/contact/",
     email: "hello@sidecaradvisory.com",
     domain: "sidecaradvisory.com",
     location: "Metro Detroit, MI",
@@ -11,9 +11,9 @@ window.SIDECAR_SITE_CONTENT = {
   },
   hero: {
     eyebrow: "AI ADVISORY FOR SMALL BUSINESS",
-    headline: "Practical AI implementation for Metro Detroit service businesses.",
+    headline: "Get back 10+ hours a week. Guaranteed.",
     subheadline:
-      "Sidecar Advisory helps small professional service firms improve the workflows that usually get stuck first: client follow-up, intake and scheduling, admin work, reporting, document handling, and internal team communication.",
+      "I help Metro Detroit professional service firms — insurance agencies, law firms, accountants, real estate offices — implement AI that actually works. In 45 minutes I'll find at least $5,000 in annual savings for your business, or the session is free.",
     pathNote:
       "Start with a free Clarity Session, launch your first workflow with the Starter Pack, and stay supported with the AI Co-Pilot if it makes sense.",
     guarantee:
@@ -93,10 +93,10 @@ window.SIDECAR_SITE_CONTENT = {
   },
   guarantee: {
     eyebrow: "NO-RISK START",
-    headline: "The Guarantee",
+    headline: "The $5,000 Guarantee",
     body:
-      "Every engagement starts with a Clarity Session. We review where time is going, where handoffs break down, and which tasks are still too manual for the way your business runs today. The guarantee is based on a working review of your actual workflows and tools, not a generic AI pitch.",
-    callout: "$5,000+ in annual savings — guaranteed.",
+      "The Clarity Session is a 45-minute working session where I review your current workflows, spot where time and money are being lost, and give you a prioritized list of the highest-ROI AI improvements for your business. If I can't identify at least $5,000 in annual savings during the session, you don't pay. That's the deal.",
+    callout: "$5,000+ in annual savings — or the session is free.",
   },
   whoWeServe: {
     eyebrow: "OUR FOCUS",
@@ -135,20 +135,20 @@ window.SIDECAR_SITE_CONTENT = {
   },
   results: {
     eyebrow: "RESULTS",
-    headline: "Early Wins",
+    headline: "What a typical engagement looks like",
     intro:
       "Representative examples based on common workflow improvements for firms like these.",
     cards: [
       {
-        meta: "Insurance agency · Troy, MI",
+        meta: "Insurance agency engagement",
         body: "Before: Renewal processing required multiple manual follow-ups and took about 4 hours. After: Automated reminders and internal task routing reduced that process to about 40 minutes. Operational impact: Faster follow-up, less admin bottleneck, and more time for client-facing work.",
       },
       {
-        meta: "Law firm · Royal Oak, MI",
+        meta: "Law firm engagement",
         body: "Before: Intake involved repeated emails, missing details, and calendar back-and-forth across the week. After: A more structured intake and scheduling workflow reduced admin time to a shorter review step. Operational impact: Less owner time spent chasing information and cleaner internal handoffs.",
       },
       {
-        meta: "Accounting firm · Rochester Hills, MI",
+        meta: "Accounting firm engagement",
         body: "Before: Monthly reporting prep started from scratch and took most of a day to assemble. After: Inputs, summaries, and recurring client communication were standardized into a repeatable process. Operational impact: A long prep cycle became a shorter review-and-approval workflow.",
       },
     ],

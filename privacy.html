@@ -8,7 +8,35 @@
       name="description"
       content="Read the Privacy Policy for Sidecar Advisory, including how website inquiries, scheduling information, and contact details may be handled."
     />
-    <link rel="canonical" href="https://www.sidecaradvisory.com/preview/privacy.html" />
+    <link rel="canonical" href="https://www.sidecaradvisory.com/privacy/" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <!-- Open Graph -->
+    <meta property="og:title" content="Privacy Policy | Sidecar Advisory" />
+    <meta property="og:description" content="Read the Privacy Policy for Sidecar Advisory, including how website inquiries, scheduling information, and contact details may be handled." />
+    <meta property="og:image" content="https://www.sidecaradvisory.com/assets/og-image.png" />
+    <meta property="og:url" content="https://www.sidecaradvisory.com/privacy/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sidecar Advisory" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Privacy Policy | Sidecar Advisory" />
+    <meta name="twitter:description" content="Read the Privacy Policy for Sidecar Advisory, including how website inquiries, scheduling information, and contact details may be handled." />
+    <meta name="twitter:image" content="https://www.sidecaradvisory.com/assets/og-image.png" />
+    <!-- Schema: Organization -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Sidecar Advisory LLC",
+        "url": "https://www.sidecaradvisory.com",
+        "logo": "https://www.sidecaradvisory.com/assets/logo.png",
+        "founder": { "@type": "Person", "name": "Neil Barris" },
+        "areaServed": { "@type": "Place", "name": "Metro Detroit, Michigan" },
+        "email": "hello@sidecaradvisory.com",
+        "description": "AI implementation for Metro Detroit small professional service firms."
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -45,7 +73,7 @@
   <body>
     <header class="site-header" id="top">
       <div class="container nav-shell">
-        <a class="brand" href="index.html" aria-label="Sidecar Advisory home">
+        <a class="brand" href="/" aria-label="Sidecar Advisory home">
           <svg class="brand-icon" viewBox="0 0 52 40" fill="none" aria-hidden="true">
             <circle cx="12" cy="30" r="6.5" />
             <circle cx="40" cy="30" r="6.5" />
@@ -63,11 +91,11 @@
         </a>
 
         <nav class="site-nav" aria-label="Primary">
-          <a href="index.html#services">Services</a>
-          <a href="index.html#about">About</a>
-          <a href="contact.html">Contact</a>
-          <a href="blog.html">Blog</a>
-          <a class="button button-outline nav-cta" href="index.html#schedule">Book a Free Clarity Session</a>
+          <a href="/#services">Services</a>
+          <a href="/#about">About</a>
+          <a href="/contact/">Contact</a>
+          <a href="/blog/">Blog</a>
+          <a class="button button-outline nav-cta" href="/#schedule">Book a Free Clarity Session</a>
         </nav>
       </div>
     </header>
@@ -117,11 +145,17 @@
             <a href="mailto:hello@sidecaradvisory.com">hello@sidecaradvisory.com</a>
           </p>
           <div class="footer-links">
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="terms.html">Terms of Use</a>
-            <a href="contact.html">Contact</a>
+            <a href="/privacy/">Privacy Policy</a>
+            <a href="/terms/">Terms of Use</a>
+            <a href="/contact/">Contact</a>
           </div>
           <p>© 2026 Sidecar Advisory LLC. All rights reserved.</p>
+          <div itemscope itemtype="https://schema.org/LocalBusiness">
+            <p itemprop="name">Sidecar Advisory LLC</p>
+            <p itemprop="areaServed">Serving Metro Detroit, Michigan</p>
+            <p itemprop="email">hello@sidecaradvisory.com</p>
+            <!-- TODO: Add itemprop="telephone" once Google Voice number is set up -->
+          </div>
         </div>
       </div>
     </footer>

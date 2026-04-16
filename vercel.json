@@ -1,32 +1,31 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "routes": [
-    {
-      "src": "^/robots\\.txt$",
-      "dest": "/robots.txt"
-    },
-    {
-      "src": "^/sitemap\\.xml$",
-      "dest": "/sitemap.xml"
-    },
-    {
-      "src": "^/preview$",
-      "status": 308,
-      "headers": {
-        "Location": "/preview/"
-      }
-    },
-    {
-      "src": "^/preview/$",
-      "dest": "/index.html"
-    },
-    {
-      "src": "^/preview/(.*)$",
-      "dest": "/$1"
-    },
-    {
-      "src": "^/(?!internal(?:/.*)?$)(?!preview(?:/.*)?$)(?!content(?:/.*)?$)(?!coming-soon\\.html$).*",
-      "dest": "/coming-soon.html"
-    }
+  "redirects": [
+    { "source": "/preview",                                                "destination": "/",                    "permanent": true },
+    { "source": "/preview/",                                               "destination": "/",                    "permanent": true },
+    { "source": "/preview/contact.html",                                   "destination": "/contact/",            "permanent": true },
+    { "source": "/preview/blog.html",                                      "destination": "/blog/",               "permanent": true },
+    { "source": "/preview/ai-for-insurance-agencies-guide.html",           "destination": "/insurance-agencies/", "permanent": true },
+    { "source": "/preview/ai-for-law-firms-guide.html",                    "destination": "/law-firms/",          "permanent": true },
+    { "source": "/preview/privacy.html",                                   "destination": "/privacy/",            "permanent": true },
+    { "source": "/preview/terms.html",                                     "destination": "/terms/",              "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/contact",             "destination": "/contact.html" },
+    { "source": "/contact/",            "destination": "/contact.html" },
+    { "source": "/blog",                "destination": "/blog.html" },
+    { "source": "/blog/",               "destination": "/blog.html" },
+    { "source": "/insurance-agencies",  "destination": "/ai-for-insurance-agencies-guide.html" },
+    { "source": "/insurance-agencies/", "destination": "/ai-for-insurance-agencies-guide.html" },
+    { "source": "/law-firms",           "destination": "/ai-for-law-firms-guide.html" },
+    { "source": "/law-firms/",          "destination": "/ai-for-law-firms-guide.html" },
+    { "source": "/privacy",             "destination": "/privacy.html" },
+    { "source": "/privacy/",            "destination": "/privacy.html" },
+    { "source": "/terms",               "destination": "/terms.html" },
+    { "source": "/terms/",              "destination": "/terms.html" },
+    { "source": "/accounting-firms",    "destination": "/accounting-firms.html" },
+    { "source": "/accounting-firms/",   "destination": "/accounting-firms.html" },
+    { "source": "/real-estate",         "destination": "/real-estate.html" },
+    { "source": "/real-estate/",        "destination": "/real-estate.html" }
   ]
 }
