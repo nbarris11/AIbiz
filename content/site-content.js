@@ -13,7 +13,7 @@ window.SIDECAR_SITE_CONTENT = {
     eyebrow: "AI ADVISORY FOR SMALL BUSINESS",
     headline: "Get back 10+ hours a week. Guaranteed.",
     subheadline:
-      "I help Metro Detroit professional service firms — insurance agencies, law firms, accountants, real estate offices — implement AI that actually works. The Clarity Session is free. In 45 minutes I'll identify at least $5,000 in annual savings for your business — or send you a free written review.",
+      "I help Metro Detroit professional service firms — insurance agencies, law firms, accountants, real estate offices — implement AI that actually works. In 45 minutes I'll find at least $5,000 in annual savings for your business — or you walk away with a free written workflow review either way.",
     pathNote:
       "Start with a free Clarity Session, launch your first workflow with the Starter Pack, and stay supported with the AI Co-Pilot if it makes sense.",
     guarantee:
