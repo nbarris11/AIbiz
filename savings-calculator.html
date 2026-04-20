@@ -959,33 +959,38 @@
         window.addEventListener('scroll', syncHeader, { passive: true });
       }
 
-      // ── Placeholder: email form submission ─────────────────────────
-      // TODO: Wire to Formspree, ConvertKit, or your preferred service.
-      // Formspree example:
-      //   fetch('https://formspree.io/f/YOUR_FORM_ID', {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify(data)
-      //   })
-      // ConvertKit example:
-      //   fetch('https://api.convertkit.com/v3/forms/YOUR_FORM_ID/subscribe', {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify({ api_key: 'YOUR_KEY', email: data.email, first_name: data.first_name, fields: data })
-      //   })
+      // ── Formspree submission ───────────────────────────────────────
       function submitCalculatorLead(data) {
-        console.log('Calculator lead captured:', data);
+        var submitBtn = document.querySelector('#calc-lead-form button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending…';
 
-        // Show success state immediately (optimistic UI).
-        // Replace this with an actual fetch() call above when ready.
-        document.getElementById('calc-lead-form').hidden = true;
-        document.getElementById('form-success').hidden   = false;
-
-        trackEvent('calculator_lead_submitted', {
-          industry:   data.industry,
-          range_low:  data.range_low,
-          range_high: data.range_high
-        });
+        fetch('https://formspree.io/f/xlgawjdv', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(data)
+        })
+          .then(function (res) { return res.json().then(function (body) { return { ok: res.ok, body: body }; }); })
+          .then(function (result) {
+            if (result.ok) {
+              document.getElementById('calc-lead-form').hidden = true;
+              document.getElementById('form-success').hidden   = false;
+              trackEvent('calculator_lead_submitted', {
+                industry:   data.industry,
+                range_low:  data.range_low,
+                range_high: data.range_high
+              });
+            } else {
+              submitBtn.disabled    = false;
+              submitBtn.textContent = 'Send me the breakdown';
+              alert('Something went wrong — please try again or email hello@sidecaradvisory.com directly.');
+            }
+          })
+          .catch(function () {
+            submitBtn.disabled    = false;
+            submitBtn.textContent = 'Send me the breakdown';
+            alert('Something went wrong — please try again or email hello@sidecaradvisory.com directly.');
+          });
       }
 
       // ── Placeholder: analytics events ─────────────────────────────
