@@ -986,21 +986,19 @@
               alert('Something went wrong — please try again or email hello@sidecaradvisory.com directly.');
             }
           })
-          .catch(function () {
+          .catch(function (err) {
+            if (window.LogRocket) { window.LogRocket.captureException(err); }
             submitBtn.disabled    = false;
             submitBtn.textContent = 'Send me the breakdown';
             alert('Something went wrong — please try again or email hello@sidecaradvisory.com directly.');
           });
       }
 
-      // ── Placeholder: analytics events ─────────────────────────────
-      // TODO: Wire to your analytics provider.
-      // GA4 example:    gtag('event', name, props || {})
-      // Plausible example: plausible(name, { props: props || {} })
-      // PostHog example:   posthog.capture(name, props || {})
       function trackEvent(name, props) {
-        console.log('[analytics]', name, props || {});
+        if (window.LogRocket) { window.LogRocket.track(name, props || {}); }
       }
     </script>
+    <script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous"></script>
+    <script>window.LogRocket && window.LogRocket.init('rpxxno/side-car-advisory');</script>
   </body>
 </html>
