@@ -975,6 +975,16 @@
             if (result.ok) {
               document.getElementById('calc-lead-form').hidden = true;
               document.getElementById('form-success').hidden   = false;
+              if (window.LogRocket) {
+                window.LogRocket.identify(data.email, {
+                  name:          data.first_name,
+                  email:         data.email,
+                  industry:      data.industry,
+                  team_size:     data.team_size,
+                  range_low:     data.range_low,
+                  range_high:    data.range_high
+                });
+              }
               trackEvent('calculator_lead_submitted', {
                 industry:   data.industry,
                 range_low:  data.range_low,
