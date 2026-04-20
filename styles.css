@@ -1445,3 +1445,46 @@ p {
     display: block;
   }
 }
+
+/* ── Calculator teaser (homepage) ─────────────────────────── */
+.section-calculator-teaser {
+  padding-top: 56px;
+  padding-bottom: 56px;
+  border-top: 1px solid var(--tan-light);
+  border-bottom: 1px solid var(--tan-light);
+}
+
+.calculator-teaser {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.calculator-teaser h2 {
+  margin: 8px auto 14px;
+}
+
+.calc-teaser-body {
+  max-width: 480px;
+  margin: 0 auto 28px;
+  color: var(--tan-dark);
+  font-size: 1.05rem;
+  font-weight: 300;
+  line-height: 1.65;
+}
+
+.calc-teaser-cta {
+  font-size: 1rem;
+}
+
+/* ── nav-calculator (industry/guide pages) ────────────────── */
+.nav-calculator {
+  color: var(--forest);
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 160ms ease;
+}
+
+.nav-calculator:hover {
+  color: var(--ember);
+}

@@ -25,7 +25,17 @@
     { "source": "/terms/",              "destination": "/terms.html" },
     { "source": "/accounting-firms",    "destination": "/accounting-firms.html" },
     { "source": "/accounting-firms/",   "destination": "/accounting-firms.html" },
+    { "source": "/savings-calculator",   "destination": "/savings-calculator.html" },
+    { "source": "/savings-calculator/", "destination": "/savings-calculator.html" },
     { "source": "/real-estate",         "destination": "/real-estate.html" },
-    { "source": "/real-estate/",        "destination": "/real-estate.html" }
+    { "source": "/real-estate/",        "destination": "/real-estate.html" },
+    { "source": "/blog/ai-for-insurance-agencies-2026",      "destination": "/blog-insurance-agencies-2026.html" },
+    { "source": "/blog/ai-for-insurance-agencies-2026/",     "destination": "/blog-insurance-agencies-2026.html" },
+    { "source": "/blog/ai-intake-for-law-firms",             "destination": "/blog-ai-intake-for-law-firms.html" },
+    { "source": "/blog/ai-intake-for-law-firms/",            "destination": "/blog-ai-intake-for-law-firms.html" },
+    { "source": "/blog/ai-tools-for-real-estate-offices-2026",  "destination": "/blog-ai-tools-real-estate-2026.html" },
+    { "source": "/blog/ai-tools-for-real-estate-offices-2026/", "destination": "/blog-ai-tools-real-estate-2026.html" },
+    { "source": "/blog/ai-for-accounting-firms-workflows",   "destination": "/blog-ai-accounting-firms-workflows.html" },
+    { "source": "/blog/ai-for-accounting-firms-workflows/",  "destination": "/blog-ai-accounting-firms-workflows.html" }
   ]
 }
