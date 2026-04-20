@@ -93,10 +93,10 @@ window.SIDECAR_SITE_CONTENT = {
   },
   guarantee: {
     eyebrow: "NO-RISK START",
-    headline: "The $5,000 Guarantee",
+    headline: "The $5,000 Promise",
     body:
-      "The Clarity Session is a 45-minute working session where I review your current workflows, spot where time and money are being lost, and give you a prioritized list of the highest-ROI AI improvements for your business. If I can't identify at least $5,000 in annual savings during the session, you don't pay. That's the deal.",
-    callout: "$5,000+ in annual savings — or the session is free.",
+      "The Clarity Session is free. So instead of a money-back guarantee, here's what I'll commit to: if our 45 minutes together doesn't surface at least $5,000 in annual savings opportunities for your business, I'll send you a written workflow review afterward — for free — with my honest take on what I'd recommend instead. No pitch. No follow-up. We go our separate ways.\n\nThat's the deal. You give me 45 minutes. I give you either a real plan worth pursuing, or a written second opinion you can use however you want.",
+    callout: "$5,000+ in annual savings opportunities — or a free written workflow review.",
   },
   whoWeServe: {
     eyebrow: "OUR FOCUS",
@@ -201,7 +201,7 @@ window.SIDECAR_SITE_CONTENT = {
     body:
       "If your clients ask about AI, workflow issues, or how to get more out of their tools, this is built for you. Sidecar Advisory works well alongside CPAs, bookkeepers, attorneys, brokers, agencies, and trusted advisors who serve small businesses.",
     chips: [
-      "$250 referral fee when a referred client engages",
+      "$500 referral fee when a referred client engages — plus reciprocal referrals back to your firm",
       "Clear scope with no awkward overlap in your client relationship",
       "Practical implementation help you can confidently send clients to",
     ],
