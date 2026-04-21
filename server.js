@@ -7,8 +7,10 @@ const authRouter = require('./routes/auth');
 const crmRouter = require('./routes/crm');
 const portalRouter = require('./routes/portal');
 const filesRouter = require('./routes/files');
+const emailRouter = require('./routes/email');
 const requireAdmin = require('./middleware/requireAdmin');
 const requireClient = require('./middleware/requireClient');
+const { startEmailSync } = require('./services/email');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,6 +31,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/crm', crmRouter);
 app.use('/api/portal', portalRouter);
 app.use('/api/files', filesRouter);
+app.use('/api/email', emailRouter);
 
 // ── INTERNAL CRM PAGES ───────────────────────────────
 app.get('/internal/login', (req, res) => {
@@ -51,4 +54,5 @@ app.use(express.static(path.join(__dirname)));
 
 app.listen(PORT, () => {
   console.log(`Sidecar Advisory running at http://localhost:${PORT}`);
+  startEmailSync();
 });

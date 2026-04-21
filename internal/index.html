@@ -389,6 +389,27 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<!-- SEND EMAIL MODAL -->
+<div class="overlay" id="send-email-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('send-email-modal')">×</button>
+    <div class="modal-title">Send Email</div>
+    <input type="hidden" id="sem-contact-id">
+    <div class="form-group">
+      <label class="form-label">To</label>
+      <input type="text" id="sem-to" readonly style="background:var(--cream);color:var(--tan);">
+    </div>
+    <div class="form-group"><label class="form-label">Subject *</label><input type="text" id="sem-subject"></div>
+    <div class="form-group"><label class="form-label">Body *</label><textarea id="sem-body" style="min-height:200px;"></textarea></div>
+    <hr class="divider">
+    <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
+      <span id="sem-status" style="font-size:12px;color:var(--tan);flex:1;"></span>
+      <button class="btn btn-secondary" onclick="closeModal('send-email-modal')">Cancel</button>
+      <button class="btn btn-primary" id="sem-send-btn" onclick="doSendEmail()">Send Email</button>
+    </div>
+  </div>
+</div>
+
 <!-- FOLLOW-UP MODAL -->
 <div class="overlay" id="followup-modal">
   <div class="modal modal-sm">
@@ -520,7 +541,8 @@ async function openPanel(id) {
     </div>
     ${data.notes ? `<div style="font-size:13px;color:var(--mid);padding:12px 14px;background:var(--parch);border-radius:3px;margin-bottom:20px;line-height:1.6;">${data.notes}</div>` : ''}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;">
-      <button class="btn btn-primary btn-sm" onclick="openActivityModal('${data.id}')">+ Log Activity</button>
+      ${data.email ? `<button class="btn btn-primary btn-sm" onclick="openSendEmailModal('${data.id}','${data.email}')">✉ Send Email</button>` : ''}
+      <button class="btn ${data.email ? 'btn-secondary' : 'btn-primary'} btn-sm" onclick="openActivityModal('${data.id}')">+ Log Activity</button>
       <button class="btn btn-secondary btn-sm" onclick="openFollowupModal('${data.id}','${data.follow_up_date || ''}')">Set Follow-up</button>
       ${data.follow_up_date ? `<button class="btn btn-secondary btn-sm" onclick="clearFollowup('${data.id}')">Clear Follow-up</button>` : ''}
       <button class="btn btn-secondary btn-sm" onclick="closePanel();openContactModal('${data.id}')">Edit Contact</button>
@@ -621,6 +643,45 @@ async function saveActivity() {
   });
   closeModal('activity-modal');
   openPanel(contactId);
+}
+
+// ── SEND EMAIL ───────────────────────────────────────
+function openSendEmailModal(contactId, toEmail) {
+  document.getElementById('sem-contact-id').value = contactId;
+  document.getElementById('sem-to').value = toEmail;
+  document.getElementById('sem-subject').value = '';
+  document.getElementById('sem-body').value = '';
+  document.getElementById('sem-status').textContent = '';
+  document.getElementById('sem-send-btn').disabled = false;
+  document.getElementById('send-email-modal').classList.add('open');
+}
+
+async function doSendEmail() {
+  const contactId = document.getElementById('sem-contact-id').value;
+  const subject = document.getElementById('sem-subject').value.trim();
+  const body = document.getElementById('sem-body').value.trim();
+  const status = document.getElementById('sem-status');
+  const btn = document.getElementById('sem-send-btn');
+  if (!subject || !body) return alert('Subject and body are required.');
+  btn.disabled = true;
+  status.textContent = 'Sending…';
+  status.style.color = 'var(--tan)';
+  try {
+    const r = await post(`/api/email/send/${contactId}`, { subject, body });
+    if (r.ok) {
+      status.textContent = 'Sent and logged ✓';
+      status.style.color = 'var(--forest)';
+      setTimeout(() => { closeModal('send-email-modal'); openPanel(contactId); }, 1200);
+    } else {
+      status.textContent = r.error || 'Send failed.';
+      status.style.color = 'var(--ember)';
+      btn.disabled = false;
+    }
+  } catch {
+    status.textContent = 'Connection error.';
+    status.style.color = 'var(--ember)';
+    btn.disabled = false;
+  }
 }
 
 // ── FOLLOW-UP MODAL ──────────────────────────────────

@@ -58,6 +58,16 @@ db.exec(`
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS email_sync_state (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS synced_message_ids (
+    message_id TEXT PRIMARY KEY,
+    synced_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 // Seed admin user on first run
