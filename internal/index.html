@@ -520,10 +520,19 @@ async function loadContacts() {
       <td>${stageBadge(c.pipeline_stage)}</td>
       <td style="font-size:12px;color:var(--tan);">${c.last_activity ? fmtDate(c.last_activity) : '—'}</td>
       <td style="font-size:12px;${c.follow_up_date && c.follow_up_date <= today() ? 'color:var(--ember);font-weight:600;' : 'color:var(--tan);'}">${c.follow_up_date ? fmtDate(c.follow_up_date) : '—'}</td>
-      <td onclick="event.stopPropagation()">
-        <button class="btn btn-secondary btn-sm" onclick="openContactModal('${c.id}')">Edit</button>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap;">
+        <button class="btn btn-secondary btn-sm" style="margin-right:6px;" onclick="openContactModal('${c.id}')">Edit</button>
+        <button class="btn btn-danger" onclick="deleteContact('${c.id}','${(c.name||'').replace(/'/g,'')}')">×</button>
       </td>
     </tr>`).join('');
+}
+
+async function deleteContact(id, name) {
+  if (!confirm(`Delete ${name || 'this contact'} and all their activities?\n\nThis cannot be undone.`)) return;
+  await del('/api/crm/contacts/' + id);
+  closePanel();
+  loadContacts();
+  loadDashboard();
 }
 
 // ── CONTACT PANEL ────────────────────────────────────
@@ -549,6 +558,7 @@ async function openPanel(id) {
       <button class="btn btn-secondary btn-sm" onclick="openFollowupModal('${data.id}','${data.follow_up_date || ''}')">Set Follow-up</button>
       ${data.follow_up_date ? `<button class="btn btn-secondary btn-sm" onclick="clearFollowup('${data.id}')">Clear Follow-up</button>` : ''}
       <button class="btn btn-secondary btn-sm" onclick="closePanel();openContactModal('${data.id}')">Edit Contact</button>
+      <button class="btn btn-danger" onclick="deleteContact('${data.id}','${(data.name||'').replace(/'/g,'')}')">Delete</button>
     </div>
     <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);margin-bottom:14px;">Activity Timeline</div>
     <div id="panel-activities">
