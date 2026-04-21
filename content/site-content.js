@@ -181,19 +181,16 @@ window.SIDECAR_SITE_CONTENT = {
     ],
   },
   about: {
-    eyebrow: "ABOUT SIDECAR ADVISORY",
-    headline: "A business partner, not a tech vendor.",
+    eyebrow: "ABOUT NEIL",
+    headline: "The guy behind Sidecar Advisory.",
     paragraphs: [
-      "Before starting Sidecar Advisory, I spent nearly a decade helping companies get real value from the technology they were already paying for. That work was always about adoption, implementation, and making complicated tools usable in day-to-day operations.",
-      "Most small businesses do not have a technology problem. They have an implementation problem. Sidecar Advisory brings that mindset to Metro Detroit firms that want practical AI help tied to the way the business actually runs.",
+      "I'm Neil Barris. I live here in Metro Detroit with my wife and two kids, and I started Sidecar Advisory because I kept seeing the same thing: small businesses getting sold on AI tools that nobody actually used.",
+      "I spent nearly a decade in customer success and technology adoption, helping companies get real value from the software they were already paying for. That work taught me one thing clearly — the tool is never the problem. Implementation is.",
+      "Sidecar Advisory exists to close that gap for Metro Detroit small businesses. No jargon, no generic demos, no technology for its own sake. Just practical AI built around the way your business actually runs.",
     ],
-    chips: [
-      "Nearly 10 years in customer success and adoption work",
-      "Implementation and workflow focused",
-      "Based in Metro Detroit",
-    ],
-    imageUrl: "/assets/neil-barris.jpg",
-    imageAlt: "Neil Barris, founder of Sidecar Advisory",
+    chips: [],
+    imageUrl: "/assets/neil-family.jpg",
+    imageAlt: "Neil Barris with his family in Metro Detroit",
   },
   partners: {
     eyebrow: "FOR PROFESSIONALS",
