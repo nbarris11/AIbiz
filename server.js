@@ -16,6 +16,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'sidecar-dev-secret-change-in-prod';
 
+// Trust Cloudflare Tunnel as a proxy so req.secure and cookies work correctly
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

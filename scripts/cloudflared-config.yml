@@ -1,0 +1,11 @@
+# Cloudflare Tunnel config for Sidecar Advisory CRM
+# Copy this to ~/.cloudflared/config.yml after running `cloudflared tunnel create sidecar-app`.
+# Replace <TUNNEL_ID> with the UUID from the `cloudflared tunnel create` output.
+
+tunnel: <TUNNEL_ID>
+credentials-file: /Users/barris/.cloudflared/<TUNNEL_ID>.json
+
+ingress:
+  - hostname: app.sidecaradvisory.com
+    service: http://localhost:3000
+  - service: http_status:404
