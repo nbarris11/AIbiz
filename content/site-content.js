@@ -192,8 +192,8 @@ window.SIDECAR_SITE_CONTENT = {
       "Implementation and workflow focused",
       "Based in Metro Detroit",
     ],
-    imageUrl: "",
-    imageAlt: "Founder portrait of Sidecar Advisory",
+    imageUrl: "/assets/neil-barris.jpg",
+    imageAlt: "Neil Barris, founder of Sidecar Advisory",
   },
   partners: {
     eyebrow: "FOR PROFESSIONALS",
