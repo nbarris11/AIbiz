@@ -188,9 +188,8 @@ window.SIDECAR_SITE_CONTENT = {
       "I spent nearly a decade in customer success and technology adoption, helping companies get real value from the software they were already paying for. That work taught me one thing clearly — the tool is never the problem. Implementation is.",
       "Sidecar Advisory exists to close that gap for Metro Detroit small businesses. No jargon, no generic demos, no technology for its own sake. Just practical AI built around the way your business actually runs.",
     ],
-    chips: [],
     imageUrl: "/assets/neil-family.jpg",
-    imageAlt: "Neil Barris with his family in Metro Detroit",
+    imageAlt: "Neil Barris, founder of Sidecar Advisory, with his family",
   },
   partners: {
     eyebrow: "FOR PROFESSIONALS",

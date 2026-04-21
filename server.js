@@ -1,0 +1,54 @@
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+
+const authRouter = require('./routes/auth');
+const crmRouter = require('./routes/crm');
+const portalRouter = require('./routes/portal');
+const filesRouter = require('./routes/files');
+const requireAdmin = require('./middleware/requireAdmin');
+const requireClient = require('./middleware/requireClient');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'sidecar-dev-secret-change-in-prod';
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 },
+}));
+
+// ── API ROUTES ────────────────────────────────────────
+app.use('/api/auth', authRouter);
+app.use('/api/crm', crmRouter);
+app.use('/api/portal', portalRouter);
+app.use('/api/files', filesRouter);
+
+// ── INTERNAL CRM PAGES ───────────────────────────────
+app.get('/internal/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'internal', 'login.html'));
+});
+app.get(['/internal', '/internal/'], requireAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'internal', 'index.html'));
+});
+
+// ── CLIENT PORTAL PAGES ──────────────────────────────
+app.get('/portal/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'portal', 'login.html'));
+});
+app.get(['/portal', '/portal/'], requireClient, (req, res) => {
+  res.sendFile(path.join(__dirname, 'portal', 'index.html'));
+});
+
+// ── STATIC SITE (existing files, served last) ────────
+app.use(express.static(path.join(__dirname)));
+
+app.listen(PORT, () => {
+  console.log(`Sidecar Advisory running at http://localhost:${PORT}`);
+});

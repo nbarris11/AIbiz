@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidecar Advisory — Client Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #2D5A3D; --forest-light: #4A7A5C; --parch: #F5F0E8;
+    --navy: #2C2418; --light: #D4C4A8; --tan: #9C8B6E;
+    --ember: #C0392B; --white: #FDFBF7; --cream: #EDE6DA;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh; background: var(--parch);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Epilogue', sans-serif; padding: 20px;
+  }
+  .logo-wrap { text-align: center; margin-bottom: 48px; }
+  .logo-name {
+    font-family: 'Cormorant Garamond', serif; font-size: 26px;
+    letter-spacing: .06em; color: var(--navy);
+  }
+  .logo-tagline {
+    font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--tan); margin-top: 5px;
+  }
+  .card {
+    background: var(--white); border: 1px solid var(--light); border-radius: 4px;
+    padding: 48px 52px; width: 100%; max-width: 420px;
+  }
+  h1 {
+    font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600;
+    color: var(--navy); margin-bottom: 6px;
+  }
+  .sub { font-size: 13px; color: var(--tan); margin-bottom: 32px; line-height: 1.5; }
+  label {
+    font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--navy); display: block; margin-bottom: 6px;
+  }
+  input {
+    width: 100%; padding: 12px 14px; border: 1px solid var(--light); background: var(--parch);
+    border-radius: 3px; font-family: 'Epilogue', sans-serif; font-size: 14px; color: var(--navy);
+    outline: none; margin-bottom: 20px; transition: border-color .2s;
+  }
+  input:focus { border-color: var(--forest); background: var(--white); }
+  button {
+    width: 100%; padding: 13px; background: var(--forest); color: var(--white); border: none;
+    border-radius: 3px; font-family: 'Epilogue', sans-serif; font-size: 13px; font-weight: 500;
+    letter-spacing: .06em; cursor: pointer; transition: background .2s;
+  }
+  button:hover { background: var(--forest-light); }
+  .error { color: var(--ember); font-size: 12px; margin-top: 14px; min-height: 18px; }
+  .footer-note { font-size: 12px; color: var(--tan); text-align: center; margin-top: 28px; line-height: 1.6; }
+  .footer-note a { color: var(--forest); text-decoration: none; }
+  .footer-note a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="logo-wrap">
+  <div class="logo-name">Sidecar Advisory</div>
+  <div class="logo-tagline">Client Portal</div>
+</div>
+<div class="card">
+  <h1>Sign in</h1>
+  <p class="sub">Access your shared documents and deliverables.</p>
+  <label for="username">Username</label>
+  <input type="text" id="username" autocomplete="username">
+  <label for="password">Password</label>
+  <input type="password" id="password" autocomplete="current-password"
+    onkeydown="if(event.key==='Enter')login()">
+  <button onclick="login()">Sign In</button>
+  <div class="error" id="err"></div>
+</div>
+<p class="footer-note">
+  Forgot your password? Contact Neil at<br>
+  <a href="mailto:hello@sidecaradvisory.com">hello@sidecaradvisory.com</a>
+</p>
+<script>
+async function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const err = document.getElementById('err');
+  err.textContent = '';
+  if (!username || !password) { err.textContent = 'Please enter your username and password.'; return; }
+  try {
+    const r = await fetch('/api/auth/client/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    if (r.ok) { window.location.href = '/portal'; }
+    else { err.textContent = 'Incorrect username or password.'; }
+  } catch { err.textContent = 'Connection error. Please try again.'; }
+}
+</script>
+</body>
+</html>

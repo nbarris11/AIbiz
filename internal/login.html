@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidecar Advisory — Internal Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#2C2418; --forest:#2D5A3D; --forest-light:#4A7A5C; --parch:#F5F0E8; --light:#D4C4A8; --tan:#9C8B6E; --ember:#C0392B; --white:#FDFBF7; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--navy); display: flex; align-items: center; justify-content: center; font-family: 'Epilogue', sans-serif; }
+  .card { background: var(--parch); border-radius: 4px; padding: 48px 56px; width: 380px; text-align: center; }
+  .wordmark { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--navy); letter-spacing: .04em; }
+  .sub { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--tan); margin: 6px 0 36px; }
+  input { width: 100%; padding: 12px 16px; border: 1px solid var(--light); background: var(--white); border-radius: 3px; font-family: 'Epilogue', sans-serif; font-size: 14px; color: var(--navy); margin-bottom: 14px; outline: none; transition: border-color .2s; }
+  input:focus { border-color: var(--forest); }
+  button { width: 100%; padding: 12px; background: var(--forest); color: var(--white); border: none; border-radius: 3px; font-family: 'Epilogue', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: .06em; cursor: pointer; transition: background .2s; }
+  button:hover { background: var(--forest-light); }
+  .error { color: var(--ember); font-size: 12px; margin-top: 12px; min-height: 18px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="wordmark">Sidecar Advisory</div>
+  <div class="sub">Internal Dashboard</div>
+  <input type="text" id="username" placeholder="Username" autocomplete="username">
+  <input type="password" id="password" placeholder="Password" autocomplete="current-password"
+    onkeydown="if(event.key==='Enter')login()">
+  <button onclick="login()">Sign In</button>
+  <div class="error" id="err"></div>
+</div>
+<script>
+async function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const err = document.getElementById('err');
+  err.textContent = '';
+  try {
+    const r = await fetch('/api/auth/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    if (r.ok) { window.location.href = '/internal'; }
+    else { err.textContent = 'Invalid credentials. Try again.'; }
+  } catch { err.textContent = 'Connection error.'; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidecar Advisory — Your Documents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #2D5A3D; --forest-light: #4A7A5C; --parch: #F5F0E8;
+    --navy: #2C2418; --light: #D4C4A8; --tan: #9C8B6E;
+    --white: #FDFBF7; --cream: #EDE6DA; --mid: #5C4E38;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--parch); font-family: 'Epilogue', sans-serif; color: var(--navy); }
+
+  header {
+    background: var(--white); border-bottom: 1px solid var(--light);
+    padding: 0 48px; display: flex; align-items: center; justify-content: space-between; height: 64px;
+  }
+  .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; letter-spacing: .04em; color: var(--navy); }
+  .header-right { display: flex; align-items: center; gap: 20px; font-size: 13px; }
+  .client-name { color: var(--tan); }
+  .logout-link { color: var(--forest); text-decoration: none; cursor: pointer; font-size: 13px; }
+  .logout-link:hover { text-decoration: underline; }
+
+  main { max-width: 760px; margin: 60px auto; padding: 0 24px 60px; }
+  h1 {
+    font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600;
+    color: var(--navy); margin-bottom: 8px; line-height: 1.1;
+  }
+  .sub { font-size: 14px; color: var(--tan); margin-bottom: 40px; line-height: 1.5; }
+
+  .file-list {
+    background: var(--white); border: 1px solid var(--light); border-radius: 4px; overflow: hidden;
+  }
+  .file-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 28px; border-bottom: 1px solid var(--cream); gap: 16px;
+  }
+  .file-row:last-child { border-bottom: none; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-weight: 500; font-size: 14px; color: var(--navy); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-date { font-size: 12px; color: var(--tan); margin-top: 3px; }
+  .download-btn {
+    flex-shrink: 0; padding: 9px 20px; background: var(--forest); color: var(--white);
+    border: none; border-radius: 3px; font-family: 'Epilogue', sans-serif; font-size: 12px;
+    font-weight: 500; letter-spacing: .06em; cursor: pointer; text-decoration: none;
+    display: inline-block; transition: background .2s;
+  }
+  .download-btn:hover { background: var(--forest-light); }
+
+  .empty-state {
+    background: var(--white); border: 1px solid var(--light); border-radius: 4px;
+    padding: 72px 32px; text-align: center;
+  }
+  .empty-icon { font-size: 32px; margin-bottom: 20px; opacity: .3; }
+  .empty-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600;
+    color: var(--navy); margin-bottom: 12px;
+  }
+  .empty-body { font-size: 14px; color: var(--tan); line-height: 1.7; max-width: 380px; margin: 0 auto; }
+
+  .loading { text-align: center; padding: 48px; color: var(--tan); font-size: 13px; }
+
+  @media (max-width: 600px) {
+    header { padding: 0 20px; }
+    .file-row { padding: 16px 20px; }
+    h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Sidecar Advisory</div>
+  <div class="header-right">
+    <span class="client-name" id="client-name"></span>
+    <span class="logout-link" onclick="logout()">Sign out</span>
+  </div>
+</header>
+
+<main>
+  <h1>Your Documents</h1>
+  <p class="sub">Files shared by Neil as the engagement progresses.</p>
+  <div id="file-container"><div class="loading">Loading…</div></div>
+</main>
+
+<script>
+async function init() {
+  try {
+    const me = await fetch('/api/auth/client/me').then(r => r.json());
+    if (me.error) { window.location.href = '/portal/login'; return; }
+    document.getElementById('client-name').textContent = me.displayName;
+    document.title = `Sidecar Advisory — ${me.displayName}`;
+
+    const files = await fetch('/api/portal/files').then(r => r.json());
+    const container = document.getElementById('file-container');
+
+    if (!Array.isArray(files) || !files.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📄</div>
+          <div class="empty-title">Nothing here yet</div>
+          <p class="empty-body">No files have been shared yet. Neil will drop files here as the engagement progresses.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="file-list">
+        ${files.map(f => `
+          <div class="file-row">
+            <div class="file-info">
+              <div class="file-name">${escHtml(f.filename)}</div>
+              <div class="file-date">${fmtDate(f.uploaded_at)}</div>
+            </div>
+            <a class="download-btn" href="/api/files/download/${f.id}">Download</a>
+          </div>`).join('')}
+      </div>`;
+  } catch (e) {
+    document.getElementById('file-container').innerHTML =
+      '<div class="loading">Something went wrong. Please refresh.</div>';
+  }
+}
+
+async function logout() {
+  await fetch('/api/auth/client/logout', { method: 'POST' });
+  window.location.href = '/portal/login';
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+init();
+</script>
+</body>
+</html>
