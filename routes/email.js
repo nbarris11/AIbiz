@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const requireAdmin = require('../middleware/requireAdmin');
-const { sendEmail, syncInbox } = require('../services/email');
+const { sendEmail, syncInbox, importContactsFromInbox } = require('../services/email');
 const router = express.Router();
 
 router.use(requireAdmin);
@@ -30,6 +30,19 @@ router.post('/sync', async (req, res) => {
     await syncInbox();
     res.json({ ok: true });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Scan inbox + sent, create contacts from unique senders/recipients,
+// and log every historical email as an activity. Can be re-run safely —
+// existing contacts aren't duplicated, already-synced messages aren't re-logged.
+router.post('/import-contacts', async (req, res) => {
+  try {
+    const result = await importContactsFromInbox();
+    res.json(result);
+  } catch (err) {
+    console.error('[import-contacts]', err);
     res.status(500).json({ error: err.message });
   }
 });

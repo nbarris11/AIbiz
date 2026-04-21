@@ -195,7 +195,10 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="page" id="page-contacts">
     <div class="page-header">
       <div><div class="page-title">Contacts</div><div class="page-sub">All leads and clients</div></div>
-      <button class="btn btn-primary" onclick="openContactModal()">+ Add Contact</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" onclick="importFromEmail()" id="import-btn">📥 Import from Email</button>
+        <button class="btn btn-primary" onclick="openContactModal()">+ Add Contact</button>
+      </div>
     </div>
     <div class="tbl-wrap">
       <div class="filter-bar">
@@ -643,6 +646,30 @@ async function saveActivity() {
   });
   closeModal('activity-modal');
   openPanel(contactId);
+}
+
+// ── IMPORT CONTACTS FROM EMAIL ───────────────────────
+async function importFromEmail() {
+  const btn = document.getElementById('import-btn');
+  if (!confirm('Scan your inbox and sent folder for the last 180 days and auto-create contacts from everyone you\'ve emailed with?\n\nThis may take a minute or two. Existing contacts will not be duplicated.')) return;
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Scanning inbox…';
+  try {
+    const r = await post('/api/email/import-contacts', {});
+    if (r.error) {
+      alert('Import failed: ' + r.error);
+    } else {
+      alert(`✓ Import complete!\n\n• ${r.created} new contact(s) created\n• ${r.already_existed} already existed\n• ${r.activities_logged} email(s) logged to activity timelines\n• ${r.scanned} unique email address(es) scanned`);
+      loadContacts();
+      loadDashboard();
+    }
+  } catch (e) {
+    alert('Connection error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = original;
+  }
 }
 
 // ── SEND EMAIL ───────────────────────────────────────

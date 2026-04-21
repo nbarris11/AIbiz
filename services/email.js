@@ -130,6 +130,172 @@ async function syncInbox() {
   }
 }
 
+// ── CONTACT IMPORT FROM INBOX ────────────────────────
+const EXCLUDE_PATTERNS = [
+  /^noreply@/i, /^no-reply@/i, /^donotreply@/i, /^do-not-reply@/i,
+  /^mailer-daemon@/i, /^postmaster@/i, /^bounce/i, /^bounces@/i,
+  /^notifications?@/i, /^alert@/i, /^alerts@/i, /^updates?@/i,
+  /^newsletter@/i, /^news@/i, /^info@facebook\.com$/i, /^info@linkedin\.com$/i,
+  /@.*\.bounce\./i, /@.*\.mailchimp\.com$/i, /@.*\.sendgrid\.net$/i,
+  /@(em|bounce|reply)\./i,
+];
+
+function shouldExcludeAddress(addr) {
+  if (!addr) return true;
+  const lower = addr.toLowerCase();
+  if (lower === EMAIL_USER.toLowerCase()) return true;
+  return EXCLUDE_PATTERNS.some(p => p.test(lower));
+}
+
+function deriveNameFromEmail(address) {
+  const local = address.split('@')[0];
+  // Replace common separators with spaces and title-case
+  return local
+    .replace(/[._-]+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function deriveFirmFromEmail(address) {
+  const domain = address.split('@')[1];
+  if (!domain) return null;
+  // Skip generic personal-email domains
+  const GENERIC = new Set([
+    'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com',
+    'me.com', 'mac.com', 'aol.com', 'protonmail.com', 'proton.me',
+    'live.com', 'msn.com', 'comcast.net', 'verizon.net', 'att.net',
+  ]);
+  if (GENERIC.has(domain.toLowerCase())) return null;
+  // Use domain without TLD as firm name
+  const parts = domain.split('.');
+  const base = parts.length > 1 ? parts[parts.length - 2] : parts[0];
+  return base.charAt(0).toUpperCase() + base.slice(1);
+}
+
+async function scanMailbox(client, mailboxName, direction, collected) {
+  try {
+    await client.mailboxOpen(mailboxName);
+    // 180 days back
+    const since = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
+    for await (const msg of client.fetch({ since }, { envelope: true })) {
+      const env = msg.envelope;
+      if (!env) continue;
+
+      // Determine the "other party" addresses on this message
+      const otherParties = direction === 'inbox'
+        ? (env.from || []).map(a => ({ name: a.name, address: a.address }))
+        : (env.to || []).concat(env.cc || []).map(a => ({ name: a.name, address: a.address }));
+
+      for (const party of otherParties) {
+        const addr = party.address?.toLowerCase();
+        if (!addr || shouldExcludeAddress(addr)) continue;
+        if (!collected.has(addr)) {
+          collected.set(addr, {
+            address: addr,
+            name: party.name && party.name.trim() ? party.name.trim() : null,
+            messages: [],
+          });
+        }
+        const record = collected.get(addr);
+        // Prefer a real name over null
+        if (!record.name && party.name && party.name.trim()) record.name = party.name.trim();
+        record.messages.push({
+          messageId: env.messageId,
+          subject: env.subject || '(no subject)',
+          date: env.date,
+          direction,
+        });
+      }
+    }
+  } catch (err) {
+    console.warn(`[import] Could not scan ${mailboxName}:`, err.message);
+  }
+}
+
+async function importContactsFromInbox() {
+  if (!EMAIL_USER || !EMAIL_PASS) {
+    return { error: 'No email credentials configured' };
+  }
+
+  const client = new ImapFlow({
+    host: IMAP_HOST,
+    port: IMAP_PORT,
+    secure: true,
+    auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+    logger: false,
+  });
+
+  const collected = new Map();
+
+  try {
+    await client.connect();
+
+    // Scan INBOX (emails received)
+    await scanMailbox(client, 'INBOX', 'inbox', collected);
+
+    // Scan Sent folder (emails sent) — try common names
+    const sentNames = ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent'];
+    for (const name of sentNames) {
+      try {
+        const exists = await client.mailboxOpen(name).then(() => true).catch(() => false);
+        if (exists) {
+          await scanMailbox(client, name, 'sent', collected);
+          break;
+        }
+      } catch {}
+    }
+  } finally {
+    await client.logout().catch(() => {});
+  }
+
+  // Now create contacts and log activities
+  let created = 0;
+  let updated = 0;
+  let activitiesLogged = 0;
+
+  for (const [addr, data] of collected) {
+    // Check if contact exists
+    let contact = db.prepare('SELECT id FROM contacts WHERE LOWER(email) = LOWER(?)').get(addr);
+
+    if (!contact) {
+      const id = uuidv4();
+      const name = data.name || deriveNameFromEmail(addr);
+      const firm = deriveFirmFromEmail(addr);
+      db.prepare(`
+        INSERT INTO contacts (id, name, firm, email, pipeline_stage, source, notes)
+        VALUES (?, ?, ?, ?, 'Lead', 'Imported from inbox', ?)
+      `).run(id, name, firm, addr, `Auto-created from ${data.messages.length} email(s)`);
+      contact = { id };
+      created++;
+    } else {
+      updated++;
+    }
+
+    // Log each message as an activity (skip if already synced)
+    for (const msg of data.messages) {
+      if (!msg.messageId) continue;
+      if (isMessageSynced(msg.messageId)) continue;
+      const type = msg.direction === 'inbox' ? 'email_received' : 'email_sent';
+      const loggedAt = msg.date ? new Date(msg.date).toISOString() : new Date().toISOString();
+      db.prepare('INSERT INTO activities (id, contact_id, type, subject, logged_at) VALUES (?, ?, ?, ?, ?)')
+        .run(uuidv4(), contact.id, type, msg.subject, loggedAt);
+      markMessageSynced(msg.messageId);
+      activitiesLogged++;
+    }
+  }
+
+  setSyncState('last_sync_at', new Date().toISOString());
+
+  return {
+    scanned: collected.size,
+    created,
+    already_existed: updated,
+    activities_logged: activitiesLogged,
+  };
+}
+
 // Run sync on a 5-minute interval
 function startEmailSync() {
   if (!EMAIL_USER || !EMAIL_PASS) {
@@ -141,4 +307,4 @@ function startEmailSync() {
   console.log('[email sync] Started — polling every 5 minutes');
 }
 
-module.exports = { sendEmail, startEmailSync, syncInbox };
+module.exports = { sendEmail, startEmailSync, syncInbox, importContactsFromInbox };
