@@ -499,6 +499,131 @@ async function importContactsFromInbox() {
   };
 }
 
+// ── AUTO FOLLOW-UPS ──────────────────────────────────
+// Settings stored in email_sync_state keyed by:
+//   auto_followup_enabled ('1'/'0')  — master switch, default OFF
+//   auto_followup_delay_days (number) — default 2
+//   auto_followup_template_id (uuid)  — which template to send
+
+function getFollowUpSettings() {
+  return {
+    enabled: getSyncState('auto_followup_enabled') === '1',
+    delayDays: parseInt(getSyncState('auto_followup_delay_days') || '2', 10),
+    templateId: getSyncState('auto_followup_template_id') || null,
+  };
+}
+
+function setFollowUpSettings({ enabled, delayDays, templateId }) {
+  if (typeof enabled !== 'undefined')
+    setSyncState('auto_followup_enabled', enabled ? '1' : '0');
+  if (typeof delayDays !== 'undefined')
+    setSyncState('auto_followup_delay_days', String(delayDays));
+  if (typeof templateId !== 'undefined')
+    setSyncState('auto_followup_template_id', templateId || '');
+}
+
+// Identify contacts due for an auto-follow-up.
+// Rules:
+//   • Has an email_sent activity AT LEAST delayDays ago
+//   • No email_received activity AFTER that initial send
+//   • reply_status not in ('Replied', 'Booked', 'Not Interested')
+//   • follow_up_sent_at IS NULL (never had an auto follow-up)
+//   • follow_up_paused = 0 (user didn't disable follow-ups for them)
+//   • has a real email address
+function findFollowUpCandidates(delayDays) {
+  const cutoff = new Date(Date.now() - delayDays * 24 * 60 * 60 * 1000).toISOString();
+  return db.prepare(`
+    SELECT c.id, c.name, c.firm, c.email, c.industry, c.pipeline_stage, c.reply_status,
+      (SELECT MAX(logged_at) FROM activities WHERE contact_id = c.id AND type = 'email_sent') as last_sent_at,
+      (SELECT MAX(logged_at) FROM activities WHERE contact_id = c.id AND type = 'email_received') as last_received_at
+    FROM contacts c
+    WHERE c.email IS NOT NULL AND c.email != ''
+      AND c.follow_up_sent_at IS NULL
+      AND c.follow_up_paused = 0
+      AND c.reply_status NOT IN ('Replied','Booked','Not Interested')
+      AND EXISTS (SELECT 1 FROM activities WHERE contact_id = c.id AND type = 'email_sent' AND logged_at <= ?)
+      AND NOT EXISTS (
+        SELECT 1 FROM activities a2 WHERE a2.contact_id = c.id AND a2.type = 'email_received'
+        AND a2.logged_at > (SELECT MAX(logged_at) FROM activities WHERE contact_id = c.id AND type = 'email_sent')
+      )
+  `).all(cutoff);
+}
+
+function applyTemplateOnServer(template, contact) {
+  const parts = (contact.name || '').split(/\s+/).filter(Boolean);
+  const firstName = parts[0] || contact.name || '';
+  const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
+  const industryLabels = { insurance: 'Insurance Agency', law: 'Law Firm', cpa: 'CPA', realestate: 'Real Estate Office', other: '' };
+  const industryPlurals = { insurance: 'insurance agencies', law: 'law firms', cpa: 'accounting firms', realestate: 'real estate offices', other: 'small businesses' };
+  const ind = industryLabels[contact.industry] || '';
+  const indPlural = industryPlurals[contact.industry] || 'small businesses';
+  const replace = s => (s || '')
+    .replace(/\{\{name\}\}/g, contact.name || '')
+    .replace(/\{\{firstName\}\}/g, firstName)
+    .replace(/\{\{lastName\}\}/g, lastName)
+    .replace(/\{\{firm\}\}/g, contact.firm || contact.name || 'your business')
+    .replace(/\{\{industry\}\}/g, ind)
+    .replace(/\{\{industryPlural\}\}/g, indPlural);
+  return { subject: replace(template.subject), body: replace(template.body) };
+}
+
+// Eastern Time business hours check: Mon-Fri, 9am-5pm ET
+function isWithinBusinessHours(now = new Date()) {
+  const etFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Detroit', weekday: 'short', hour: 'numeric', hourCycle: 'h23',
+  });
+  const parts = Object.fromEntries(etFormatter.formatToParts(now).map(p => [p.type, p.value]));
+  const weekday = parts.weekday;
+  const hour = parseInt(parts.hour, 10);
+  if (weekday === 'Sat' || weekday === 'Sun') return false;
+  return hour >= 9 && hour < 17;
+}
+
+async function runFollowUpSweep() {
+  const settings = getFollowUpSettings();
+  if (!settings.enabled) return { skipped: 'disabled', sent: 0 };
+  if (!settings.templateId) return { skipped: 'no template configured', sent: 0 };
+  if (!isWithinBusinessHours()) return { skipped: 'outside business hours', sent: 0 };
+
+  const template = db.prepare('SELECT * FROM email_templates WHERE id = ?').get(settings.templateId);
+  if (!template) return { skipped: 'template not found', sent: 0 };
+
+  const candidates = findFollowUpCandidates(settings.delayDays);
+  let sent = 0;
+  const failed = [];
+
+  for (const contact of candidates) {
+    try {
+      const { subject, body } = applyTemplateOnServer(template, contact);
+      await sendEmail({ to: contact.email, subject, body, contactId: contact.id });
+      db.prepare('UPDATE contacts SET follow_up_sent_at = datetime(\'now\') WHERE id = ?').run(contact.id);
+      sent++;
+      // Small pause between sends so we don't hammer SMTP
+      await new Promise(r => setTimeout(r, 2000));
+    } catch (err) {
+      failed.push({ contactId: contact.id, error: err.message });
+    }
+  }
+
+  if (sent > 0) console.log(`[auto-followup] Sent ${sent} follow-up(s); ${failed.length} failed`);
+  return { sent, failed, total_candidates: candidates.length };
+}
+
+// Preview — who would we send to if we ran a sweep right now
+function previewFollowUpQueue() {
+  const settings = getFollowUpSettings();
+  const candidates = findFollowUpCandidates(settings.delayDays);
+  return { settings, candidates, within_business_hours: isWithinBusinessHours() };
+}
+
+function startFollowUpScheduler() {
+  // Check every 30 minutes
+  setInterval(() => {
+    runFollowUpSweep().catch(err => console.error('[auto-followup] sweep error:', err.message));
+  }, 30 * 60 * 1000);
+  console.log('[auto-followup] Scheduler started — sweeps every 30 min during business hours');
+}
+
 // Run sync on a 5-minute interval
 function startEmailSync() {
   if (!EMAIL_USER || !EMAIL_PASS) {
@@ -510,4 +635,9 @@ function startEmailSync() {
   console.log('[email sync] Started — polling every 5 minutes');
 }
 
-module.exports = { sendEmail, startEmailSync, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses, backfillEmailBodies, EMAIL_SIGNATURE };
+module.exports = {
+  sendEmail, startEmailSync, syncInbox, importContactsFromInbox,
+  recomputeAllReplyStatuses, backfillEmailBodies, EMAIL_SIGNATURE,
+  getFollowUpSettings, setFollowUpSettings, runFollowUpSweep,
+  previewFollowUpQueue, startFollowUpScheduler,
+};

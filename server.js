@@ -10,7 +10,7 @@ const filesRouter = require('./routes/files');
 const emailRouter = require('./routes/email');
 const requireAdmin = require('./middleware/requireAdmin');
 const requireClient = require('./middleware/requireClient');
-const { startEmailSync } = require('./services/email');
+const { startEmailSync, startFollowUpScheduler } = require('./services/email');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -58,4 +58,5 @@ app.use(express.static(path.join(__dirname)));
 app.listen(PORT, () => {
   console.log(`Sidecar Advisory running at http://localhost:${PORT}`);
   startEmailSync();
+  startFollowUpScheduler();
 });

@@ -2,7 +2,11 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db');
 const requireAdmin = require('../middleware/requireAdmin');
-const { sendEmail, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses, backfillEmailBodies, EMAIL_SIGNATURE } = require('../services/email');
+const {
+  sendEmail, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses,
+  backfillEmailBodies, EMAIL_SIGNATURE,
+  getFollowUpSettings, setFollowUpSettings, runFollowUpSweep, previewFollowUpQueue,
+} = require('../services/email');
 const router = express.Router();
 
 router.use(requireAdmin);
@@ -132,6 +136,54 @@ router.get('/lookup', (req, res) => {
 // Expose the current signature so the compose window can show a preview
 router.get('/signature', (req, res) => {
   res.json({ signature: EMAIL_SIGNATURE });
+});
+
+// ── AUTO FOLLOW-UP ─────────────────────────────────
+router.get('/followup-settings', (req, res) => {
+  res.json(getFollowUpSettings());
+});
+
+router.post('/followup-settings', (req, res) => {
+  const { enabled, delayDays, templateId } = req.body;
+  setFollowUpSettings({ enabled, delayDays, templateId });
+  res.json(getFollowUpSettings());
+});
+
+router.get('/followup-preview', (req, res) => {
+  res.json(previewFollowUpQueue());
+});
+
+// Manually trigger a sweep (respects business hours + enabled flag)
+router.post('/followup-sweep', async (req, res) => {
+  try {
+    const result = await runFollowUpSweep();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Force a sweep bypassing business-hours/enabled checks — for testing
+router.post('/followup-sweep-force', async (req, res) => {
+  const saved = getFollowUpSettings();
+  try {
+    // Temporarily enable + bypass business hours by marking "force"
+    setFollowUpSettings({ enabled: true });
+    const result = await runFollowUpSweep();
+    res.json({ ...result, forced: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  } finally {
+    setFollowUpSettings({ enabled: saved.enabled });
+  }
+});
+
+// Per-contact pause/resume follow-ups
+router.post('/contacts/:id/followup-paused', (req, res) => {
+  const { paused } = req.body;
+  const db = require('../db');
+  db.prepare('UPDATE contacts SET follow_up_paused = ? WHERE id = ?').run(paused ? 1 : 0, req.params.id);
+  res.json({ ok: true });
 });
 
 module.exports = router;

@@ -89,6 +89,18 @@ try {
   }
 } catch (e) { /* ignore */ }
 
+// Migration: add auto-follow-up tracking columns to contacts
+try {
+  const cols = db.prepare('PRAGMA table_info(contacts)').all();
+  const colNames = cols.map(c => c.name);
+  if (!colNames.includes('follow_up_sent_at')) {
+    db.exec('ALTER TABLE contacts ADD COLUMN follow_up_sent_at TEXT');
+  }
+  if (!colNames.includes('follow_up_paused')) {
+    db.exec('ALTER TABLE contacts ADD COLUMN follow_up_paused INTEGER NOT NULL DEFAULT 0');
+  }
+} catch (e) { /* ignore */ }
+
 // Create unique index (always safe — IF NOT EXISTS, and the column now definitely exists)
 try {
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_activities_source_msg ON activities(source_message_id) WHERE source_message_id IS NOT NULL');

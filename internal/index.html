@@ -164,6 +164,10 @@ textarea { resize: vertical; min-height: 80px; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
       Email Templates
     </div>
+    <div class="nav-item" onclick="nav(this,'automation')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Automation
+    </div>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">Sign out</button>
@@ -315,6 +319,52 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
     <div id="templates-list"></div>
+  </div>
+
+  <!-- ── AUTOMATION ── -->
+  <div class="page" id="page-automation">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Automation</div>
+        <div class="page-sub">Auto-send one follow-up if no reply — business hours only, one per contact, ever.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Auto Follow-up Settings</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:24px;">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 13px;background:var(--parch);border:1px solid var(--light);border-radius:3px;">
+            <input type="checkbox" id="au-enabled" onchange="saveAutomationSettings()" style="width:18px;height:18px;cursor:pointer;">
+            <span id="au-enabled-label" style="font-size:13px;">Enabled</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Wait (days after initial send)</label>
+          <input type="number" id="au-days" min="1" max="14" value="2" onchange="saveAutomationSettings()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Follow-up Template *</label>
+          <select id="au-template" onchange="saveAutomationSettings()">
+            <option value="">— pick a template —</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--tan);line-height:1.7;background:var(--parch);padding:14px 18px;border-radius:3px;border-left:3px solid var(--forest-light);">
+        <strong style="color:var(--forest);">How it works:</strong><br>
+        Every 30 min, checks for contacts where: you sent an email ≥ <strong id="au-days-echo">2</strong> days ago · they haven't replied · they're not marked Booked or Not Interested · no follow-up has been sent yet for this contact.<br><br>
+        <strong style="color:var(--forest);">Guardrails:</strong> sends only Mon-Fri 9am-5pm Eastern · one follow-up per contact, ever · you can pause any individual contact from their detail panel · the initial email must be at least <strong id="au-days-echo-2">2</strong> days old.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Follow-up Queue — who would get a follow-up right now</span>
+        <button class="btn btn-secondary btn-sm" onclick="loadAutomation()">↻ Refresh</button>
+      </div>
+      <div id="au-queue"></div>
+    </div>
   </div>
 
 </div>
@@ -607,6 +657,76 @@ function nav(el, page) {
   if (page === 'followups') loadFollowups();
   if (page === 'portal-mgr') loadPortalClients();
   if (page === 'templates') loadTemplates();
+  if (page === 'automation') loadAutomation();
+}
+
+// ── AUTOMATION ───────────────────────────────────────
+async function loadAutomation() {
+  const [settings, templates, preview] = await Promise.all([
+    api('/api/email/followup-settings'),
+    api('/api/crm/templates'),
+    api('/api/email/followup-preview'),
+  ]);
+
+  document.getElementById('au-enabled').checked = settings.enabled;
+  document.getElementById('au-enabled-label').textContent = settings.enabled ? 'Enabled — sweeps run automatically' : 'Disabled';
+  document.getElementById('au-days').value = settings.delayDays || 2;
+  document.getElementById('au-days-echo').textContent = settings.delayDays || 2;
+  document.getElementById('au-days-echo-2').textContent = settings.delayDays || 2;
+
+  const sel = document.getElementById('au-template');
+  sel.innerHTML = '<option value="">— pick a template —</option>' +
+    templates.map(t => `<option value="${t.id}"${t.id === settings.templateId ? ' selected' : ''}>${escHtml(t.name)}</option>`).join('');
+
+  const qDiv = document.getElementById('au-queue');
+  const c = preview.candidates || [];
+  const within = preview.within_business_hours;
+  const bizBanner = within
+    ? '<div style="font-size:12px;color:var(--forest);padding:6px 12px;background:#E1F5EE;border-radius:3px;margin-bottom:14px;">✓ Currently within business hours (Mon-Fri 9am-5pm ET)</div>'
+    : '<div style="font-size:12px;color:var(--tan);padding:6px 12px;background:var(--parch);border-radius:3px;margin-bottom:14px;">⏸ Outside business hours — no sends until next Mon-Fri 9am ET</div>';
+
+  if (!c.length) {
+    qDiv.innerHTML = bizBanner + '<div style="color:var(--tan);font-size:13px;padding:8px 0;">No contacts currently eligible for follow-up. The queue will populate as you send new outreach emails and they hit the ' + (settings.delayDays || 2) + '-day threshold.</div>';
+    return;
+  }
+  qDiv.innerHTML = bizBanner + `
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Firm</th><th>Original Sent</th><th>Days Elapsed</th><th></th></tr></thead>
+      <tbody>${c.map(x => {
+        const days = Math.floor((Date.now() - new Date(x.last_sent_at + 'Z').getTime()) / (1000*60*60*24));
+        return `<tr>
+          <td style="font-weight:500;cursor:pointer;" onclick="openPanel('${x.id}')">${escHtml(x.name)}</td>
+          <td style="font-size:12px;color:var(--mid);">${escHtml(x.firm || '—')}</td>
+          <td style="font-size:12px;color:var(--tan);">${fmtDate(x.last_sent_at)}</td>
+          <td style="font-size:12px;">${days} day${days===1?'':'s'} ago</td>
+          <td style="text-align:right;"><button class="btn btn-danger" onclick="pauseFollowup('${x.id}', true)">Skip</button></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+}
+
+async function saveAutomationSettings() {
+  const enabled = document.getElementById('au-enabled').checked;
+  const delayDays = parseInt(document.getElementById('au-days').value, 10) || 2;
+  const templateId = document.getElementById('au-template').value || null;
+
+  if (enabled && !templateId) {
+    alert('Pick a follow-up template before enabling automation.');
+    document.getElementById('au-enabled').checked = false;
+    return;
+  }
+
+  await post('/api/email/followup-settings', { enabled, delayDays, templateId });
+  document.getElementById('au-enabled-label').textContent = enabled ? 'Enabled — sweeps run automatically' : 'Disabled';
+  document.getElementById('au-days-echo').textContent = delayDays;
+  document.getElementById('au-days-echo-2').textContent = delayDays;
+  loadAutomation();
+}
+
+async function pauseFollowup(contactId, paused) {
+  await post(`/api/email/contacts/${contactId}/followup-paused`, { paused });
+  loadAutomation();
+  closePanel();
 }
 
 // ── TEMPLATES ────────────────────────────────────────
@@ -787,6 +907,12 @@ async function openPanel(id) {
       <button class="btn btn-secondary btn-sm" onclick="openFollowupModal('${data.id}','${data.follow_up_date || ''}')">Set Follow-up</button>
       ${data.follow_up_date ? `<button class="btn btn-secondary btn-sm" onclick="clearFollowup('${data.id}')">Clear Follow-up</button>` : ''}
       <button class="btn btn-secondary btn-sm" onclick="closePanel();openContactModal('${data.id}')">Edit Contact</button>
+      ${data.follow_up_paused
+        ? `<button class="btn btn-secondary btn-sm" onclick="pauseFollowup('${data.id}', false)" title="Auto-follow-ups are currently paused for this contact">▶ Resume Auto-Follow-ups</button>`
+        : (data.follow_up_sent_at
+          ? `<span style="font-size:11px;color:var(--tan);padding:6px 10px;">Auto follow-up sent ${fmtDate(data.follow_up_sent_at)}</span>`
+          : `<button class="btn btn-secondary btn-sm" onclick="pauseFollowup('${data.id}', true)" title="Prevent auto-follow-ups from being sent to this contact">⏸ Pause Auto-Follow-ups</button>`)
+      }
       <button class="btn btn-danger" onclick="deleteContact('${data.id}','${(data.name||'').replace(/'/g,'')}')">Delete</button>
     </div>
     <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);margin-bottom:14px;">Activity Timeline</div>
