@@ -239,6 +239,26 @@ Two sections:
 
 ---
 
+## Backward Compatibility — Bulk Email Must Not Break
+
+The existing bulk email feature (`POST /api/email/bulk-send`, progress streaming, CSV import, in-memory job tracking) **must continue to work exactly as before**. Every change to shared code must be additive and opt-in. Specific rules:
+
+1. **`sendEmail()` signature** — new `campaign_id` and `step_number` params are optional and default to `null`. All existing call sites pass neither and must keep working unchanged.
+
+2. **Activity INSERT** — `campaign_id` and `step_number` columns are nullable. Bulk email logs activities with both as `null`. No existing query that reads activities should break.
+
+3. **Link rewriting** — applies to all outgoing emails (bulk and campaign). It is purely additive: links still go to the same destination, they just pass through `/r/:id` first. If link rewriting fails for any reason, fall back to sending the original unmodified HTML — never block email delivery.
+
+4. **`recomputeReplyStatus()`** — the new reply sub-statuses are set manually only. Auto-recompute only touches `None → Sent → Replied` transitions. It never overwrites `Replied — Interested`, `Replied — Not Now`, `Replied — Not Interested`, `Unsubscribed`, `Booked`, or `Bounced`.
+
+5. **Follow-up scanner** — checks `reply_status NOT IN ('Replied', 'Booked', 'Not Interested', 'Bounced')`. Must be updated to also exclude all new sub-statuses: `'Replied — Interested'`, `'Replied — Not Now'`, `'Replied — Not Interested'`, `'Unsubscribed'`.
+
+6. **New DB columns on `activities`** — migrations use `ALTER TABLE ... ADD COLUMN` with NULL default. All existing `SELECT *` queries return the new columns as null for old rows — no breakage.
+
+7. **No breaking schema changes** — no columns removed, no NOT NULL added to existing columns, no table renames.
+
+---
+
 ## Sequence of builds (priority order)
 
 Given the user's priority ("email tracking first"), implement in this order:
