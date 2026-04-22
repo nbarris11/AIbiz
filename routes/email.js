@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const requireAdmin = require('../middleware/requireAdmin');
-const { sendEmail, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses } = require('../services/email');
+const { sendEmail, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses, backfillEmailBodies } = require('../services/email');
 const router = express.Router();
 
 router.use(requireAdmin);
@@ -30,6 +30,17 @@ router.post('/sync', async (req, res) => {
     await syncInbox();
     res.json({ ok: true });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Fetch + store email bodies for any existing activity that doesn't have one
+router.post('/backfill-bodies', async (req, res) => {
+  try {
+    const result = await backfillEmailBodies();
+    res.json(result);
+  } catch (err) {
+    console.error('[backfill-bodies]', err);
     res.status(500).json({ error: err.message });
   }
 });

@@ -199,7 +199,8 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="page" id="page-contacts">
     <div class="page-header">
       <div><div class="page-title">Contacts</div><div class="page-sub">All leads and clients</div></div>
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="backfillBodies()" id="backfill-btn" title="Fetch email bodies for emails that only have subjects">📄 Load Email Bodies</button>
         <button class="btn btn-secondary" onclick="importFromEmail()" id="import-btn">📥 Import from Email</button>
         <button class="btn btn-primary" onclick="openContactModal()">+ Add Contact</button>
       </div>
@@ -717,12 +718,7 @@ async function openPanel(id) {
     <div id="panel-activities">
       ${!data.activities.length
         ? '<div style="color:var(--tan);font-size:13px;">No activities logged yet.</div>'
-        : data.activities.map(a => `
-          <div class="activity-item">
-            <span class="activity-type-pill">${typeLabel[a.type] || a.type}</span><strong style="font-size:13px;">${a.subject}</strong>
-            ${a.body ? `<div style="margin-top:6px;font-size:12px;color:var(--mid);line-height:1.6;white-space:pre-wrap;">${a.body}</div>` : ''}
-            <div class="activity-meta">${fmtDate(a.logged_at)}</div>
-          </div>`).join('')}
+        : data.activities.map((a, i) => renderActivity(a, i)).join('')}
     </div>
     ${data.files && data.files.length ? `
       <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);margin:24px 0 14px;">Portal Files</div>
@@ -809,6 +805,80 @@ async function saveActivity() {
   });
   closeModal('activity-modal');
   openPanel(contactId);
+}
+
+// ── RENDER ACTIVITY (with expand/collapse for long bodies) ──
+function cleanEmailBody(body) {
+  if (!body) return '';
+  // Collapse excessive blank lines
+  let text = body.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+  // Strip common quoted-reply separators + everything after
+  const quotedMarkers = [
+    /\n\s*On .+ wrote:\s*\n/i,
+    /\n\s*From:.+\n\s*Sent:/i,
+    /\n\s*_{5,}\n/,
+    /\n\s*-{5,}\s*Original Message\s*-{5,}/i,
+    /\n>\s*\n>/,
+  ];
+  for (const marker of quotedMarkers) {
+    const m = text.search(marker);
+    if (m > 0) text = text.slice(0, m);
+  }
+  return text.trim();
+}
+
+function renderActivity(a, idx) {
+  const cleanedBody = cleanEmailBody(a.body);
+  const fullBody = (a.body || '').trim();
+  const isTruncated = cleanedBody.length < fullBody.length && fullBody.length > cleanedBody.length + 30;
+  const isLong = cleanedBody.length > 400;
+  const previewBody = isLong ? cleanedBody.slice(0, 400) + '…' : cleanedBody;
+  const actId = `act-${idx}`;
+  return `
+    <div class="activity-item">
+      <span class="activity-type-pill">${typeLabel[a.type] || a.type}</span><strong style="font-size:13px;">${escHtml(a.subject)}</strong>
+      ${cleanedBody ? `
+        <div id="${actId}-preview" style="margin-top:6px;font-size:12px;color:var(--mid);line-height:1.6;white-space:pre-wrap;font-family:inherit;">${escHtml(previewBody)}</div>
+        ${(isLong || isTruncated) ? `
+          <div id="${actId}-full" style="display:none;margin-top:6px;font-size:12px;color:var(--mid);line-height:1.6;white-space:pre-wrap;font-family:inherit;">${escHtml(fullBody)}</div>
+          <a href="#" onclick="toggleActivityFull('${actId}', event)" style="font-size:11px;color:var(--forest);cursor:pointer;display:inline-block;margin-top:6px;">Show full email</a>
+        ` : ''}
+      ` : ''}
+      <div class="activity-meta">${fmtDate(a.logged_at)}</div>
+    </div>`;
+}
+
+function toggleActivityFull(actId, e) {
+  if (e) e.preventDefault();
+  const preview = document.getElementById(actId + '-preview');
+  const full = document.getElementById(actId + '-full');
+  const link = e.target;
+  if (full.style.display === 'none') {
+    preview.style.display = 'none';
+    full.style.display = 'block';
+    link.textContent = 'Show less';
+  } else {
+    preview.style.display = 'block';
+    full.style.display = 'none';
+    link.textContent = 'Show full email';
+  }
+}
+
+// ── BACKFILL EMAIL BODIES ────────────────────────────
+async function backfillBodies() {
+  const btn = document.getElementById('backfill-btn');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Loading email bodies…';
+  try {
+    const r = await post('/api/email/backfill-bodies', {});
+    if (r.error) alert('Backfill failed: ' + r.error);
+    else alert(`✓ Loaded ${r.updated} of ${r.total} email bodies.\n\nOpen any contact to see their full email thread.`);
+  } catch (e) { alert('Error: ' + e.message); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = original;
+  }
 }
 
 // ── IMPORT CONTACTS FROM EMAIL ───────────────────────

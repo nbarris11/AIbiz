@@ -1,7 +1,26 @@
 const nodemailer = require('nodemailer');
 const { ImapFlow } = require('imapflow');
+const { simpleParser } = require('mailparser');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db');
+
+// Parse an email body from an imapflow message. Returns plain-text.
+async function extractBody(client, uid) {
+  try {
+    const { content } = await client.download(uid, undefined, { uid: true });
+    if (!content) return null;
+    const chunks = [];
+    for await (const chunk of content) chunks.push(chunk);
+    const raw = Buffer.concat(chunks);
+    const parsed = await simpleParser(raw);
+    // Prefer plain text; fall back to HTML stripped to text
+    if (parsed.text) return parsed.text.trim();
+    if (parsed.html) return parsed.html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    return null;
+  } catch (err) {
+    return null;
+  }
+}
 
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
@@ -123,8 +142,7 @@ async function syncInbox() {
     for (const mailboxName of mailboxesToScan) {
       const isInbox = mailboxName === 'INBOX';
       await client.mailboxOpen(mailboxName);
-      const messages = client.fetch({ since }, { envelope: true, bodyStructure: true, source: false });
-      for await (const msg of messages) {
+      for await (const msg of client.fetch({ since }, { uid: true, envelope: true })) {
         const env = msg.envelope;
         if (!env) continue;
         const messageId = env.messageId;
@@ -153,9 +171,11 @@ async function syncInbox() {
         if (contact && type) {
           const subject = env.subject || '(no subject)';
           const loggedAt = env.date ? new Date(env.date).toISOString() : new Date().toISOString();
+          // Fetch body only if we're going to log this message
+          const body = await extractBody(client, msg.uid);
           try {
-            db.prepare('INSERT INTO activities (id, contact_id, type, subject, logged_at, source_message_id) VALUES (?, ?, ?, ?, ?, ?)')
-              .run(uuidv4(), contact.id, type, subject, loggedAt, messageId);
+            db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at, source_message_id) VALUES (?, ?, ?, ?, ?, ?, ?)')
+              .run(uuidv4(), contact.id, type, subject, body, loggedAt, messageId);
             db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contact.id);
             recomputeReplyStatus(contact.id);
             synced++;
@@ -224,7 +244,7 @@ async function scanMailbox(client, mailboxName, direction, collected) {
     await client.mailboxOpen(mailboxName);
     // 180 days back
     const since = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
-    for await (const msg of client.fetch({ since }, { envelope: true })) {
+    for await (const msg of client.fetch({ since }, { uid: true, envelope: true })) {
       const env = msg.envelope;
       if (!env) continue;
 
@@ -251,12 +271,74 @@ async function scanMailbox(client, mailboxName, direction, collected) {
           subject: env.subject || '(no subject)',
           date: env.date,
           direction,
+          uid: msg.uid,
+          mailbox: mailboxName,
         });
       }
     }
   } catch (err) {
     console.warn(`[import] Could not scan ${mailboxName}:`, err.message);
   }
+}
+
+// Backfill email bodies for activities that don't have them yet.
+// Looks up each activity by source_message_id in the inbox + sent folders.
+async function backfillEmailBodies() {
+  if (!EMAIL_USER || !EMAIL_PASS) return { error: 'No credentials' };
+
+  const activities = db.prepare(
+    "SELECT id, source_message_id FROM activities WHERE source_message_id IS NOT NULL AND (body IS NULL OR body = '') AND type IN ('email_sent','email_received')"
+  ).all();
+
+  if (!activities.length) return { updated: 0, total: 0 };
+
+  const client = new ImapFlow({
+    host: IMAP_HOST, port: IMAP_PORT, secure: true,
+    auth: { user: EMAIL_USER, pass: EMAIL_PASS }, logger: false,
+  });
+  let updated = 0;
+
+  try {
+    await client.connect();
+    // Build a lookup of message_id → {uid, mailbox} by scanning both folders once
+    const mailboxesToScan = ['INBOX'];
+    for (const sentName of ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent']) {
+      try {
+        await client.mailboxOpen(sentName);
+        mailboxesToScan.push(sentName);
+        break;
+      } catch {}
+    }
+
+    const messageIdToLocation = new Map();
+    const since = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+    for (const mbName of mailboxesToScan) {
+      await client.mailboxOpen(mbName);
+      for await (const msg of client.fetch({ since }, { uid: true, envelope: true })) {
+        const mid = msg.envelope?.messageId;
+        if (mid && !messageIdToLocation.has(mid)) {
+          messageIdToLocation.set(mid, { uid: msg.uid, mailbox: mbName });
+        }
+      }
+    }
+
+    // Fetch bodies for activities whose messages we found
+    const updateStmt = db.prepare('UPDATE activities SET body = ? WHERE id = ?');
+    for (const act of activities) {
+      const loc = messageIdToLocation.get(act.source_message_id);
+      if (!loc) continue;
+      await client.mailboxOpen(loc.mailbox);
+      const body = await extractBody(client, loc.uid);
+      if (body) {
+        updateStmt.run(body, act.id);
+        updated++;
+      }
+    }
+  } finally {
+    await client.logout().catch(() => {});
+  }
+
+  return { updated, total: activities.length };
 }
 
 async function importContactsFromInbox() {
@@ -358,4 +440,4 @@ function startEmailSync() {
   console.log('[email sync] Started — polling every 5 minutes');
 }
 
-module.exports = { sendEmail, startEmailSync, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses };
+module.exports = { sendEmail, startEmailSync, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses, backfillEmailBodies };
