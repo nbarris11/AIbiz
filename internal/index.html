@@ -1368,13 +1368,17 @@ async function bulkStartSend() {
   if (window._bulk.mode === 'crm') {
     payload.contactIds = recipients.map(r => r.id);
   } else {
-    payload.contacts = recipients.map(r => ({
-      email: r.email,
-      first_name: r.first_name || '',
-      last_name: r.last_name || '',
-      firm: r.firm || '',
-      industry: r.industry || '',
-    }));
+    // CRITICAL: pass ALL columns from the CSV through to the backend so
+    // custom merge fields like {{subject_line}}, {{email_body}},
+    // {{custom_opener}} actually have values to substitute.
+    // Bug history: an earlier version of this function hardcoded only
+    // email/first_name/last_name/firm/industry — silently dropping every
+    // other column. Preview rendered correctly from the full row; actual
+    // sends used the stripped payload. Never hardcode fields here.
+    payload.contacts = recipients.map(r => {
+      const { _status, _selected, ...rest } = r; // strip UI-only flags
+      return rest;
+    });
   }
 
   let kickoff;

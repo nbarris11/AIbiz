@@ -262,6 +262,17 @@ function renderMergeFields(str, contact) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+// SAFETY GUARD: detect any {{tags}} that survived merge-field substitution,
+// which means we were about to send broken emails. Return the list of unresolved
+// tags so the server can refuse.
+function findUnrenderedTags(text) {
+  const out = new Set();
+  const re = /\{\{([a-zA-Z_][\w]*)\}\}/g;
+  let m;
+  while ((m = re.exec(text || '')) !== null) out.add(m[1]);
+  return [...out];
+}
+
 // Send the same templated email to many contacts, throttled.
 // onProgress({ current, total, results, last }) is called after each send.
 async function bulkSend({ contacts, subject, body, delayMs = 3000, onProgress }) {
@@ -278,6 +289,28 @@ async function bulkSend({ contacts, subject, body, delayMs = 3000, onProgress })
     const renderedSubject = renderMergeFields(subject, contact);
     const renderedBody = renderMergeFields(body, contact);
     let entry;
+
+    // Safety: if any {{tag}} is still unresolved, refuse to send this one.
+    // Protects against a repeat of the "payload dropped custom fields" bug —
+    // the server should never actually transmit literal {{tags}} to recipients.
+    const unresolved = [
+      ...findUnrenderedTags(renderedSubject),
+      ...findUnrenderedTags(renderedBody),
+    ];
+    if (unresolved.length) {
+      entry = {
+        contactId: contact.id || null,
+        name: contact.name || contact.first_name || contact.email,
+        email: contact.email,
+        status: 'failed',
+        error: `Refused to send — unresolved merge tags: ${[...new Set(unresolved)].map(t => '{{' + t + '}}').join(', ')}`,
+      };
+      results.push(entry);
+      if (onProgress) { try { onProgress({ current: i + 1, total: contacts.length, results, last: entry }); } catch {} }
+      if (i < contacts.length - 1) await sleep(250); // small pause, no real send happened
+      continue;
+    }
+
     try {
       await sendEmail({
         to: contact.email,
