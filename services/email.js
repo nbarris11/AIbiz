@@ -54,6 +54,7 @@ async function extractBody(client, uid) {
 
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
+const APP_BASE_URL = (process.env.APP_BASE_URL || 'https://app.sidecaradvisory.com').replace(/\/$/, '');
 const IMAP_HOST  = process.env.EMAIL_IMAP_HOST || 'mail.privateemail.com';
 const IMAP_PORT  = parseInt(process.env.EMAIL_IMAP_PORT || '993', 10);
 const SMTP_HOST  = process.env.EMAIL_SMTP_HOST || 'mail.privateemail.com';
@@ -98,6 +99,12 @@ function withSignature(body) {
   // Don't double-append if signature already present (handles both markdown and rendered forms)
   if (trimmed.includes('CEO & Founder, Sidecar Advisory')) return trimmed;
   return `${trimmed}\n\n${EMAIL_SIGNATURE}`;
+}
+
+function buildTrackingPixelHtml(trackingId) {
+  if (!trackingId) return '';
+  const src = `${APP_BASE_URL}/t/${encodeURIComponent(trackingId)}`;
+  return `<img src="${src}" alt="" width="120" style="display:block;margin-top:12px;opacity:0.85;" />`;
 }
 
 // Build the raw MIME bytes for a message (for saving to Sent via IMAP)
@@ -222,12 +229,14 @@ function textToHtml(text) {
 //                        instead of opening a fresh one each send (huge win for bulk).
 async function sendEmail({ to, subject, body, contactId, shared }) {
   const finalBody = withSignature(body);
+  const trackingId = uuidv4();
+
   const messageOptions = {
     from: `Neil Barris <${EMAIL_USER}>`,
     to,
     subject,
     text: finalBody,
-    html: textToHtml(finalBody),
+    html: textToHtml(finalBody) + buildTrackingPixelHtml(trackingId),
   };
 
   // 1. Send via SMTP (required)
@@ -253,8 +262,9 @@ async function sendEmail({ to, subject, body, contactId, shared }) {
   // 3. Log as activity in the CRM (only if contactId present)
   if (contactId) {
     try {
-      db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at) VALUES (?, ?, ?, ?, ?, ?)')
-        .run(uuidv4(), contactId, 'email_sent', subject, finalBody, new Date().toISOString());
+      db.prepare(
+        'INSERT INTO activities (id, contact_id, type, subject, body, logged_at, tracking_id) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      ).run(uuidv4(), contactId, 'email_sent', subject, finalBody, new Date().toISOString(), trackingId);
       db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contactId);
       recomputeReplyStatus(contactId);
     } catch (err) {
