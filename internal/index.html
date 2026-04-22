@@ -479,7 +479,7 @@ textarea { resize: vertical; min-height: 80px; }
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
         <button class="btn btn-secondary" onclick="bulkGoToStep(1)">← Back</button>
         <div style="display:flex;gap:10px;">
-          <button class="btn btn-secondary" onclick="bulkPreviewFirst()">Preview for first recipient</button>
+          <button class="btn btn-secondary" onclick="bulkPreviewFirst()">👁 Preview Emails (browse all)</button>
           <button class="btn btn-primary" id="bulk-compose-continue" onclick="bulkGoToStep(3)">Continue →</button>
         </div>
       </div>
@@ -536,9 +536,16 @@ textarea { resize: vertical; min-height: 80px; }
 
   <!-- Preview modal -->
   <div class="overlay" id="bulk-preview-modal">
-    <div class="modal" style="width:720px;">
+    <div class="modal" style="width:760px;">
       <button class="modal-close" onclick="closeModal('bulk-preview-modal')">×</button>
-      <div class="modal-title">Preview for <span id="bulk-preview-name" style="color:var(--forest);"></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:14px;">
+        <div class="modal-title" style="margin:0;">Preview: <span id="bulk-preview-name" style="color:var(--forest);"></span></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-secondary btn-sm" id="bulk-preview-prev" onclick="bulkPreviewNav(-1)" title="Previous (←)">← Prev</button>
+          <div style="font-size:12px;color:var(--tan);white-space:nowrap;"><strong id="bulk-preview-idx">1</strong> of <strong id="bulk-preview-total">1</strong></div>
+          <button class="btn btn-secondary btn-sm" id="bulk-preview-next" onclick="bulkPreviewNav(1)" title="Next (→)">Next →</button>
+        </div>
+      </div>
       <div class="form-group">
         <label class="form-label">To</label>
         <input type="text" id="bulk-preview-to" readonly style="background:var(--cream);color:var(--tan);">
@@ -548,8 +555,8 @@ textarea { resize: vertical; min-height: 80px; }
         <input type="text" id="bulk-preview-subject" readonly style="background:var(--cream);color:var(--navy);">
       </div>
       <div class="form-group">
-        <label class="form-label">Body</label>
-        <div id="bulk-preview-body" style="padding:16px 18px;background:var(--white);border:1px solid var(--light);border-radius:3px;font-size:13px;line-height:1.6;white-space:pre-wrap;min-height:200px;max-height:400px;overflow-y:auto;"></div>
+        <label class="form-label">Body <span style="color:var(--tan);font-weight:400;text-transform:none;font-size:11px;">(with signature auto-appended)</span></label>
+        <div id="bulk-preview-body" style="padding:16px 18px;background:var(--white);border:1px solid var(--light);border-radius:3px;font-size:13px;line-height:1.6;white-space:pre-wrap;min-height:260px;max-height:500px;overflow-y:auto;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;"></div>
       </div>
       <div style="display:flex;justify-content:flex-end;">
         <button class="btn btn-secondary" onclick="closeModal('bulk-preview-modal')">Close</button>
@@ -952,13 +959,23 @@ window._bulk = {
 function loadBulk() {
   bulkSetMode(window._bulk.mode);
   bulkGoToStep(1);
-  // preload templates into the picker
+  // preload templates and signature
   api('/api/crm/templates').then(ts => {
     const sel = document.getElementById('bulk-template');
     sel.innerHTML = '<option value="">— or compose from scratch —</option>' +
       ts.map(t => `<option value="${t.id}">${escHtml(t.name)}</option>`).join('');
     window._bulkTemplates = ts;
   });
+  api('/api/email/signature').then(s => { window._bulkSignature = s.signature || ''; });
+}
+
+// Mirror server-side withSignature() so the preview matches reality
+function bulkWithSignature(body) {
+  const sig = window._bulkSignature || '';
+  const trimmed = (body || '').trimEnd();
+  if (!sig) return trimmed;
+  if (trimmed.includes('CEO & Founder, Sidecar Advisory')) return trimmed;
+  return trimmed + '\n\n' + sig;
 }
 
 function bulkSetMode(mode) {
@@ -1249,20 +1266,47 @@ function bulkRenderMerge(str, contact) {
   });
 }
 
-function bulkPreviewFirst() {
+function bulkPreviewFirst() { bulkOpenPreview(0); }
+
+function bulkOpenPreview(idx) {
   const recipients = bulkGetRecipients();
   if (!recipients.length) return alert('No recipients selected.');
   const subject = document.getElementById('bulk-subject').value;
   const body    = document.getElementById('bulk-body').value;
   if (!subject || !body) return alert('Please enter a subject and body first.');
-  const first = recipients[0];
-  const rSubject = bulkRenderMerge(subject, first);
-  const rBody = bulkRenderMerge(body, first);
-  document.getElementById('bulk-preview-name').textContent = first.name || first.first_name || first.email;
-  document.getElementById('bulk-preview-to').value = first.email;
-  document.getElementById('bulk-preview-subject').value = rSubject;
-  document.getElementById('bulk-preview-body').textContent = rBody;
+  idx = Math.max(0, Math.min(idx, recipients.length - 1));
+  window._bulk.previewIdx = idx;
+  window._bulk.previewRecipients = recipients;
+  bulkRenderPreview();
   document.getElementById('bulk-preview-modal').classList.add('open');
+}
+
+function bulkRenderPreview() {
+  const recipients = window._bulk.previewRecipients || bulkGetRecipients();
+  const idx = window._bulk.previewIdx || 0;
+  const r = recipients[idx];
+  const subject = document.getElementById('bulk-subject').value;
+  const body    = document.getElementById('bulk-body').value;
+  const rSubject = bulkRenderMerge(subject, r);
+  const rBody    = bulkWithSignature(bulkRenderMerge(body, r));
+  document.getElementById('bulk-preview-name').textContent    = r.name || r.first_name || r.email;
+  document.getElementById('bulk-preview-to').value            = r.email;
+  document.getElementById('bulk-preview-subject').value       = rSubject;
+  document.getElementById('bulk-preview-body').textContent    = rBody;
+  document.getElementById('bulk-preview-idx').textContent     = idx + 1;
+  document.getElementById('bulk-preview-total').textContent   = recipients.length;
+  document.getElementById('bulk-preview-prev').disabled       = idx === 0;
+  document.getElementById('bulk-preview-next').disabled       = idx >= recipients.length - 1;
+  // Scroll body to top when switching recipients
+  document.getElementById('bulk-preview-body').scrollTop = 0;
+}
+
+function bulkPreviewNav(delta) {
+  const recipients = window._bulk.previewRecipients || bulkGetRecipients();
+  const newIdx = (window._bulk.previewIdx || 0) + delta;
+  if (newIdx < 0 || newIdx >= recipients.length) return;
+  window._bulk.previewIdx = newIdx;
+  bulkRenderPreview();
 }
 
 // ── STEP 3 — Review ───────────────────────────────────
@@ -1279,15 +1323,26 @@ function bulkRenderReview() {
   document.getElementById('bulk-review-duration').textContent = mins >= 1 ? `~${mins} min` : `~${recipients.length * 3}s`;
   const list = document.getElementById('bulk-review-list');
   list.innerHTML = `
+    <div style="font-size:11px;color:var(--tan);padding:8px 20px;background:var(--parch);">Click any row to preview the full email (subject + body + signature) that recipient will receive.</div>
     <table class="data-table">
-      <thead><tr><th>To</th><th>Rendered Subject</th></tr></thead>
-      <tbody>${recipients.map(r => `
-        <tr>
+      <thead><tr><th>To</th><th>Rendered Subject</th><th></th></tr></thead>
+      <tbody>${recipients.map((r, i) => `
+        <tr style="cursor:pointer;" onclick="bulkOpenPreview(${i})">
           <td><div style="font-weight:500;font-size:13px;">${escHtml(r.name || r.first_name || '—')}</div><div style="font-size:11px;color:var(--tan);font-family:monospace;">${escHtml(r.email)}</div></td>
           <td style="font-size:13px;color:var(--mid);">${escHtml(bulkRenderMerge(subject, r))}</td>
+          <td style="text-align:right;font-size:11px;color:var(--forest);white-space:nowrap;">👁 Preview</td>
         </tr>`).join('')}</tbody>
     </table>`;
 }
+
+// Arrow-key navigation inside the preview modal
+document.addEventListener('keydown', (e) => {
+  const modal = document.getElementById('bulk-preview-modal');
+  if (!modal || !modal.classList.contains('open')) return;
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); bulkPreviewNav(-1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); bulkPreviewNav(1); }
+  if (e.key === 'Escape')     { closeModal('bulk-preview-modal'); }
+});
 
 // ── STEP 4 — Send ─────────────────────────────────────
 async function bulkStartSend() {
