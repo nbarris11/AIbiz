@@ -38,17 +38,19 @@ const transport = nodemailer.createTransport({
   auth: { user: EMAIL_USER, pass: EMAIL_PASS },
 });
 
-// Email signature appended to every outgoing email
+// Email signature appended to every outgoing email.
+// Use [text](url) for links with custom display text — the HTML renderer
+// will turn these into clickable anchors while bare URLs are auto-linked.
 const EMAIL_SIGNATURE = `—
 Neil Barris
 CEO & Founder, Sidecar Advisory
 📞 (248) 762-0531
-🌐 sidecaradvisory.com
-📅 Book a free clarity session: https://calendly.com/sidecaradvisory/30min`;
+🌐 [sidecaradvisory.com](https://sidecaradvisory.com)
+📅 [Book a free clarity session](https://calendly.com/sidecaradvisory/30min)`;
 
 function withSignature(body) {
   const trimmed = (body || '').trimEnd();
-  // Don't double-append if signature already present
+  // Don't double-append if signature already present (handles both markdown and rendered forms)
   if (trimmed.includes('CEO & Founder, Sidecar Advisory')) return trimmed;
   return `${trimmed}\n\n${EMAIL_SIGNATURE}`;
 }
@@ -94,6 +96,45 @@ async function saveToSentFolder(rawMessage) {
   }
 }
 
+// Convert a plain-text body (with optional [text](url) markdown links)
+// into HTML that auto-linkifies bare URLs + email addresses, and
+// preserves paragraph/line breaks.
+function textToHtml(text) {
+  if (!text) return '';
+  // Escape HTML special chars first
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // 1. Markdown-style [display text](url) — do this first so the URL
+  //    inside the parens doesn't get turned into a regular autolink
+  html = html.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    '<a href="$2" style="color:#2D5A3D;text-decoration:underline;">$1</a>'
+  );
+
+  // 2. Bare URLs → clickable links (but skip ones already inside anchors)
+  html = html.replace(
+    /(^|[^"'>])((?:https?:\/\/|www\.)[^\s<]+[^\s<.,;:!?)])/g,
+    (match, lead, url) => {
+      const href = url.startsWith('www.') ? 'http://' + url : url;
+      return `${lead}<a href="${href}" style="color:#2D5A3D;text-decoration:underline;">${url}</a>`;
+    }
+  );
+
+  // 3. Email addresses → mailto links
+  html = html.replace(
+    /(^|\s)([\w.+-]+@[\w-]+\.[\w.-]+)/g,
+    '$1<a href="mailto:$2" style="color:#2D5A3D;text-decoration:underline;">$2</a>'
+  );
+
+  // 4. Preserve line breaks (paragraph gaps → <br><br>, single \n → <br>)
+  html = html.replace(/\n/g, '<br>');
+
+  return `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #2C2418;">${html}</div>`;
+}
+
 async function sendEmail({ to, subject, body, contactId }) {
   const finalBody = withSignature(body);
   const messageOptions = {
@@ -101,6 +142,7 @@ async function sendEmail({ to, subject, body, contactId }) {
     to,
     subject,
     text: finalBody,
+    html: textToHtml(finalBody),
   };
 
   // 1. Send via SMTP

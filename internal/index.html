@@ -392,7 +392,14 @@ textarea { resize: vertical; min-height: 80px; }
     <input type="hidden" id="tm-id">
     <div class="form-group"><label class="form-label">Template Name *</label><input type="text" id="tm-name" placeholder="e.g. Cold Outreach"></div>
     <div class="form-group"><label class="form-label">Subject Line *</label><input type="text" id="tm-subject" placeholder="Quick idea for {{firm}}"></div>
-    <div class="form-group"><label class="form-label">Body *</label><textarea id="tm-body" style="min-height:300px;font-family:'Epilogue',sans-serif;" placeholder="Hi {{firstName}}, ..."></textarea></div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Body *</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="insertLink('tm-body')" title="Insert a hyperlink at the cursor" style="font-size:10px;padding:3px 10px;">🔗 Insert Link</button>
+      </label>
+      <textarea id="tm-body" style="min-height:300px;font-family:'Epilogue',sans-serif;" placeholder="Hi {{firstName}}, ..."></textarea>
+      <div style="font-size:11px;color:var(--tan);margin-top:4px;">Use <code style="font-family:monospace;background:var(--parch);padding:1px 5px;border-radius:2px;">[display text](https://url.com)</code> for hyperlinks. Bare URLs are auto-linked when sent.</div>
+    </div>
     <hr class="divider">
     <div style="display:flex;gap:12px;justify-content:flex-end;">
       <button class="btn btn-secondary" onclick="closeModal('template-modal')">Cancel</button>
@@ -569,8 +576,16 @@ textarea { resize: vertical; min-height: 80px; }
 
     <div class="form-group"><label class="form-label">Subject *</label><input type="text" id="cp-subject"></div>
     <div class="form-group">
-      <label class="form-label">Body *</label>
-      <textarea id="cp-body" style="min-height:200px;" placeholder="Write your email here…"></textarea>
+      <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Body *</span>
+        <span style="display:flex;gap:6px;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="insertLink('cp-body')" title="Insert a hyperlink at the cursor" style="font-size:10px;padding:3px 10px;">🔗 Insert Link</button>
+        </span>
+      </label>
+      <textarea id="cp-body" style="min-height:200px;" placeholder="Write your email here…
+
+Use [display text](https://url.com) for hyperlinks, or just type a URL and it'll become clickable when sent."></textarea>
+      <div style="font-size:11px;color:var(--tan);margin-top:4px;">Bare URLs auto-link. For custom text, use <code style="font-family:monospace;background:var(--parch);padding:1px 5px;border-radius:2px;">[click here](https://example.com)</code> or hit the Insert Link button.</div>
     </div>
 
     <div style="background:var(--parch);border-left:3px solid var(--forest-light);padding:12px 16px;border-radius:3px;margin-top:-4px;">
@@ -606,7 +621,14 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
     <div class="form-group"><label class="form-label">Subject *</label><input type="text" id="sem-subject"></div>
-    <div class="form-group"><label class="form-label">Body *</label><textarea id="sem-body" style="min-height:200px;"></textarea></div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Body *</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="insertLink('sem-body')" title="Insert a hyperlink at the cursor" style="font-size:10px;padding:3px 10px;">🔗 Insert Link</button>
+      </label>
+      <textarea id="sem-body" style="min-height:200px;"></textarea>
+      <div style="font-size:11px;color:var(--tan);margin-top:4px;">Bare URLs auto-link. For custom text, use <code style="font-family:monospace;background:var(--parch);padding:1px 5px;border-radius:2px;">[click here](https://example.com)</code> or hit the Insert Link button.</div>
+    </div>
     <div style="background:var(--parch);border-left:3px solid var(--forest-light);padding:12px 16px;border-radius:3px;">
       <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tan);margin-bottom:6px;">Your signature (auto-appended)</div>
       <pre id="sem-signature-preview" style="font-family:'Epilogue',sans-serif;font-size:12px;color:var(--mid);line-height:1.6;white-space:pre-wrap;margin:0;">Loading…</pre>
@@ -1136,6 +1158,27 @@ async function importFromEmail() {
     btn.disabled = false;
     btn.innerHTML = original;
   }
+}
+
+// ── INSERT LINK ──────────────────────────────────────
+// Prompts for URL + display text, inserts markdown-style [text](url) at cursor
+function insertLink(textareaId) {
+  const ta = document.getElementById(textareaId);
+  const selected = ta.value.substring(ta.selectionStart, ta.selectionEnd);
+  const displayText = prompt('Link text (what the reader will see):', selected || 'click here');
+  if (!displayText) return;
+  let url = prompt('URL (starts with http:// or https://):', 'https://');
+  if (!url) return;
+  url = url.trim();
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url.replace(/^\/+/, '');
+  const markdown = `[${displayText}](${url})`;
+  const before = ta.value.substring(0, ta.selectionStart);
+  const after  = ta.value.substring(ta.selectionEnd);
+  ta.value = before + markdown + after;
+  // Put cursor after the inserted markdown
+  const pos = before.length + markdown.length;
+  ta.focus();
+  ta.setSelectionRange(pos, pos);
 }
 
 // ── COMPOSE (send to any address, auto-creates contact) ────
