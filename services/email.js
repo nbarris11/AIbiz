@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const MailComposer = require('nodemailer/lib/mail-composer');
 const { ImapFlow } = require('imapflow');
 const { simpleParser } = require('mailparser');
 const { v4: uuidv4 } = require('uuid');
@@ -52,15 +53,68 @@ function withSignature(body) {
   return `${trimmed}\n\n${EMAIL_SIGNATURE}`;
 }
 
+// Build the raw MIME bytes for a message (for saving to Sent via IMAP)
+async function buildRawMessage(options) {
+  const composer = new MailComposer(options);
+  return new Promise((resolve, reject) => {
+    composer.compile().build((err, message) => {
+      if (err) reject(err);
+      else resolve(message);
+    });
+  });
+}
+
+// Copy the just-sent message to the Sent folder via IMAP APPEND.
+// Fails silently — the email was already delivered; we just couldn't file it.
+async function saveToSentFolder(rawMessage) {
+  const client = new ImapFlow({
+    host: IMAP_HOST, port: IMAP_PORT, secure: true,
+    auth: { user: EMAIL_USER, pass: EMAIL_PASS }, logger: false,
+  });
+  try {
+    await client.connect();
+    // Find the Sent folder — its name varies across providers
+    let sentFolder = null;
+    for (const name of ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent']) {
+      try {
+        await client.mailboxOpen(name);
+        sentFolder = name;
+        break;
+      } catch {}
+    }
+    if (!sentFolder) {
+      console.warn('[sent-save] Could not find Sent folder; message delivered but not filed.');
+      return;
+    }
+    await client.append(sentFolder, rawMessage, ['\\Seen']);
+  } catch (err) {
+    console.warn('[sent-save] Could not save to Sent folder:', err.message);
+  } finally {
+    await client.logout().catch(() => {});
+  }
+}
+
 async function sendEmail({ to, subject, body, contactId }) {
   const finalBody = withSignature(body);
-  await transport.sendMail({
+  const messageOptions = {
     from: `Neil Barris <${EMAIL_USER}>`,
     to,
     subject,
     text: finalBody,
-  });
-  // Log as activity
+  };
+
+  // 1. Send via SMTP
+  await transport.sendMail(messageOptions);
+
+  // 2. Save a copy to the Sent folder via IMAP so it shows up in your email client
+  try {
+    const raw = await buildRawMessage(messageOptions);
+    await saveToSentFolder(raw);
+  } catch (err) {
+    console.warn('[send-email] Sent-folder copy failed:', err.message);
+  }
+
+  // 3. Log as activity in the CRM
   db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at) VALUES (?, ?, ?, ?, ?, ?)')
     .run(uuidv4(), contactId, 'email_sent', subject, finalBody, new Date().toISOString());
   db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contactId);
