@@ -3,6 +3,16 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 
+// ── GLOBAL CRASH GUARDS ──────────────────────────────
+// Log unhandled errors instead of crashing. An email send that throws should
+// never take the whole server down.
+process.on('uncaughtException', (err) => {
+  console.error('[uncaughtException]', err && err.stack ? err.stack : err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[unhandledRejection]', reason && reason.stack ? reason.stack : reason);
+});
+
 const authRouter = require('./routes/auth');
 const crmRouter = require('./routes/crm');
 const portalRouter = require('./routes/portal');
@@ -54,6 +64,14 @@ app.get(['/portal', '/portal/'], requireClient, (req, res) => {
 
 // ── STATIC SITE (existing files, served last) ────────
 app.use(express.static(path.join(__dirname)));
+
+// ── API ERROR HANDLER ────────────────────────────────
+// Ensures /api/* routes always return JSON, never HTML, even on crashes.
+app.use('/api', (err, req, res, next) => {
+  console.error('[api-error]', req.path, err && err.stack ? err.stack : err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: (err && err.message) || 'Server error' });
+});
 
 app.listen(PORT, () => {
   console.log(`Sidecar Advisory running at http://localhost:${PORT}`);

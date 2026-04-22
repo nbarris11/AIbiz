@@ -71,50 +71,49 @@ router.post('/import-contacts', async (req, res) => {
 
 // Compose a new email — auto-creates the contact if one doesn't exist for that email
 router.post('/compose', async (req, res) => {
-  const { to, subject, body, name, firm, industry } = req.body;
-  if (!to || !subject || !body) return res.status(400).json({ error: 'to, subject, body required' });
-
-  const toLower = String(to).trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toLower)) {
-    return res.status(400).json({ error: 'Invalid email address' });
-  }
-
-  // Find existing contact
-  let contact = db.prepare('SELECT * FROM contacts WHERE LOWER(email) = ?').get(toLower);
-  let wasNew = false;
-
-  if (!contact) {
-    // Auto-create. Derive a reasonable name/firm from the address if not provided.
-    const local = toLower.split('@')[0];
-    const derivedName = local.replace(/[._-]+/g, ' ').split(' ')
-      .filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-    const domain = toLower.split('@')[1] || '';
-    const GENERIC = new Set(['gmail.com','yahoo.com','outlook.com','hotmail.com','icloud.com','me.com','mac.com','aol.com','protonmail.com','proton.me','live.com','msn.com','comcast.net','verizon.net','att.net']);
-    const derivedFirm = GENERIC.has(domain.toLowerCase()) ? null : (() => {
-      const base = domain.split('.').slice(0, -1).pop() || domain;
-      return base.charAt(0).toUpperCase() + base.slice(1);
-    })();
-    const id = uuidv4();
-    db.prepare(`
-      INSERT INTO contacts (id, name, firm, email, industry, pipeline_stage, source, notes)
-      VALUES (?, ?, ?, ?, ?, 'Lead', 'Compose Email', 'Auto-created from compose window')
-    `).run(
-      id,
-      (name && name.trim()) || derivedName || toLower,
-      (firm && firm.trim()) || derivedFirm,
-      toLower,
-      industry || null,
-    );
-    contact = db.prepare('SELECT * FROM contacts WHERE id = ?').get(id);
-    wasNew = true;
-  }
-
   try {
+    const { to, subject, body, name, firm, industry } = req.body;
+    if (!to || !subject || !body) return res.status(400).json({ error: 'to, subject, body required' });
+
+    const toLower = String(to).trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toLower)) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    // Find existing contact
+    let contact = db.prepare('SELECT * FROM contacts WHERE LOWER(email) = ?').get(toLower);
+    let wasNew = false;
+
+    if (!contact) {
+      const local = toLower.split('@')[0];
+      const derivedName = local.replace(/[._-]+/g, ' ').split(' ')
+        .filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+      const domain = toLower.split('@')[1] || '';
+      const GENERIC = new Set(['gmail.com','yahoo.com','outlook.com','hotmail.com','icloud.com','me.com','mac.com','aol.com','protonmail.com','proton.me','live.com','msn.com','comcast.net','verizon.net','att.net']);
+      const derivedFirm = GENERIC.has(domain.toLowerCase()) ? null : (() => {
+        const base = domain.split('.').slice(0, -1).pop() || domain;
+        return base.charAt(0).toUpperCase() + base.slice(1);
+      })();
+      const id = uuidv4();
+      db.prepare(`
+        INSERT INTO contacts (id, name, firm, email, industry, pipeline_stage, source, notes)
+        VALUES (?, ?, ?, ?, ?, 'Lead', 'Compose Email', 'Auto-created from compose window')
+      `).run(
+        id,
+        (name && name.trim()) || derivedName || toLower,
+        (firm && firm.trim()) || derivedFirm,
+        toLower,
+        industry || null,
+      );
+      contact = db.prepare('SELECT * FROM contacts WHERE id = ?').get(id);
+      wasNew = true;
+    }
+
     await sendEmail({ to: contact.email, subject, body, contactId: contact.id });
     res.json({ ok: true, contactId: contact.id, contactName: contact.name, wasNew });
   } catch (err) {
-    console.error('[compose]', err.message);
-    res.status(500).json({ error: err.message });
+    console.error('[compose]', err && err.stack ? err.stack : err);
+    res.status(500).json({ error: (err && err.message) || 'Send failed' });
   }
 });
 

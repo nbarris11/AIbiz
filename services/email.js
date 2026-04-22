@@ -68,31 +68,41 @@ async function buildRawMessage(options) {
 
 // Copy the just-sent message to the Sent folder via IMAP APPEND.
 // Fails silently — the email was already delivered; we just couldn't file it.
+// Wrapped in a 20-second hard timeout so a hung IMAP connection never blocks.
 async function saveToSentFolder(rawMessage) {
-  const client = new ImapFlow({
-    host: IMAP_HOST, port: IMAP_PORT, secure: true,
-    auth: { user: EMAIL_USER, pass: EMAIL_PASS }, logger: false,
-  });
+  const task = (async () => {
+    const client = new ImapFlow({
+      host: IMAP_HOST, port: IMAP_PORT, secure: true,
+      auth: { user: EMAIL_USER, pass: EMAIL_PASS }, logger: false,
+    });
+    try {
+      await client.connect();
+      let sentFolder = null;
+      for (const name of ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent']) {
+        try {
+          await client.mailboxOpen(name);
+          sentFolder = name;
+          break;
+        } catch {}
+      }
+      if (!sentFolder) {
+        console.warn('[sent-save] Could not find Sent folder; message delivered but not filed.');
+        return;
+      }
+      await client.append(sentFolder, rawMessage, ['\\Seen']);
+    } finally {
+      await client.logout().catch(() => {});
+    }
+  })();
+
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('IMAP APPEND timed out after 20s')), 20000)
+  );
+
   try {
-    await client.connect();
-    // Find the Sent folder — its name varies across providers
-    let sentFolder = null;
-    for (const name of ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent']) {
-      try {
-        await client.mailboxOpen(name);
-        sentFolder = name;
-        break;
-      } catch {}
-    }
-    if (!sentFolder) {
-      console.warn('[sent-save] Could not find Sent folder; message delivered but not filed.');
-      return;
-    }
-    await client.append(sentFolder, rawMessage, ['\\Seen']);
+    await Promise.race([task, timeout]);
   } catch (err) {
-    console.warn('[sent-save] Could not save to Sent folder:', err.message);
-  } finally {
-    await client.logout().catch(() => {});
+    console.warn('[sent-save]', err && err.message);
   }
 }
 
@@ -145,22 +155,26 @@ async function sendEmail({ to, subject, body, contactId }) {
     html: textToHtml(finalBody),
   };
 
-  // 1. Send via SMTP
+  // 1. Send via SMTP (required — if this fails, abort and surface the error)
   await transport.sendMail(messageOptions);
 
-  // 2. Save a copy to the Sent folder via IMAP so it shows up in your email client
+  // 2. Save a copy to the Sent folder via IMAP — best-effort, never blocks/crashes
   try {
     const raw = await buildRawMessage(messageOptions);
     await saveToSentFolder(raw);
   } catch (err) {
-    console.warn('[send-email] Sent-folder copy failed:', err.message);
+    console.warn('[send-email] Sent-folder copy failed:', err && err.message);
   }
 
-  // 3. Log as activity in the CRM
-  db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at) VALUES (?, ?, ?, ?, ?, ?)')
-    .run(uuidv4(), contactId, 'email_sent', subject, finalBody, new Date().toISOString());
-  db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contactId);
-  recomputeReplyStatus(contactId);
+  // 3. Log as activity in the CRM (defensive — wrap in try/catch)
+  try {
+    db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at) VALUES (?, ?, ?, ?, ?, ?)')
+      .run(uuidv4(), contactId, 'email_sent', subject, finalBody, new Date().toISOString());
+    db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contactId);
+    recomputeReplyStatus(contactId);
+  } catch (err) {
+    console.warn('[send-email] Activity logging failed:', err && err.message);
+  }
 }
 
 // ── AUTO REPLY STATUS ────────────────────────────────
