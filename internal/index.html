@@ -1068,38 +1068,54 @@ function bulkCsvFile(file) {
   reader.readAsText(file);
 }
 
-function parseCsvLine(line) {
-  const out = [];
+// Proper CSV parser — walks character-by-character so a quoted field can
+// contain commas AND newlines (standard RFC 4180 behavior). The old
+// line-splitting parser broke on multi-line fields like email_body.
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
   let cur = '';
   let inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
-      else inQ = !inQ;
-    } else if (ch === ',' && !inQ) {
-      out.push(cur); cur = '';
-    } else {
-      cur += ch;
+  let i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    if (inQ) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { cur += '"'; i += 2; continue; } // escaped ""
+        inQ = false; i++; continue;                                 // end quote
+      }
+      cur += ch; i++; continue;                                     // anything else stays in the field
     }
+    if (ch === '"') { inQ = true; i++; continue; }
+    if (ch === ',') { row.push(cur); cur = ''; i++; continue; }
+    if (ch === '\r' || ch === '\n') {
+      row.push(cur); cur = '';
+      if (ch === '\r' && text[i + 1] === '\n') i += 2; else i++;
+      if (row.some(v => v !== '')) rows.push(row);
+      row = [];
+      continue;
+    }
+    cur += ch; i++;
   }
-  out.push(cur);
-  return out.map(s => s.trim());
+  if (cur !== '' || row.length > 0) {
+    row.push(cur);
+    if (row.some(v => v !== '')) rows.push(row);
+  }
+  return rows;
 }
 
 async function bulkCsvParse(text) {
-  const lines = text.split(/\r?\n/).filter(l => l.trim());
-  if (!lines.length) { alert('CSV file is empty'); return; }
-  const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase().replace(/\s+/g, '_'));
+  const allRows = parseCsv(text);
+  if (!allRows.length) { alert('CSV file is empty'); return; }
+  const headers = allRows[0].map(h => h.toLowerCase().trim().replace(/\s+/g, '_'));
   if (!headers.includes('email')) {
     alert('CSV must have an "email" column');
     return;
   }
   window._bulk.csvColumns = headers;
-  const rows = lines.slice(1).map(line => {
-    const vals = parseCsvLine(line);
+  const rows = allRows.slice(1).map(vals => {
     const obj = {};
-    headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+    headers.forEach((h, i) => { obj[h] = (vals[i] != null ? vals[i] : '').trim(); });
     return obj;
   });
 
