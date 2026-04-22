@@ -463,26 +463,17 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="form-group">
           <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
             <span>Subject *</span>
-            <span style="display:flex;gap:4px;">
-              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-subject','first_name')">{{first_name}}</button>
-              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-subject','firm')">{{firm}}</button>
-              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-subject','industry')">{{industry}}</button>
-            </span>
+            <span id="bulk-subject-merge-btns" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;"></span>
           </label>
           <input type="text" id="bulk-subject">
         </div>
         <div class="form-group">
           <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
             <span>Body *</span>
-            <span style="display:flex;gap:4px;">
-              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-body','first_name')">{{first_name}}</button>
-              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-body','firm')">{{firm}}</button>
-              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-body','industry')">{{industry}}</button>
-              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="insertLink('bulk-body')">🔗 Link</button>
-            </span>
+            <span id="bulk-body-merge-btns" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;"></span>
           </label>
           <textarea id="bulk-body" style="min-height:260px;"></textarea>
-          <div style="font-size:11px;color:var(--tan);margin-top:4px;">Signature will be auto-appended. URLs become clickable links when sent.</div>
+          <div style="font-size:11px;color:var(--tan);margin-top:4px;" id="bulk-merge-hint">Signature will be auto-appended. URLs become clickable links when sent.</div>
         </div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
@@ -951,6 +942,7 @@ window._bulk = {
   selected: [],        // array of { id, name, firm, email, industry, ... }
   csvRows: [],         // parsed CSV rows (all of them, pre-skip)
   csvSendable: [],     // rows that will actually send
+  csvColumns: [],      // headers detected in the uploaded CSV
   subject: '',
   body: '',
   jobId: null,
@@ -1002,6 +994,7 @@ function bulkGoToStep(n) {
     if (window._bulk.mode === 'crm') bulkCrmPreview();
   } else if (n === 2) {
     document.getElementById('bulk-step2').style.display = 'block';
+    bulkRenderMergeButtons();
   } else if (n === 3) {
     document.getElementById('bulk-step3').style.display = 'block';
     bulkRenderReview();
@@ -1102,6 +1095,7 @@ async function bulkCsvParse(text) {
     alert('CSV must have an "email" column');
     return;
   }
+  window._bulk.csvColumns = headers;
   const rows = lines.slice(1).map(line => {
     const vals = parseCsvLine(line);
     const obj = {};
@@ -1172,6 +1166,32 @@ function bulkLoadTemplate(id) {
   document.getElementById('bulk-body').value = t.body || '';
 }
 
+// Build the merge-field button row dynamically based on mode + CSV columns
+function bulkRenderMergeButtons() {
+  let fields;
+  let hint;
+  if (window._bulk.mode === 'csv' && window._bulk.csvColumns.length) {
+    // Use the columns from the CSV (every column becomes a merge field),
+    // excluding email (that's the destination, not merge content)
+    fields = window._bulk.csvColumns.filter(c => c !== 'email');
+    const custom = fields.filter(f => !['first_name','last_name','firm','industry','name'].includes(f));
+    hint = custom.length
+      ? `Detected ${fields.length} column${fields.length === 1 ? '' : 's'} in your CSV (${custom.length} custom). Click any tag to insert it.`
+      : `Using standard fields from your CSV. Add more columns (e.g. "custom_opener") to personalize further.`;
+  } else {
+    fields = ['first_name', 'firm', 'industry'];
+    hint = 'Standard merge fields. Signature auto-appended. URLs become clickable when sent.';
+  }
+  const makeBtns = (targetId) => fields.map(f =>
+    `<button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;font-family:monospace;" onclick="bulkInsertMerge('${targetId}','${f}')">{{${f}}}</button>`
+  ).join('') + (targetId === 'bulk-body'
+    ? `<button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="insertLink('bulk-body')">🔗 Link</button>`
+    : '');
+  document.getElementById('bulk-subject-merge-btns').innerHTML = makeBtns('bulk-subject');
+  document.getElementById('bulk-body-merge-btns').innerHTML = makeBtns('bulk-body');
+  document.getElementById('bulk-merge-hint').textContent = hint;
+}
+
 function bulkInsertMerge(textareaId, field) {
   const el = document.getElementById(textareaId);
   const tag = '{{' + field + '}}';
@@ -1189,7 +1209,9 @@ function bulkGetRecipients() {
 }
 
 function bulkRenderMerge(str, contact) {
-  // Mirror renderMergeFields on the server
+  // Mirror renderMergeFields on the server — handles derived fields +
+  // any arbitrary field on the contact object (incl. CSV extra columns)
+  if (!str) return '';
   const nameParts = (contact.name || contact.first_name || '').split(/\s+/).filter(Boolean);
   const firstName = contact.first_name || nameParts[0] || contact.name || '';
   const lastName = contact.last_name || (nameParts.length > 1 ? nameParts[nameParts.length - 1] : '');
@@ -1197,15 +1219,18 @@ function bulkRenderMerge(str, contact) {
   const industryPlurals = { insurance: 'insurance agencies', law: 'law firms', cpa: 'accounting firms', realestate: 'real estate offices', other: 'small businesses' };
   const ind = industryLabels[contact.industry] || contact.industry || '';
   const indPlural = industryPlurals[contact.industry] || 'small businesses';
-  return (str || '')
-    .replace(/\{\{name\}\}/g, contact.name || firstName || '')
-    .replace(/\{\{first_name\}\}/g, firstName)
-    .replace(/\{\{firstName\}\}/g, firstName)
-    .replace(/\{\{last_name\}\}/g, lastName)
-    .replace(/\{\{lastName\}\}/g, lastName)
-    .replace(/\{\{firm\}\}/g, contact.firm || contact.name || 'your business')
-    .replace(/\{\{industry\}\}/g, ind)
-    .replace(/\{\{industryPlural\}\}/g, indPlural);
+  const derived = {
+    name: contact.name || firstName || '',
+    first_name: firstName, firstName,
+    last_name: lastName, lastName,
+    firm: contact.firm || contact.name || 'your business',
+    industry: ind, industryPlural: indPlural,
+  };
+  return str.replace(/\{\{([a-zA-Z_][\w]*)\}\}/g, (match, field) => {
+    if (field in derived) return derived[field];
+    if (contact[field] != null) return String(contact[field]);
+    return match;
+  });
 }
 
 function bulkPreviewFirst() {

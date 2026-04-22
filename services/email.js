@@ -226,7 +226,9 @@ async function sendEmail({ to, subject, body, contactId, shared }) {
 
 // ── MERGE FIELD RENDERING ────────────────────────────
 // Accepts both {{firstName}} and {{first_name}} styles.
-// Contact can be a CRM row or a CSV-derived object.
+// Derived fields (name, industry label) use special logic; any other
+// {{fieldname}} tag looks up the matching property on the contact object.
+// This means ANY column in a bulk CSV automatically becomes a merge field.
 function renderMergeFields(str, contact) {
   if (!str) return '';
   const parts = (contact.name || contact.first_name || '').split(/\s+/).filter(Boolean);
@@ -236,15 +238,26 @@ function renderMergeFields(str, contact) {
   const industryPlurals = { insurance: 'insurance agencies', law: 'law firms', cpa: 'accounting firms', realestate: 'real estate offices', other: 'small businesses' };
   const ind = industryLabels[contact.industry] || contact.industry || '';
   const indPlural = industryPlurals[contact.industry] || 'small businesses';
-  return str
-    .replace(/\{\{name\}\}/g, contact.name || firstName || '')
-    .replace(/\{\{first_name\}\}/g, firstName)
-    .replace(/\{\{firstName\}\}/g, firstName)
-    .replace(/\{\{last_name\}\}/g, lastName)
-    .replace(/\{\{lastName\}\}/g, lastName)
-    .replace(/\{\{firm\}\}/g, contact.firm || contact.name || 'your business')
-    .replace(/\{\{industry\}\}/g, ind)
-    .replace(/\{\{industryPlural\}\}/g, indPlural);
+
+  // Derived fields get computed/transformed values
+  const derived = {
+    name: contact.name || firstName || '',
+    first_name: firstName,
+    firstName,
+    last_name: lastName,
+    lastName,
+    firm: contact.firm || contact.name || 'your business',
+    industry: ind,
+    industryPlural: indPlural,
+  };
+
+  return str.replace(/\{\{([a-zA-Z_][\w]*)\}\}/g, (match, field) => {
+    if (field in derived) return derived[field];
+    // Fall back to any raw field on the contact object — lets arbitrary
+    // CSV columns work as merge fields (e.g., {{custom_opener}}, {{city}})
+    if (contact[field] != null) return String(contact[field]);
+    return match; // unknown — leave the {{tag}} in place so it's visible
+  });
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }

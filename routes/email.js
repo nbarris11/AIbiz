@@ -270,6 +270,9 @@ router.post('/bulk-send', async (req, res) => {
           continue;
         }
         contactsToSend.push({
+          // Preserve ALL columns from the CSV — any of them can be used as
+          // {{merge_field}} in the template (e.g., {{custom_opener}}).
+          ...c,
           id: null,
           email,
           first_name: c.first_name || '',
