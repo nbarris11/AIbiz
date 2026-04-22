@@ -160,4 +160,32 @@ router.delete('/portal-clients/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// ── EMAIL TEMPLATES ──────────────────────────────────
+router.get('/templates', (req, res) => {
+  res.json(db.prepare('SELECT * FROM email_templates ORDER BY name ASC').all());
+});
+
+router.post('/templates', (req, res) => {
+  const { name, subject, body } = req.body;
+  if (!name || !subject || !body) return res.status(400).json({ error: 'name, subject, body required' });
+  const id = uuidv4();
+  db.prepare('INSERT INTO email_templates (id, name, subject, body) VALUES (?, ?, ?, ?)')
+    .run(id, name, subject, body);
+  res.status(201).json(db.prepare('SELECT * FROM email_templates WHERE id = ?').get(id));
+});
+
+router.put('/templates/:id', (req, res) => {
+  const { name, subject, body } = req.body;
+  const existing = db.prepare('SELECT id FROM email_templates WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+  db.prepare("UPDATE email_templates SET name=?, subject=?, body=?, updated_at=datetime('now') WHERE id=?")
+    .run(name, subject, body, req.params.id);
+  res.json(db.prepare('SELECT * FROM email_templates WHERE id = ?').get(req.params.id));
+});
+
+router.delete('/templates/:id', (req, res) => {
+  db.prepare('DELETE FROM email_templates WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
 module.exports = router;

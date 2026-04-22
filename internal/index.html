@@ -157,6 +157,10 @@ textarea { resize: vertical; min-height: 80px; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
       Client Portal
     </div>
+    <div class="nav-item" onclick="nav(this,'templates')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Email Templates
+    </div>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">Sign out</button>
@@ -233,6 +237,19 @@ textarea { resize: vertical; min-height: 80px; }
       <div><div class="page-title">Outreach Tracker</div><div class="page-sub">Which batch, what happened</div></div>
     </div>
     <div class="tbl-wrap">
+      <div class="filter-bar">
+        <input type="text" id="outreach-q" placeholder="Search name, firm, or batch…" oninput="loadOutreach()" style="min-width:260px;max-width:320px;">
+        <select id="outreach-status" onchange="loadOutreach()" style="width:180px;">
+          <option value="">All Reply Statuses</option>
+          <option>None</option>
+          <option>Replied</option>
+          <option>Booked</option>
+          <option>Not Interested</option>
+        </select>
+        <select id="outreach-source" onchange="loadOutreach()" style="width:220px;">
+          <option value="">All Sources / Batches</option>
+        </select>
+      </div>
       <table class="data-table">
         <thead><tr><th>Name</th><th>Firm</th><th>Source / Batch</th><th>Date Added</th><th>Reply Status</th></tr></thead>
         <tbody id="outreach-tbody"></tbody>
@@ -267,6 +284,45 @@ textarea { resize: vertical; min-height: 80px; }
     </div>
   </div>
 
+  <!-- ── EMAIL TEMPLATES ── -->
+  <div class="page" id="page-templates">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Email Templates</div>
+        <div class="page-sub">Pre-written emails with variable substitution. Use in the Send Email window.</div>
+      </div>
+      <button class="btn btn-primary" onclick="openTemplateModal()">+ New Template</button>
+    </div>
+    <div class="card" style="background:var(--parch);border-left:3px solid var(--forest-light);">
+      <div style="font-size:12px;color:var(--mid);line-height:1.7;">
+        <strong>Variables you can use</strong> (auto-filled when sending):<br>
+        <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{name}}</code> — full name &nbsp;
+        <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{firstName}}</code> — first name only &nbsp;
+        <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{firm}}</code> — firm/company &nbsp;
+        <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{industry}}</code> — industry &nbsp;
+        <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{industryPlural}}</code> — plural form
+      </div>
+    </div>
+    <div id="templates-list"></div>
+  </div>
+
+</div>
+
+<!-- TEMPLATE EDITOR MODAL -->
+<div class="overlay" id="template-modal">
+  <div class="modal" style="width:700px;">
+    <button class="modal-close" onclick="closeModal('template-modal')">×</button>
+    <div class="modal-title" id="template-modal-title">New Template</div>
+    <input type="hidden" id="tm-id">
+    <div class="form-group"><label class="form-label">Template Name *</label><input type="text" id="tm-name" placeholder="e.g. Cold Outreach"></div>
+    <div class="form-group"><label class="form-label">Subject Line *</label><input type="text" id="tm-subject" placeholder="Quick idea for {{firm}}"></div>
+    <div class="form-group"><label class="form-label">Body *</label><textarea id="tm-body" style="min-height:300px;font-family:'Epilogue',sans-serif;" placeholder="Hi {{firstName}}, ..."></textarea></div>
+    <hr class="divider">
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('template-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTemplate()">Save Template</button>
+    </div>
+  </div>
 </div>
 
 <!-- CONTACT DETAIL PANEL -->
@@ -398,9 +454,17 @@ textarea { resize: vertical; min-height: 80px; }
     <button class="modal-close" onclick="closeModal('send-email-modal')">×</button>
     <div class="modal-title">Send Email</div>
     <input type="hidden" id="sem-contact-id">
-    <div class="form-group">
-      <label class="form-label">To</label>
-      <input type="text" id="sem-to" readonly style="background:var(--cream);color:var(--tan);">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">To</label>
+        <input type="text" id="sem-to" readonly style="background:var(--cream);color:var(--tan);">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Use Template</label>
+        <select id="sem-template" onchange="applyTemplateToSendModal()">
+          <option value="">— Start from scratch —</option>
+        </select>
+      </div>
     </div>
     <div class="form-group"><label class="form-label">Subject *</label><input type="text" id="sem-subject"></div>
     <div class="form-group"><label class="form-label">Body *</label><textarea id="sem-body" style="min-height:200px;"></textarea></div>
@@ -464,6 +528,90 @@ function nav(el, page) {
   if (page === 'outreach') loadOutreach();
   if (page === 'followups') loadFollowups();
   if (page === 'portal-mgr') loadPortalClients();
+  if (page === 'templates') loadTemplates();
+}
+
+// ── TEMPLATES ────────────────────────────────────────
+async function loadTemplates() {
+  const data = await api('/api/crm/templates');
+  const el = document.getElementById('templates-list');
+  if (!data.length) {
+    el.innerHTML = '<div class="card" style="text-align:center;color:var(--tan);padding:48px;">No templates yet. Click "+ New Template" to create one.</div>';
+    return;
+  }
+  el.innerHTML = data.map(t => `
+    <div class="card" style="padding:20px 24px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:10px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">${escHtml(t.name)}</div>
+          <div style="font-size:12px;color:var(--tan);margin-top:4px;">Subject: <span style="color:var(--mid);">${escHtml(t.subject)}</span></div>
+        </div>
+        <div style="white-space:nowrap;">
+          <button class="btn btn-secondary btn-sm" style="margin-right:6px;" onclick="openTemplateModal('${t.id}')">Edit</button>
+          <button class="btn btn-danger" onclick="deleteTemplate('${t.id}','${escAttr(t.name)}')">×</button>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--mid);line-height:1.6;white-space:pre-wrap;border-top:1px solid var(--cream);padding-top:14px;max-height:200px;overflow:hidden;position:relative;">${escHtml(t.body)}</div>
+    </div>
+  `).join('');
+}
+
+function escHtml(str) { return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(str) { return (str || '').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+async function openTemplateModal(id = null) {
+  document.getElementById('tm-id').value = id || '';
+  document.getElementById('template-modal-title').textContent = id ? 'Edit Template' : 'New Template';
+  if (id) {
+    const templates = await api('/api/crm/templates');
+    const t = templates.find(x => x.id === id);
+    if (t) {
+      document.getElementById('tm-name').value = t.name;
+      document.getElementById('tm-subject').value = t.subject;
+      document.getElementById('tm-body').value = t.body;
+    }
+  } else {
+    document.getElementById('tm-name').value = '';
+    document.getElementById('tm-subject').value = '';
+    document.getElementById('tm-body').value = '';
+  }
+  document.getElementById('template-modal').classList.add('open');
+}
+
+async function saveTemplate() {
+  const id = document.getElementById('tm-id').value;
+  const body = {
+    name: document.getElementById('tm-name').value.trim(),
+    subject: document.getElementById('tm-subject').value.trim(),
+    body: document.getElementById('tm-body').value.trim(),
+  };
+  if (!body.name || !body.subject || !body.body) return alert('All fields are required.');
+  if (id) { await put('/api/crm/templates/' + id, body); }
+  else    { await post('/api/crm/templates', body); }
+  closeModal('template-modal');
+  loadTemplates();
+}
+
+async function deleteTemplate(id, name) {
+  if (!confirm(`Delete template "${name}"?\n\nThis cannot be undone.`)) return;
+  await del('/api/crm/templates/' + id);
+  loadTemplates();
+}
+
+// Fill template placeholders with contact fields
+function applyTemplate(template, contact) {
+  const firstName = (contact.name || '').split(/\s+/)[0] || contact.name || '';
+  const industryLabels = { insurance: 'Insurance Agency', law: 'Law Firm', cpa: 'CPA', realestate: 'Real Estate Office', other: '' };
+  const industryPlurals = { insurance: 'insurance agencies', law: 'law firms', cpa: 'accounting firms', realestate: 'real estate offices', other: 'small businesses' };
+  const ind = industryLabels[contact.industry] || '';
+  const indPlural = industryPlurals[contact.industry] || 'small businesses';
+  const replace = str => (str || '')
+    .replace(/\{\{name\}\}/g, contact.name || '')
+    .replace(/\{\{firstName\}\}/g, firstName)
+    .replace(/\{\{firm\}\}/g, contact.firm || contact.name || 'your business')
+    .replace(/\{\{industry\}\}/g, ind)
+    .replace(/\{\{industryPlural\}\}/g, indPlural);
+  return { subject: replace(template.subject), body: replace(template.body) };
 }
 
 async function logout() {
@@ -683,14 +831,34 @@ async function importFromEmail() {
 }
 
 // ── SEND EMAIL ───────────────────────────────────────
-function openSendEmailModal(contactId, toEmail) {
+async function openSendEmailModal(contactId, toEmail) {
   document.getElementById('sem-contact-id').value = contactId;
   document.getElementById('sem-to').value = toEmail;
   document.getElementById('sem-subject').value = '';
   document.getElementById('sem-body').value = '';
   document.getElementById('sem-status').textContent = '';
   document.getElementById('sem-send-btn').disabled = false;
+  // Load templates into the picker
+  const templates = await api('/api/crm/templates');
+  const sel = document.getElementById('sem-template');
+  sel.innerHTML = '<option value="">— Start from scratch —</option>' +
+    templates.map(t => `<option value="${t.id}">${escHtml(t.name)}</option>`).join('');
+  window._cachedTemplates = templates;
   document.getElementById('send-email-modal').classList.add('open');
+}
+
+async function applyTemplateToSendModal() {
+  const id = document.getElementById('sem-template').value;
+  if (!id) return;
+  const contactId = document.getElementById('sem-contact-id').value;
+  const [contact, template] = await Promise.all([
+    api('/api/crm/contacts/' + contactId),
+    Promise.resolve((window._cachedTemplates || []).find(t => t.id === id)),
+  ]);
+  if (!template) return;
+  const filled = applyTemplate(template, contact);
+  document.getElementById('sem-subject').value = filled.subject;
+  document.getElementById('sem-body').value = filled.body;
 }
 
 async function doSendEmail() {
@@ -747,10 +915,31 @@ async function clearFollowup(contactId) {
 
 // ── OUTREACH ─────────────────────────────────────────
 async function loadOutreach() {
-  const data = await api('/api/crm/outreach');
+  const all = await api('/api/crm/outreach');
+
+  // Populate source dropdown with unique values (preserving current selection)
+  const sourceSel = document.getElementById('outreach-source');
+  const currentSource = sourceSel.value;
+  const uniqueSources = [...new Set(all.map(c => c.source).filter(Boolean))].sort();
+  sourceSel.innerHTML = '<option value="">All Sources / Batches</option>' +
+    uniqueSources.map(s => `<option value="${escAttr(s)}"${s === currentSource ? ' selected' : ''}>${escHtml(s)}</option>`).join('');
+
+  // Apply filters
+  const q = (document.getElementById('outreach-q').value || '').toLowerCase().trim();
+  const status = document.getElementById('outreach-status').value;
+  const source = document.getElementById('outreach-source').value;
+
+  let data = all;
+  if (q)      data = data.filter(c => ((c.name || '') + ' ' + (c.firm || '') + ' ' + (c.source || '')).toLowerCase().includes(q));
+  if (status) data = data.filter(c => (c.reply_status || 'None') === status);
+  if (source) data = data.filter(c => c.source === source);
+
   const tbody = document.getElementById('outreach-tbody');
   if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tan);padding:32px;">No outreach contacts yet. Add a contact with a source/batch name to track it here.</td></tr>';
+    const empty = all.length === 0
+      ? 'No outreach contacts yet. Add a contact with a source/batch name to track it here.'
+      : `No matches. ${all.length} outreach contact${all.length === 1 ? '' : 's'} total.`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--tan);padding:32px;">${empty}</td></tr>`;
     return;
   }
   const statuses = ['None', 'Replied', 'Booked', 'Not Interested'];
@@ -763,7 +952,7 @@ async function loadOutreach() {
       <td>
         <select style="width:160px;font-size:12px;padding:5px 8px;background:var(--parch);border:1px solid var(--light);border-radius:3px;color:var(--navy);"
           onchange="setReplyStatus('${c.id}', this.value)">
-          ${statuses.map(s => `<option value="${s}"${c.reply_status === s ? ' selected' : ''}>${s}</option>`).join('')}
+          ${statuses.map(s => `<option value="${s}"${(c.reply_status || 'None') === s ? ' selected' : ''}>${s}</option>`).join('')}
         </select>
       </td>
     </tr>`).join('');
