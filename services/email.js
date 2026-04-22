@@ -224,19 +224,16 @@ function textToHtml(text) {
 // Falls back to original HTML on any error — never blocks email delivery.
 function rewriteLinks(html, { activityId, campaignId, contactId, stepNumber }) {
   try {
-    let rewritten = html;
-    const linkRe = /<a\s[^>]*href="(https?:\/\/[^"]+)"[^>]*>/gi;
-    let match;
-    while ((match = linkRe.exec(html)) !== null) {
-      const originalHref = match[1];
+    const linkRe = /<a(\s[^>]*)href="(https?:\/\/[^"]+)"([^>]*)>/gi;
+    return html.replace(linkRe, (fullMatch, before, originalHref, after) => {
       // Skip tracking pixel links
-      if (originalHref.includes('/t/')) continue;
+      if (originalHref.includes('/t/')) return fullMatch;
 
       // Build UTM-appended destination URL
       const slug = campaignId ? campaignId.slice(0, 20) : '';
       const step = stepNumber != null ? `step-${stepNumber}` : 'direct';
       const separator = originalHref.includes('?') ? '&' : '?';
-      const utmUrl = `${originalHref}${separator}utm_source=sidecar-crm&utm_medium=email&utm_campaign=${encodeURIComponent(slug)}&utm_content=${step}`;
+      const utmUrl = `${originalHref}${separator}utm_source=sidecar-crm&utm_medium=email&utm_campaign=${encodeURIComponent(slug)}&utm_content=${encodeURIComponent(step)}`;
 
       // Insert link_clicks row
       const clickId = uuidv4();
@@ -244,10 +241,8 @@ function rewriteLinks(html, { activityId, campaignId, contactId, stepNumber }) {
         'INSERT INTO link_clicks (id, activity_id, campaign_id, contact_id, url) VALUES (?, ?, ?, ?, ?)'
       ).run(clickId, activityId || null, campaignId || null, contactId || null, utmUrl);
 
-      // Replace href in output HTML
-      rewritten = rewritten.replace(originalHref, `${APP_BASE_URL}/r/${clickId}`);
-    }
-    return rewritten;
+      return `<a${before}href="${APP_BASE_URL}/r/${clickId}"${after}>`;
+    });
   } catch (err) {
     console.warn('[link-rewrite] failed, sending original HTML:', err && err.message);
     return html;
