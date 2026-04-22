@@ -147,6 +147,21 @@ router.get('/insights', (req, res) => {
 
     const lastSyncRow = db.prepare("SELECT value FROM email_sync_state WHERE key = 'last_sync_at'").get();
 
+    // Open tracking stats
+    const openedToday = db.prepare(
+      "SELECT COUNT(*) as n FROM activities WHERE type='email_sent' AND opened_at IS NOT NULL AND opened_at >= ?"
+    ).get(startOfToday).n;
+
+    const totalSent = db.prepare(
+      "SELECT COUNT(*) as n FROM activities WHERE type='email_sent' AND tracking_id IS NOT NULL"
+    ).get().n;
+
+    const totalOpened = db.prepare(
+      "SELECT COUNT(*) as n FROM activities WHERE type='email_sent' AND opened_at IS NOT NULL"
+    ).get().n;
+
+    const openRate = totalSent > 0 ? (totalOpened / totalSent) : 0;
+
     res.json({
       last_sync_at: lastSyncRow?.value || null,
       today: { sent: sentToday, received: receivedToday, bounces: bouncesToday, sent_yesterday: sentYesterday },
@@ -167,6 +182,7 @@ router.get('/insights', (req, res) => {
       top_subjects: subjectPerf,
       funnel,
       recent_replies: recentReplies,
+      openTracking: { openedToday, totalOpened, totalSent, openRate },
     });
   } catch (err) {
     console.error('[insights]', err);

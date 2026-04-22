@@ -115,6 +115,7 @@ textarea { resize: vertical; min-height: 80px; }
 .activity-item:last-child { border-bottom: none; }
 .activity-type-pill { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 10px; font-weight: 600; background: var(--cream); color: var(--mid); margin-right: 6px; text-transform: uppercase; letter-spacing: .04em; }
 .activity-meta { font-size: 11px; color: var(--tan); margin-top: 4px; }
+.open-badge { display:inline-block; margin-top:4px; padding:2px 8px; background:#e8f4ec; color:#2D5A3D; border-radius:10px; font-size:11px; font-weight:500; }
 
 /* TOGGLE SWITCH */
 .toggle-slider::before {
@@ -651,6 +652,26 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
 
+    <!-- Email Opens -->
+    <div style="margin-top:16px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tan);margin-bottom:10px;">EMAIL OPENS</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div class="ins-tile">
+          <div class="ins-label">OPENED TODAY</div>
+          <div class="ins-val" id="ins-opened-today">—</div>
+        </div>
+        <div class="ins-tile">
+          <div class="ins-label">TOTAL OPENED</div>
+          <div class="ins-val" id="ins-total-opened">—</div>
+        </div>
+        <div class="ins-tile">
+          <div class="ins-label">OPEN RATE</div>
+          <div class="ins-val" id="ins-open-rate">—</div>
+          <div class="ins-detail" id="ins-open-rate-detail"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Volume chart -->
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
@@ -1177,6 +1198,15 @@ async function loadInsights() {
   // Bounce rate
   const br = d.overall.bounce_rate;
   document.getElementById('ins-bounce-rate').textContent = (br * 100).toFixed(1) + '%';
+
+  // Open tracking
+  if (d.openTracking) {
+    document.getElementById('ins-opened-today').textContent = d.openTracking.openedToday;
+    document.getElementById('ins-total-opened').textContent = d.openTracking.totalOpened;
+    document.getElementById('ins-open-rate').textContent = (d.openTracking.openRate * 100).toFixed(1) + '%';
+    document.getElementById('ins-open-rate-detail').textContent =
+      `${d.openTracking.totalOpened} of ${d.openTracking.totalSent} tracked emails`;
+  }
 
   // Volume chart — simple inline bars, no library
   const chart = document.getElementById('ins-volume-chart');
@@ -2380,6 +2410,7 @@ function renderActivity(a, idx) {
         ` : ''}
       ` : ''}
       <div class="activity-meta">${fmtDate(a.logged_at)}</div>
+      ${a.type === 'email_sent' && a.opened_at ? `<span class="open-badge">Opened · ${fmtDate(a.opened_at)}${a.open_count > 1 ? ` (${a.open_count}×)` : ''}</span>` : ''}
     </div>`;
 }
 
