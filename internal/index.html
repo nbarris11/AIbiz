@@ -307,9 +307,11 @@ textarea { resize: vertical; min-height: 80px; }
         <strong>Variables you can use</strong> (auto-filled when sending):<br>
         <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{name}}</code> — full name &nbsp;
         <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{firstName}}</code> — first name only &nbsp;
+        <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{lastName}}</code> — last name only &nbsp;
         <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{firm}}</code> — firm/company &nbsp;
         <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{industry}}</code> — industry &nbsp;
         <code style="font-family:monospace;font-size:11px;background:var(--white);padding:2px 6px;border-radius:2px;">{{industryPlural}}</code> — plural form
+        <div style="margin-top:10px;font-size:11px;color:var(--tan);">Brackets like <code style="background:var(--white);padding:1px 4px;">[nearby city]</code> or <code style="background:var(--white);padding:1px 4px;">[X] staff</code> stay in place — those are prompts for you to fill in manually before sending, based on research into that specific contact.</div>
       </div>
     </div>
     <div id="templates-list"></div>
@@ -676,7 +678,9 @@ async function deleteTemplate(id, name) {
 
 // Fill template placeholders with contact fields
 function applyTemplate(template, contact) {
-  const firstName = (contact.name || '').split(/\s+/)[0] || contact.name || '';
+  const nameParts = (contact.name || '').split(/\s+/).filter(Boolean);
+  const firstName = nameParts[0] || contact.name || '';
+  const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
   const industryLabels = { insurance: 'Insurance Agency', law: 'Law Firm', cpa: 'CPA', realestate: 'Real Estate Office', other: '' };
   const industryPlurals = { insurance: 'insurance agencies', law: 'law firms', cpa: 'accounting firms', realestate: 'real estate offices', other: 'small businesses' };
   const ind = industryLabels[contact.industry] || '';
@@ -684,6 +688,7 @@ function applyTemplate(template, contact) {
   const replace = str => (str || '')
     .replace(/\{\{name\}\}/g, contact.name || '')
     .replace(/\{\{firstName\}\}/g, firstName)
+    .replace(/\{\{lastName\}\}/g, lastName)
     .replace(/\{\{firm\}\}/g, contact.firm || contact.name || 'your business')
     .replace(/\{\{industry\}\}/g, ind)
     .replace(/\{\{industryPlural\}\}/g, indPlural);

@@ -267,6 +267,96 @@ for (const t of additionalTemplates) {
   }
 }
 
+// Industry-specific hyper-personalization templates (cold outreach)
+const industryTemplates = [
+  {
+    name: 'Insurance Agency — Renewal Follow-up',
+    subject: '{{firm}} — quick question about your renewal follow-up',
+    body: `Hi {{firstName}},
+
+I noticed {{firm}} has built a reputation around being responsive — your reviews make that pretty clear. That kind of follow-up doesn't maintain itself at your volume, and for most independent agencies your size, renewal season is where the cracks start to show.
+
+I just built a renewal follow-up and intake workflow for an agency in [nearby city] that was spending about 5 hours a week on manual touchpoints. They got most of that back in the first two weeks.
+
+I offer a free 45-minute Clarity Session where I map out exactly where the time is going and give you a written estimate of what's recoverable. No pitch on the call — just a real number.
+
+Worth a quick reply? sidecaradvisory.com`,
+  },
+  {
+    name: 'CPA Firm — Document Workflow',
+    subject: '{{firm}} — question about your tax season document workflow',
+    body: `Hi {{firstName}},
+
+I was looking at {{firm}}'s site and noticed you don't appear to have a client document portal — for a firm with [X] staff, that typically means someone is spending 4 to 6 hours a week just chasing documents during busy season.
+
+I just worked through this with a CPA firm in [nearby city] — three partners, similar client base. We built an automated document request and follow-up workflow. Their admins got 5 hours a week back starting the first month.
+
+I do a free 45-minute Clarity Session where I look at your current setup and give you a written estimate of what's recoverable. Most CPA firms your size find a path to at least $5,000 in recovered time annually. You can run a quick estimate first at sidecaradvisory.com/savings-calculator.
+
+Worth a look?`,
+  },
+  {
+    name: 'Law Firm — Intake Workflow',
+    subject: '{{firm}} — a question about intake',
+    body: `Hi {{firstName}},
+
+I came across {{firm}} while looking at estate planning practices in [city]. Quick observation: your intake still appears to be [PDF-based / by phone]. For a solo practice focused on estate planning, every hour spent on intake logistics or document prep is an hour that isn't billed.
+
+I just helped a solo estate planning attorney in [nearby city] build an intake and document assembly workflow that freed up about 6 billable hours a month. It took less than a day to set up and she's been running it without touching it since.
+
+I offer a free 45-minute Clarity Session where I look at your current workflows and give you a written estimate of what's recoverable. No sales pitch — just a real number.
+
+Worth a conversation?`,
+  },
+  {
+    name: 'Real Estate Brokerage — Lead Follow-up',
+    subject: '{{firm}} — question about your lead follow-up',
+    body: `Hi {{firstName}},
+
+I was looking at {{firm}} and noticed you're running [X] agents without an automated lead follow-up system. At that volume, lead response speed and transaction admin are usually where the hours disappear.
+
+I just built a lead nurture and transaction checklist workflow for a boutique brokerage in [nearby city] — 8 agents, independent shop. Their response time on new leads dropped from hours to minutes. The broker stopped personally managing transaction paperwork.
+
+I offer a free 45-minute Clarity Session to map out what's recoverable. I give you a written estimate at the end. No obligation.
+
+Worth a quick reply? sidecaradvisory.com`,
+  },
+  {
+    name: 'Dental Practice — Patient Recall',
+    subject: '{{firm}} — question about patient recall',
+    body: `Hi Dr. {{lastName}},
+
+I was looking at {{firm}}'s site and noticed your new patient intake is still a printable PDF. For a practice with multiple hygienists running full days, patient recall and intake follow-up tend to be the two biggest admin bottlenecks.
+
+I just helped a dental practice in [nearby city] automate their recall outreach and new patient intake. Their front desk went from spending 3 hours a day on outbound calls to about 30 minutes. Reappointment rate went up in the first month.
+
+I offer a free 45-minute Clarity Session where I map out your current patient communication workflows and give you a written estimate of what's recoverable. No obligation.
+
+Worth a quick reply? sidecaradvisory.com`,
+  },
+  {
+    name: 'Staffing / HR Firm — Candidate Follow-up',
+    subject: '{{firm}} — question about candidate follow-up',
+    body: `Hi {{firstName}},
+
+I came across {{firm}} while looking at independent staffing firms in [city]. Quick question: how are you currently handling candidate follow-up after initial contact? In my experience with firms your size, that's usually still manual — and it's typically where the most hours disappear.
+
+I just built a candidate pipeline and client check-in workflow for a staffing firm in [nearby city] that was placing candidates in the [industry] space. They were spending about 8 hours a week on follow-up touchpoints that are now automated. Their recruiter capacity went up without adding headcount.
+
+I offer a free 45-minute Clarity Session to map out what's recoverable at your volume. You walk away with a written estimate. No obligation.
+
+Worth a reply to see if it makes sense? sidecaradvisory.com`,
+  },
+];
+
+for (const t of industryTemplates) {
+  const exists = db.prepare('SELECT id FROM email_templates WHERE name = ?').get(t.name);
+  if (!exists) {
+    db.prepare('INSERT INTO email_templates (id, name, subject, body) VALUES (?, ?, ?, ?)')
+      .run(uuidv4(), t.name, t.subject, t.body);
+  }
+}
+
 // Seed admin user on first run
 const existingAdmin = db.prepare('SELECT id FROM admin_users WHERE username = ?').get('neil');
 if (!existingAdmin) {
