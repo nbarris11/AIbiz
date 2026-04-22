@@ -182,6 +182,10 @@ textarea { resize: vertical; min-height: 80px; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       Bulk Email
     </div>
+    <div class="nav-item" onclick="nav(this,'insights')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Insights
+    </div>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">Sign out</button>
@@ -583,6 +587,102 @@ textarea { resize: vertical; min-height: 80px; }
     </div>
   </div>
 
+  <!-- ── INSIGHTS ── -->
+  <div class="page" id="page-insights">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Insights</div>
+        <div class="page-sub">Email performance, pipeline health, what's working. Data refreshes every time you open this tab.</div>
+      </div>
+      <button class="btn btn-secondary" onclick="loadInsights()">↻ Refresh</button>
+    </div>
+
+    <!-- Today's snapshot -->
+    <div class="metric-row">
+      <div class="metric">
+        <div class="metric-label">Sent Today</div>
+        <div class="metric-value" id="ins-today-sent">—</div>
+        <div style="font-size:11px;color:var(--tan);margin-top:4px;" id="ins-today-delta"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Replies Today</div>
+        <div class="metric-value" id="ins-today-received" style="color:var(--forest);">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Bounces Today</div>
+        <div class="metric-value" id="ins-today-bounces" style="color:var(--ember);">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Avg Reply Time</div>
+        <div class="metric-value" id="ins-avg-reply" style="font-size:26px;">—</div>
+      </div>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric">
+        <div class="metric-label">Sent This Week</div>
+        <div class="metric-value" id="ins-week-sent">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Sent This Month</div>
+        <div class="metric-value" id="ins-month-sent">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Overall Reply Rate</div>
+        <div class="metric-value" id="ins-reply-rate" style="color:var(--forest);">—</div>
+        <div style="font-size:11px;color:var(--tan);margin-top:4px;" id="ins-reply-rate-detail"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Bounce Rate</div>
+        <div class="metric-value" id="ins-bounce-rate" style="color:var(--ember);">—</div>
+      </div>
+    </div>
+
+    <!-- Volume chart -->
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Daily Volume — Last 30 Days</span>
+        <span style="font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--tan);">
+          <span style="display:inline-block;width:10px;height:10px;background:var(--forest);vertical-align:middle;margin-right:4px;"></span> Sent
+          &nbsp;<span style="display:inline-block;width:10px;height:10px;background:var(--tan-light);vertical-align:middle;margin-right:4px;"></span> Received
+        </span>
+      </div>
+      <div id="ins-volume-chart" style="height:180px;display:flex;align-items:flex-end;gap:3px;padding:10px 0;"></div>
+      <div id="ins-volume-labels" style="display:flex;gap:3px;margin-top:4px;font-size:10px;color:var(--tan);"></div>
+    </div>
+
+    <!-- Two-column: by industry + by day of week -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="card">
+        <div class="card-title">Reply Rate by Industry</div>
+        <div id="ins-by-industry"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Best Day to Send (reply rate)</div>
+        <div id="ins-by-dow"></div>
+      </div>
+    </div>
+
+    <!-- Top subjects -->
+    <div class="card">
+      <div class="card-title">Top-Performing Subject Lines</div>
+      <div style="font-size:11px;color:var(--tan);margin-bottom:10px;">Subjects sent 2+ times, ranked by reply rate within 21 days.</div>
+      <div id="ins-top-subjects"></div>
+    </div>
+
+    <!-- Pipeline funnel -->
+    <div class="card">
+      <div class="card-title">Pipeline Funnel</div>
+      <div id="ins-funnel"></div>
+    </div>
+
+    <!-- Recent replies -->
+    <div class="card">
+      <div class="card-title">Recent Replies (last 7 days)</div>
+      <div id="ins-recent-replies"></div>
+    </div>
+  </div>
+
   <!-- ── AUTOMATION ── -->
   <div class="page" id="page-automation">
     <div class="page-header">
@@ -959,6 +1059,157 @@ function nav(el, page) {
   if (page === 'templates') loadTemplates();
   if (page === 'automation') loadAutomation();
   if (page === 'bulk') loadBulk();
+  if (page === 'insights') loadInsights();
+}
+
+// ── INSIGHTS ─────────────────────────────────────────
+async function loadInsights() {
+  const d = await api('/api/crm/insights');
+
+  // Today tiles
+  document.getElementById('ins-today-sent').textContent     = d.today.sent;
+  document.getElementById('ins-today-received').textContent = d.today.received;
+  document.getElementById('ins-today-bounces').textContent  = d.today.bounces;
+
+  // Delta vs yesterday
+  const deltaEl = document.getElementById('ins-today-delta');
+  if (d.today.sent_yesterday > 0) {
+    const diff = d.today.sent - d.today.sent_yesterday;
+    const pct = Math.round((diff / d.today.sent_yesterday) * 100);
+    deltaEl.textContent = (diff >= 0 ? '↑' : '↓') + ' ' + Math.abs(pct) + '% vs yesterday (' + d.today.sent_yesterday + ')';
+    deltaEl.style.color = diff >= 0 ? 'var(--forest)' : 'var(--tan)';
+  } else {
+    deltaEl.textContent = '';
+  }
+
+  // Avg reply time
+  const avgHrs = d.overall.avg_reply_hours;
+  document.getElementById('ins-avg-reply').textContent =
+    avgHrs == null ? '—' : (avgHrs < 1 ? Math.round(avgHrs * 60) + ' min' : avgHrs < 48 ? avgHrs.toFixed(1) + 'h' : Math.round(avgHrs / 24) + 'd');
+
+  // Week/month
+  document.getElementById('ins-week-sent').textContent  = d.week.sent;
+  document.getElementById('ins-month-sent').textContent = d.month.sent;
+
+  // Reply rate
+  const rr = d.overall.reply_rate;
+  document.getElementById('ins-reply-rate').textContent = (rr * 100).toFixed(1) + '%';
+  document.getElementById('ins-reply-rate-detail').textContent =
+    `${d.overall.replied_contacts} replied of ${d.overall.sent_contacts} contacted`;
+
+  // Bounce rate
+  const br = d.overall.bounce_rate;
+  document.getElementById('ins-bounce-rate').textContent = (br * 100).toFixed(1) + '%';
+
+  // Volume chart — simple inline bars, no library
+  const chart = document.getElementById('ins-volume-chart');
+  const labels = document.getElementById('ins-volume-labels');
+  const maxVal = Math.max(1, ...d.daily_volume.map(x => x.sent + x.received));
+  chart.innerHTML = d.daily_volume.map((day, i) => {
+    const sentH = (day.sent / maxVal) * 160;
+    const rcvH  = (day.received / maxVal) * 160;
+    const date = new Date(day.day + 'T12:00:00');
+    const title = `${date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}: ${day.sent} sent, ${day.received} received`;
+    return `<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:1px;min-width:0;" title="${title}">
+      ${day.received > 0 ? `<div style="height:${rcvH}px;background:var(--tan-light);"></div>` : ''}
+      ${day.sent > 0 ? `<div style="height:${sentH}px;background:var(--forest);"></div>` : ''}
+      ${day.sent === 0 && day.received === 0 ? `<div style="height:2px;background:var(--cream);"></div>` : ''}
+    </div>`;
+  }).join('');
+  labels.innerHTML = d.daily_volume.map((day, i) => {
+    const date = new Date(day.day + 'T12:00:00');
+    // Only label every 5th day so we don't crowd
+    return `<div style="flex:1;text-align:center;min-width:0;">${i % 5 === 0 ? date.toLocaleDateString('en-US',{month:'numeric',day:'numeric'}) : ''}</div>`;
+  }).join('');
+
+  // By industry
+  const industryLabels = { insurance:'Insurance', law:'Law', cpa:'CPA', realestate:'Real Estate', other:'Other' };
+  const industryTotal = d.by_industry.reduce((s, r) => s + r.sent, 0);
+  document.getElementById('ins-by-industry').innerHTML = !d.by_industry.length ? '<div style="color:var(--tan);font-size:13px;">No data yet.</div>' : `
+    <table class="data-table" style="width:100%;">
+      <thead><tr><th>Industry</th><th style="text-align:right;">Sent</th><th style="text-align:right;">Replied</th><th style="text-align:right;">Rate</th></tr></thead>
+      <tbody>${d.by_industry.sort((a, b) => b.sent - a.sent).map(r => {
+        const rate = r.sent > 0 ? (r.replied / r.sent) * 100 : 0;
+        const barW = industryTotal > 0 ? (r.sent / industryTotal) * 100 : 0;
+        return `<tr>
+          <td style="font-size:13px;">${industryLabels[r.industry] || r.industry}
+            <div style="height:3px;background:var(--cream);margin-top:3px;"><div style="height:3px;background:var(--forest);width:${barW}%;"></div></div>
+          </td>
+          <td style="text-align:right;font-size:13px;color:var(--mid);">${r.sent}</td>
+          <td style="text-align:right;font-size:13px;color:var(--forest);">${r.replied}</td>
+          <td style="text-align:right;font-size:13px;font-weight:500;color:${rate > 5 ? 'var(--forest)' : 'var(--mid)'};">${rate.toFixed(1)}%</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // By day of week
+  const dowNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dowMap = {};
+  for (const r of d.by_day_of_week) dowMap[r.dow] = r;
+  document.getElementById('ins-by-dow').innerHTML = `
+    <table class="data-table" style="width:100%;">
+      <thead><tr><th>Day Sent</th><th style="text-align:right;">Sent</th><th style="text-align:right;">Replied</th><th style="text-align:right;">Rate</th></tr></thead>
+      <tbody>${[1,2,3,4,5,0,6].map(i => {
+        const r = dowMap[String(i)] || { sent: 0, got_reply: 0 };
+        const rate = r.sent > 0 ? (r.got_reply / r.sent) * 100 : 0;
+        const maxRate = Math.max(1, ...d.by_day_of_week.map(x => x.sent > 0 ? (x.got_reply/x.sent)*100 : 0));
+        const barW = (rate / maxRate) * 100;
+        return `<tr>
+          <td style="font-size:13px;">${dowNames[i]}
+            <div style="height:3px;background:var(--cream);margin-top:3px;"><div style="height:3px;background:${rate === maxRate && rate > 0 ? 'var(--forest)' : 'var(--tan-light)'};width:${barW}%;"></div></div>
+          </td>
+          <td style="text-align:right;font-size:13px;color:var(--mid);">${r.sent}</td>
+          <td style="text-align:right;font-size:13px;color:var(--forest);">${r.got_reply}</td>
+          <td style="text-align:right;font-size:13px;font-weight:500;color:${rate > 5 ? 'var(--forest)' : 'var(--mid)'};">${rate.toFixed(1)}%</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // Top subjects
+  document.getElementById('ins-top-subjects').innerHTML = !d.top_subjects.length ? '<div style="color:var(--tan);font-size:13px;">Need more sends — subjects appear here after 2+ uses with replies.</div>' : `
+    <table class="data-table" style="width:100%;">
+      <thead><tr><th>Subject</th><th style="text-align:right;">Sent</th><th style="text-align:right;">Replied</th><th style="text-align:right;">Rate</th></tr></thead>
+      <tbody>${d.top_subjects.map(r => {
+        const rate = r.sent > 0 ? (r.replied / r.sent) * 100 : 0;
+        return `<tr>
+          <td style="font-size:13px;max-width:480px;">${escHtml(r.subject)}</td>
+          <td style="text-align:right;font-size:13px;color:var(--mid);">${r.sent}</td>
+          <td style="text-align:right;font-size:13px;color:var(--forest);">${r.replied}</td>
+          <td style="text-align:right;font-size:13px;font-weight:500;color:${rate > 5 ? 'var(--forest)' : 'var(--mid)'};">${rate.toFixed(1)}%</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // Funnel
+  const maxFunnel = Math.max(1, ...d.funnel.map(r => r.count));
+  document.getElementById('ins-funnel').innerHTML = `
+    <div style="display:grid;gap:8px;">
+      ${d.funnel.map((r, i) => {
+        const width = (r.count / maxFunnel) * 100;
+        const prev = i > 0 ? d.funnel[i - 1].count : 0;
+        const conv = prev > 0 ? ((r.count / prev) * 100).toFixed(0) + '%' : '';
+        return `<div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:140px;font-size:13px;color:var(--mid);">${r.stage}</div>
+          <div style="flex:1;background:var(--parch);height:28px;border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${width || 1}%;background:var(--forest);display:flex;align-items:center;justify-content:flex-end;padding:0 10px;color:var(--white);font-weight:500;font-size:12px;">${r.count}</div>
+          </div>
+          <div style="width:70px;font-size:11px;color:var(--tan);text-align:right;">${conv ? '→ ' + conv : ''}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // Recent replies
+  document.getElementById('ins-recent-replies').innerHTML = !d.recent_replies.length ? '<div style="color:var(--tan);font-size:13px;">No replies in the last 7 days.</div>' : d.recent_replies.map(r => `
+    <div style="padding:12px 0;border-bottom:1px solid var(--cream);cursor:pointer;" onclick="openPanel('${r.contact_id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:500;font-size:13px;">${escHtml(r.name)} <span style="color:var(--tan);font-weight:400;">· ${escHtml(r.firm || '')}</span></div>
+          <div style="font-size:12px;color:var(--mid);margin-top:3px;">${escHtml(r.subject || '(no subject)')}</div>
+          ${r.body ? `<div style="font-size:11px;color:var(--tan);margin-top:4px;line-height:1.5;">${escHtml(r.body.replace(/\s+/g,' ').slice(0,140))}${r.body.length > 140 ? '…' : ''}</div>` : ''}
+        </div>
+        <div style="font-size:11px;color:var(--tan);white-space:nowrap;">${fmtDate(r.logged_at)}</div>
+      </div>
+    </div>`).join('');
 }
 
 // ── BULK EMAIL ───────────────────────────────────────
