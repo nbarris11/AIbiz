@@ -234,7 +234,11 @@ textarea { resize: vertical; min-height: 80px; }
   <!-- ── OUTREACH ── -->
   <div class="page" id="page-outreach">
     <div class="page-header">
-      <div><div class="page-title">Outreach Tracker</div><div class="page-sub">Which batch, what happened</div></div>
+      <div>
+        <div class="page-title">Outreach Tracker</div>
+        <div class="page-sub">Status auto-updates based on sent/received emails — Booked &amp; Not Interested stay manual</div>
+      </div>
+      <button class="btn btn-secondary" onclick="recomputeStatuses()" id="recompute-btn" title="Rebuild reply statuses from email activity">↻ Recompute Statuses</button>
     </div>
     <div class="tbl-wrap">
       <div class="filter-bar">
@@ -242,6 +246,7 @@ textarea { resize: vertical; min-height: 80px; }
         <select id="outreach-status" onchange="loadOutreach()" style="width:180px;">
           <option value="">All Reply Statuses</option>
           <option>None</option>
+          <option>Sent</option>
           <option>Replied</option>
           <option>Booked</option>
           <option>Not Interested</option>
@@ -942,7 +947,7 @@ async function loadOutreach() {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--tan);padding:32px;">${empty}</td></tr>`;
     return;
   }
-  const statuses = ['None', 'Replied', 'Booked', 'Not Interested'];
+  const statuses = ['None', 'Sent', 'Replied', 'Booked', 'Not Interested'];
   tbody.innerHTML = data.map(c => `
     <tr>
       <td style="font-weight:500;cursor:pointer;" onclick="openPanel('${c.id}')">${c.name}</td>
@@ -960,6 +965,22 @@ async function loadOutreach() {
 
 async function setReplyStatus(id, status) {
   await post(`/api/crm/contacts/${id}/reply-status`, { reply_status: status });
+}
+
+async function recomputeStatuses() {
+  const btn = document.getElementById('recompute-btn');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Recomputing…';
+  const r = await post('/api/email/recompute-statuses', {});
+  btn.disabled = false;
+  btn.innerHTML = original;
+  if (r.ok) {
+    loadOutreach();
+    alert(`✓ Recomputed reply status for ${r.contacts_processed} contact(s).\n\n• "Sent" = you emailed, no reply yet\n• "Replied" = they responded\n• "Booked" and "Not Interested" left as-is`);
+  } else {
+    alert('Recompute failed: ' + (r.error || 'unknown'));
+  }
 }
 
 // ── FOLLOW-UPS PAGE ──────────────────────────────────

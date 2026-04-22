@@ -32,7 +32,8 @@ db.exec(`
     type TEXT NOT NULL,
     subject TEXT NOT NULL,
     body TEXT,
-    logged_at TEXT NOT NULL DEFAULT (datetime('now'))
+    logged_at TEXT NOT NULL DEFAULT (datetime('now')),
+    source_message_id TEXT
   );
 
   CREATE TABLE IF NOT EXISTS clients (
@@ -78,6 +79,20 @@ db.exec(`
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 `);
+
+// Migration: add source_message_id column to activities if it doesn't exist
+try {
+  const cols = db.prepare('PRAGMA table_info(activities)').all();
+  if (!cols.some(c => c.name === 'source_message_id')) {
+    db.exec('ALTER TABLE activities ADD COLUMN source_message_id TEXT');
+    console.log('Migrated: added source_message_id to activities');
+  }
+} catch (e) { /* ignore */ }
+
+// Create unique index (always safe — IF NOT EXISTS, and the column now definitely exists)
+try {
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_activities_source_msg ON activities(source_message_id) WHERE source_message_id IS NOT NULL');
+} catch (e) { /* ignore if index creation fails (e.g. existing duplicates) */ }
 
 // Seed default templates on first run
 const templateCount = db.prepare('SELECT COUNT(*) as n FROM email_templates').get().n;

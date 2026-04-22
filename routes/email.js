@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const requireAdmin = require('../middleware/requireAdmin');
-const { sendEmail, syncInbox, importContactsFromInbox } = require('../services/email');
+const { sendEmail, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses } = require('../services/email');
 const router = express.Router();
 
 router.use(requireAdmin);
@@ -32,6 +32,12 @@ router.post('/sync', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Rebuild reply_status for every contact based on their email activity
+router.post('/recompute-statuses', (req, res) => {
+  const updated = recomputeAllReplyStatuses();
+  res.json({ ok: true, contacts_processed: updated });
 });
 
 // Scan inbox + sent, create contacts from unique senders/recipients,

@@ -29,6 +29,41 @@ async function sendEmail({ to, subject, body, contactId }) {
   db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at) VALUES (?, ?, ?, ?, ?, ?)')
     .run(uuidv4(), contactId, 'email_sent', subject, body, new Date().toISOString());
   db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contactId);
+  recomputeReplyStatus(contactId);
+}
+
+// ── AUTO REPLY STATUS ────────────────────────────────
+// Recompute reply_status from email activity.
+// Rules:
+//   • Already 'Booked' or 'Not Interested' → leave alone (terminal/manual states)
+//   • Has at least one email_received from this contact → 'Replied'
+//   • Has at least one email_sent to this contact → 'Sent'
+//   • Neither → 'None'
+function recomputeReplyStatus(contactId) {
+  const row = db.prepare('SELECT reply_status FROM contacts WHERE id = ?').get(contactId);
+  if (!row) return;
+  if (row.reply_status === 'Booked' || row.reply_status === 'Not Interested') return;
+
+  const activities = db.prepare(
+    'SELECT type FROM activities WHERE contact_id = ? AND type IN (?, ?)'
+  ).all(contactId, 'email_sent', 'email_received');
+
+  const hasReceived = activities.some(a => a.type === 'email_received');
+  const hasSent     = activities.some(a => a.type === 'email_sent');
+
+  let newStatus = 'None';
+  if (hasReceived) newStatus = 'Replied';
+  else if (hasSent) newStatus = 'Sent';
+
+  if (newStatus !== row.reply_status) {
+    db.prepare('UPDATE contacts SET reply_status = ? WHERE id = ?').run(newStatus, contactId);
+  }
+}
+
+function recomputeAllReplyStatuses() {
+  const contacts = db.prepare('SELECT id FROM contacts').all();
+  for (const c of contacts) recomputeReplyStatus(c.id);
+  return contacts.length;
 }
 
 // ── IMAP SYNC ────────────────────────────────────────
@@ -68,57 +103,67 @@ async function syncInbox() {
 
   try {
     await client.connect();
-    await client.mailboxOpen('INBOX');
 
-    // Fetch emails from the last 60 days on first run, last 3 days on subsequent runs
     const lastSync = getSyncState('last_sync_at');
     const since = lastSync
       ? new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
       : new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
 
-    const messages = client.fetch(
-      { since },
-      { envelope: true, bodyStructure: true, source: false }
-    );
+    // Scan both INBOX and Sent
+    const mailboxesToScan = ['INBOX'];
+    for (const sentName of ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent']) {
+      try {
+        await client.mailboxOpen(sentName);
+        mailboxesToScan.push(sentName);
+        break;
+      } catch {}
+    }
 
     let synced = 0;
-    for await (const msg of messages) {
-      const env = msg.envelope;
-      if (!env) continue;
+    for (const mailboxName of mailboxesToScan) {
+      const isInbox = mailboxName === 'INBOX';
+      await client.mailboxOpen(mailboxName);
+      const messages = client.fetch({ since }, { envelope: true, bodyStructure: true, source: false });
+      for await (const msg of messages) {
+        const env = msg.envelope;
+        if (!env) continue;
+        const messageId = env.messageId;
+        if (!messageId) continue;
 
-      const messageId = env.messageId;
-      if (!messageId || isMessageSynced(messageId)) continue;
+        // If in INBOX → match sender to contact, log as email_received.
+        // If in Sent  → match recipient to contact, log as email_sent.
+        let contact = null;
+        let type = null;
+        if (isInbox) {
+          const fromAddr = env.from?.[0]?.address?.toLowerCase();
+          if (fromAddr && fromAddr !== EMAIL_USER.toLowerCase()) {
+            contact = findContactByEmail(fromAddr);
+            type = 'email_received';
+          }
+        } else {
+          const toAddrs = (env.to || []).concat(env.cc || []).map(a => a.address?.toLowerCase()).filter(Boolean);
+          for (const addr of toAddrs) {
+            if (addr !== EMAIL_USER.toLowerCase()) {
+              contact = findContactByEmail(addr);
+              if (contact) { type = 'email_sent'; break; }
+            }
+          }
+        }
 
-      const fromAddr = env.from?.[0]?.address?.toLowerCase();
-      const toAddrs = (env.to || []).map(a => a.address?.toLowerCase()).filter(Boolean);
-
-      // Determine direction and find matching contact
-      let contact = null;
-      let type = null;
-
-      if (fromAddr && fromAddr !== EMAIL_USER.toLowerCase()) {
-        contact = findContactByEmail(fromAddr);
-        type = 'email_received';
-      }
-      if (!contact) {
-        for (const addr of toAddrs) {
-          if (addr !== EMAIL_USER.toLowerCase()) {
-            contact = findContactByEmail(addr);
-            if (contact) { type = 'email_sent'; break; }
+        if (contact && type) {
+          const subject = env.subject || '(no subject)';
+          const loggedAt = env.date ? new Date(env.date).toISOString() : new Date().toISOString();
+          try {
+            db.prepare('INSERT INTO activities (id, contact_id, type, subject, logged_at, source_message_id) VALUES (?, ?, ?, ?, ?, ?)')
+              .run(uuidv4(), contact.id, type, subject, loggedAt, messageId);
+            db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contact.id);
+            recomputeReplyStatus(contact.id);
+            synced++;
+          } catch (err) {
+            if (!err.message.includes('UNIQUE')) throw err;
           }
         }
       }
-
-      if (contact && type) {
-        const subject = env.subject || '(no subject)';
-        const loggedAt = env.date ? new Date(env.date).toISOString() : new Date().toISOString();
-        db.prepare('INSERT INTO activities (id, contact_id, type, subject, logged_at) VALUES (?, ?, ?, ?, ?)')
-          .run(uuidv4(), contact.id, type, subject, loggedAt);
-        db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contact.id);
-        synced++;
-      }
-
-      markMessageSynced(messageId);
     }
 
     setSyncState('last_sync_at', new Date().toISOString());
@@ -273,17 +318,23 @@ async function importContactsFromInbox() {
       updated++;
     }
 
-    // Log each message as an activity (skip if already synced)
+    // Log each message as an activity (dedup by source_message_id — unique index prevents duplicates)
     for (const msg of data.messages) {
       if (!msg.messageId) continue;
-      if (isMessageSynced(msg.messageId)) continue;
       const type = msg.direction === 'inbox' ? 'email_received' : 'email_sent';
       const loggedAt = msg.date ? new Date(msg.date).toISOString() : new Date().toISOString();
-      db.prepare('INSERT INTO activities (id, contact_id, type, subject, logged_at) VALUES (?, ?, ?, ?, ?)')
-        .run(uuidv4(), contact.id, type, msg.subject, loggedAt);
-      markMessageSynced(msg.messageId);
-      activitiesLogged++;
+      try {
+        db.prepare('INSERT INTO activities (id, contact_id, type, subject, logged_at, source_message_id) VALUES (?, ?, ?, ?, ?, ?)')
+          .run(uuidv4(), contact.id, type, msg.subject, loggedAt, msg.messageId);
+        markMessageSynced(msg.messageId);
+        activitiesLogged++;
+      } catch (err) {
+        // Unique constraint violation means we already logged this message — that's fine
+        if (!err.message.includes('UNIQUE')) throw err;
+      }
     }
+    // Auto-set reply_status based on the activity we just logged
+    recomputeReplyStatus(contact.id);
   }
 
   setSyncState('last_sync_at', new Date().toISOString());
@@ -307,4 +358,4 @@ function startEmailSync() {
   console.log('[email sync] Started — polling every 5 minutes');
 }
 
-module.exports = { sendEmail, startEmailSync, syncInbox, importContactsFromInbox };
+module.exports = { sendEmail, startEmailSync, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses };
