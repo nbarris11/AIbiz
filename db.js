@@ -124,6 +124,71 @@ try {
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_activities_tracking_id ON activities(tracking_id) WHERE tracking_id IS NOT NULL');
 } catch (e) { /* ignore */ }
 
+// Migration: create campaigns table
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS campaigns (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    industry TEXT,
+    status TEXT NOT NULL DEFAULT 'draft',
+    notes TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    started_at TEXT,
+    completed_at TEXT
+  )`);
+} catch (e) { /* ignore */ }
+
+// Migration: create campaign_steps table
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS campaign_steps (
+    id TEXT PRIMARY KEY,
+    campaign_id TEXT NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+    step_number INTEGER NOT NULL,
+    template_id TEXT REFERENCES email_templates(id),
+    delay_days INTEGER NOT NULL DEFAULT 0,
+    subject_override TEXT
+  )`);
+} catch (e) { /* ignore */ }
+
+// Migration: create campaign_enrollments table
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS campaign_enrollments (
+    id TEXT PRIMARY KEY,
+    campaign_id TEXT NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+    contact_id TEXT NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+    status TEXT NOT NULL DEFAULT 'active',
+    current_step INTEGER NOT NULL DEFAULT 1,
+    enrolled_at TEXT NOT NULL DEFAULT (datetime('now')),
+    last_step_sent_at TEXT,
+    UNIQUE(campaign_id, contact_id)
+  )`);
+} catch (e) { /* ignore */ }
+
+// Migration: create link_clicks table
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS link_clicks (
+    id TEXT PRIMARY KEY,
+    activity_id TEXT REFERENCES activities(id),
+    campaign_id TEXT REFERENCES campaigns(id),
+    contact_id TEXT REFERENCES contacts(id),
+    url TEXT NOT NULL,
+    clicked_at TEXT
+  )`);
+} catch (e) { /* ignore */ }
+
+// Migration: add campaign_id and step_number columns to activities
+try {
+  const actCols2 = db.prepare('PRAGMA table_info(activities)').all().map(c => c.name);
+  if (!actCols2.includes('campaign_id')) {
+    db.exec('ALTER TABLE activities ADD COLUMN campaign_id TEXT');
+    console.log('Migrated: added campaign_id to activities');
+  }
+  if (!actCols2.includes('step_number')) {
+    db.exec('ALTER TABLE activities ADD COLUMN step_number INTEGER');
+    console.log('Migrated: added step_number to activities');
+  }
+} catch (e) { /* ignore */ }
+
 // Seed default templates on first run (only if table is empty).
 // For users with existing templates, newly-added seed entries are added below via a
 // separate idempotent insert keyed by name.
