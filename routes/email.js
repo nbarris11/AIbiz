@@ -6,7 +6,7 @@ const {
   sendEmail, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses,
   backfillEmailBodies, EMAIL_SIGNATURE,
   getFollowUpSettings, setFollowUpSettings, runFollowUpSweep, previewFollowUpQueue,
-  bulkSend, renderMergeFields,
+  bulkSend, renderMergeFields, scanForBounces,
 } = require('../services/email');
 const router = express.Router();
 
@@ -30,11 +30,30 @@ router.post('/send/:contactId', async (req, res) => {
   }
 });
 
-// Manually trigger an inbox sync
+// Manually trigger an inbox sync. Wrapped in a 3-min timeout so the HTTP
+// request can't hang indefinitely (if the sync is still processing after
+// 3 min it'll just keep running in the background on the next setInterval tick).
 router.post('/sync', async (req, res) => {
   try {
-    await syncInbox();
+    await Promise.race([
+      syncInbox(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Sync is still running — it will continue in the background. Refresh in a minute to see new data.')), 3 * 60 * 1000)),
+    ]);
     res.json({ ok: true });
+  } catch (err) {
+    res.status(err.message.includes('still running') ? 202 : 500).json({ error: err.message, partial: true });
+  }
+});
+
+// Dedicated bounce scanner — fast, only downloads bounce bodies
+router.post('/scan-bounces', async (req, res) => {
+  const days = Math.min(parseInt(req.body?.days) || 30, 180);
+  try {
+    const result = await Promise.race([
+      scanForBounces(days),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Bounce scan timed out after 3 min — partial results may still be saved.')), 3 * 60 * 1000)),
+    ]);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

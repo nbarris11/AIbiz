@@ -59,6 +59,22 @@ const IMAP_PORT  = parseInt(process.env.EMAIL_IMAP_PORT || '993', 10);
 const SMTP_HOST  = process.env.EMAIL_SMTP_HOST || 'mail.privateemail.com';
 const SMTP_PORT  = parseInt(process.env.EMAIL_SMTP_PORT || '465', 10);
 
+// Factory for IMAP clients. ImapFlow emits 'error' events on socket timeouts
+// which — if unhandled — crash the whole Node process. This wires up a
+// listener so a dropped connection is logged instead of fatal, and sets a
+// more generous socketTimeout since Namecheap Private Email sometimes
+// pauses mid-session while we're doing DB work or body downloads.
+function makeImapClient() {
+  const c = new ImapFlow({
+    host: IMAP_HOST, port: IMAP_PORT, secure: true,
+    auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+    logger: false,
+    socketTimeout: 2 * 60 * 1000, // 2 min idle tolerance
+  });
+  c.on('error', (err) => { console.warn('[imap] socket error:', err && err.message); });
+  return c;
+}
+
 // ── SMTP TRANSPORT ───────────────────────────────────
 const transport = nodemailer.createTransport({
   host: SMTP_HOST,
@@ -100,10 +116,7 @@ async function buildRawMessage(options) {
 // Wrapped in a 20-second hard timeout so a hung IMAP connection never blocks.
 async function saveToSentFolder(rawMessage) {
   const task = (async () => {
-    const client = new ImapFlow({
-      host: IMAP_HOST, port: IMAP_PORT, secure: true,
-      auth: { user: EMAIL_USER, pass: EMAIL_PASS }, logger: false,
-    });
+    const client = makeImapClient();
     try {
       await client.connect();
       let sentFolder = null;
@@ -138,10 +151,7 @@ async function saveToSentFolder(rawMessage) {
 // Open a shared IMAP connection + Sent folder once, for reuse across many sends.
 // Returns { imap, sentFolder }. Caller must eventually call closeSharedImapClient().
 async function openSharedImapClient() {
-  const imap = new ImapFlow({
-    host: IMAP_HOST, port: IMAP_PORT, secure: true,
-    auth: { user: EMAIL_USER, pass: EMAIL_PASS }, logger: false,
-  });
+  const imap = makeImapClient();
   try {
     await imap.connect();
     for (const name of ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent']) {
@@ -300,6 +310,85 @@ function findUnrenderedTags(text) {
   let m;
   while ((m = re.exec(text || '')) !== null) out.add(m[1]);
   return [...out];
+}
+
+// Scan the INBOX for bounce messages over a broad window (default 30 days)
+// and flag the contacts whose addresses failed. Fast — only downloads bodies
+// for actual bounce messages, ignores everything else.
+async function scanForBounces(sinceDays = 30) {
+  if (!EMAIL_USER || !EMAIL_PASS) return { error: 'No credentials' };
+  const since = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
+  const result = { scanned: 0, bounces_detected: 0, contacts_flagged: 0, addresses: [] };
+
+  // Phase 1 — drain all envelopes fast, close the connection. Namecheap
+  // drops idle IMAP sockets if we pause for DB work mid-iteration, so we
+  // don't do ANY DB work until after the fetch completes.
+  const bounceEnvelopes = [];
+  {
+    const client = makeImapClient();
+    try {
+      await client.connect();
+      await client.mailboxOpen('INBOX');
+      for await (const msg of client.fetch({ since }, { uid: true, envelope: true })) {
+        result.scanned++;
+        const env = msg.envelope;
+        if (!env) continue;
+        const from = env.from?.[0]?.address?.toLowerCase() || '';
+        const subj = (env.subject || '').toLowerCase();
+        const isBounceSender = /(mailer-daemon|postmaster|mail-daemon|bounce)/i.test(from);
+        const isBounceSubject = /(undeliver|delivery (status|failure)|returned to sender|failure notice|mail delivery failed|could not be delivered|address not found|rejected|mailbox unavailable)/i.test(subj);
+        if (isBounceSender || isBounceSubject) {
+          bounceEnvelopes.push({ uid: msg.uid, envelope: env });
+        }
+      }
+    } finally {
+      await client.logout().catch(() => {});
+    }
+  }
+
+  result.bounces_detected = bounceEnvelopes.length;
+  // Pre-filter ones we've already logged (DB work now — connection already closed)
+  const freshBounces = bounceEnvelopes.filter(b => {
+    const mid = b.envelope.messageId;
+    if (!mid) return true;
+    return !db.prepare('SELECT 1 FROM activities WHERE source_message_id = ?').get(mid);
+  });
+  if (!freshBounces.length) return result;
+
+  // Phase 2 — open a fresh connection and fetch bodies one-by-one. Between
+  // downloads we do DB work, but the smaller number of needed fetches here
+  // (only the true bounces) usually finishes before the socket idles.
+  const client = makeImapClient();
+  try {
+    await client.connect();
+    await client.mailboxOpen('INBOX');
+    for (const b of freshBounces) {
+      try {
+        const body = await extractBody(client, b.uid);
+        if (!body) continue;
+        const failedEmail = extractBouncedRecipient(body);
+        if (!failedEmail) continue;
+        const contact = db.prepare('SELECT id FROM contacts WHERE LOWER(email) = ?').get(failedEmail);
+        if (!contact) continue;
+        const env = b.envelope;
+        const loggedAt = env.date ? new Date(env.date).toISOString() : new Date().toISOString();
+        try {
+          db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at, source_message_id) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .run(uuidv4(), contact.id, 'email_bounce', env.subject || '(bounce)', body, loggedAt, env.messageId);
+          db.prepare("UPDATE contacts SET reply_status='Bounced', updated_at=datetime('now') WHERE id=?").run(contact.id);
+          result.contacts_flagged++;
+          result.addresses.push(failedEmail);
+        } catch (err) {
+          if (!err.message.includes('UNIQUE')) throw err;
+        }
+      } catch (err) {
+        console.warn('[scan-bounces] skipped one due to:', err && err.message);
+      }
+    }
+  } finally {
+    await client.logout().catch(() => {});
+  }
+  return result;
 }
 
 // Send the same templated email to many contacts, throttled.
@@ -461,13 +550,7 @@ function findContactByEmail(address) {
 async function syncInbox() {
   if (!EMAIL_USER || !EMAIL_PASS) return;
 
-  const client = new ImapFlow({
-    host: IMAP_HOST,
-    port: IMAP_PORT,
-    secure: true,
-    auth: { user: EMAIL_USER, pass: EMAIL_PASS },
-    logger: false,
-  });
+  const client = makeImapClient();
 
   try {
     await client.connect();
@@ -669,10 +752,7 @@ async function backfillEmailBodies() {
 
   if (!activities.length) return { updated: 0, total: 0 };
 
-  const client = new ImapFlow({
-    host: IMAP_HOST, port: IMAP_PORT, secure: true,
-    auth: { user: EMAIL_USER, pass: EMAIL_PASS }, logger: false,
-  });
+  const client = makeImapClient();
   let updated = 0;
 
   try {
@@ -723,13 +803,7 @@ async function importContactsFromInbox() {
     return { error: 'No email credentials configured' };
   }
 
-  const client = new ImapFlow({
-    host: IMAP_HOST,
-    port: IMAP_PORT,
-    secure: true,
-    auth: { user: EMAIL_USER, pass: EMAIL_PASS },
-    logger: false,
-  });
+  const client = makeImapClient();
 
   const collected = new Map();
 
@@ -1012,5 +1086,5 @@ module.exports = {
   recomputeAllReplyStatuses, backfillEmailBodies, EMAIL_SIGNATURE,
   getFollowUpSettings, setFollowUpSettings, runFollowUpSweep,
   previewFollowUpQueue, startFollowUpScheduler,
-  bulkSend, renderMergeFields,
+  bulkSend, renderMergeFields, scanForBounces,
 };
