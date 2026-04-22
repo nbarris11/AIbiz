@@ -499,7 +499,11 @@ async function bulkSend({ contacts, subject, body, delayMs = 3000, onProgress, s
 function recomputeReplyStatus(contactId) {
   const row = db.prepare('SELECT reply_status FROM contacts WHERE id = ?').get(contactId);
   if (!row) return;
-  if (row.reply_status === 'Booked' || row.reply_status === 'Not Interested') return;
+  // Terminal states — never overwrite these. 'Bounced' is included because
+  // once an address fails, subsequent outbound sends to the same contact
+  // (e.g. if we retry before updating the email) shouldn't silently flip
+  // it back to 'Sent'.
+  if (row.reply_status === 'Booked' || row.reply_status === 'Not Interested' || row.reply_status === 'Bounced') return;
 
   const activities = db.prepare(
     'SELECT type FROM activities WHERE contact_id = ? AND type IN (?, ?)'
@@ -550,108 +554,170 @@ function findContactByEmail(address) {
 async function syncInbox() {
   if (!EMAIL_USER || !EMAIL_PASS) return;
 
-  const client = makeImapClient();
+  const lastSync = getSyncState('last_sync_at');
+  const since = lastSync
+    ? new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    : new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
 
-  try {
-    await client.connect();
+  // ─── PHASE 1 ─── drain envelopes from INBOX + Sent with NO DB work.
+  // Namecheap drops idle IMAP sockets if we pause mid-iteration; we keep
+  // phase 1 purely network so it finishes before the socket times out.
+  const inboxEnvs = [];
+  const sentEnvs  = [];
+  let sentName = null;
 
-    const lastSync = getSyncState('last_sync_at');
-    const since = lastSync
-      ? new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-      : new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+  {
+    const client = makeImapClient();
+    try {
+      await client.connect();
 
-    // Scan both INBOX and Sent
-    const mailboxesToScan = ['INBOX'];
-    for (const sentName of ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent']) {
-      try {
-        await client.mailboxOpen(sentName);
-        mailboxesToScan.push(sentName);
-        break;
-      } catch {}
-    }
-
-    let synced = 0;
-    for (const mailboxName of mailboxesToScan) {
-      const isInbox = mailboxName === 'INBOX';
-      await client.mailboxOpen(mailboxName);
+      await client.mailboxOpen('INBOX');
       for await (const msg of client.fetch({ since }, { uid: true, envelope: true })) {
-        const env = msg.envelope;
-        if (!env) continue;
-        const messageId = env.messageId;
-        if (!messageId) continue;
+        if (msg.envelope) inboxEnvs.push({ uid: msg.uid, envelope: msg.envelope });
+      }
 
-        // If in INBOX → either a bounce or a normal inbound reply.
-        // If in Sent  → match recipient to contact, log as email_sent.
-        let contact = null;
-        let type = null;
-        let bounceTargetEmail = null;
-        if (isInbox) {
-          const fromAddr = env.from?.[0]?.address?.toLowerCase();
-          const subject = (env.subject || '').toLowerCase();
-
-          // Bounce detection — mailer-daemon / postmaster / bounce-ish subjects
-          const isBounceSender = !!fromAddr && /(mailer-daemon|postmaster|mail-daemon|bounce)/i.test(fromAddr);
-          const isBounceSubject = /(undeliver|delivery (status|failure)|returned to sender|failure notice|mail delivery failed|could not be delivered)/i.test(subject);
-
-          if (isBounceSender || isBounceSubject) {
-            // Extract the original recipient from the body
-            const bodyText = (await extractBody(client, msg.uid)) || '';
-            bounceTargetEmail = extractBouncedRecipient(bodyText);
-            if (bounceTargetEmail) {
-              contact = findContactByEmail(bounceTargetEmail);
-              type = 'email_bounce';
-            }
-          } else if (fromAddr && fromAddr !== EMAIL_USER.toLowerCase()) {
-            contact = findContactByEmail(fromAddr);
-            type = 'email_received';
-          }
-        } else {
-          const toAddrs = (env.to || []).concat(env.cc || []).map(a => a.address?.toLowerCase()).filter(Boolean);
-          for (const addr of toAddrs) {
-            if (addr !== EMAIL_USER.toLowerCase()) {
-              contact = findContactByEmail(addr);
-              if (contact) { type = 'email_sent'; break; }
-            }
-          }
+      for (const name of ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent']) {
+        try {
+          await client.mailboxOpen(name);
+          sentName = name;
+          break;
+        } catch {}
+      }
+      if (sentName) {
+        for await (const msg of client.fetch({ since }, { uid: true, envelope: true })) {
+          if (msg.envelope) sentEnvs.push({ uid: msg.uid, envelope: msg.envelope });
         }
+      }
+    } catch (err) {
+      console.warn('[email sync] Phase 1 error:', err && err.message);
+      try { await client.logout(); } catch {}
+      return;
+    }
+    await client.logout().catch(() => {});
+  }
 
-        if (contact && type) {
-          // FAST PATH: skip messages we've already logged
-          const already = db.prepare('SELECT 1 FROM activities WHERE source_message_id = ?').get(messageId);
-          if (already) continue;
+  // ─── PHASE 2 (DB) ─── classify and pick which ones need a body fetch.
+  // No IMAP calls here — safe to spend as much time as we need.
+  const toLog = []; // { uid, mailbox, envelope, type, contactId, bounceTarget?, needsBody }
 
-          const subject = env.subject || '(no subject)';
-          const loggedAt = env.date ? new Date(env.date).toISOString() : new Date().toISOString();
-          // Body-fetch is slow (IMAP download). Only do it for inbound emails
-          // (email_received, email_bounce) where you actually need to read it.
-          // For email_sent, the subject alone is enough for the timeline — you
-          // wrote the body yourself. Outbound body can be backfilled later via
-          // POST /api/email/backfill-bodies if you ever need it.
-          const body = (type === 'email_sent') ? null : await extractBody(client, msg.uid);
-          try {
-            db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at, source_message_id) VALUES (?, ?, ?, ?, ?, ?, ?)')
-              .run(uuidv4(), contact.id, type, subject, body, loggedAt, messageId);
-            db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contact.id);
-            if (type === 'email_bounce') {
-              db.prepare("UPDATE contacts SET reply_status = 'Bounced' WHERE id = ?").run(contact.id);
-              console.log(`[bounce] ${bounceTargetEmail} bounced (contact flagged)`);
-            } else {
-              recomputeReplyStatus(contact.id);
-            }
-            synced++;
-          } catch (err) {
-            if (!err.message.includes('UNIQUE')) throw err;
-          }
+  // INBOX: either bounce or normal inbound reply
+  for (const e of inboxEnvs) {
+    const env = e.envelope;
+    const messageId = env.messageId;
+    if (!messageId) continue;
+    if (db.prepare('SELECT 1 FROM activities WHERE source_message_id = ?').get(messageId)) continue;
+
+    const fromAddr = env.from?.[0]?.address?.toLowerCase() || '';
+    const subject  = (env.subject || '').toLowerCase();
+    const isBounceSender  = /(mailer-daemon|postmaster|mail-daemon|bounce)/i.test(fromAddr);
+    const isBounceSubject = /(undeliver|delivery (status|failure)|returned to sender|failure notice|mail delivery failed|could not be delivered|address not found|rejected|mailbox unavailable)/i.test(subject);
+
+    if (isBounceSender || isBounceSubject) {
+      toLog.push({ uid: e.uid, mailbox: 'INBOX', envelope: env, type: 'email_bounce', needsBody: true });
+    } else if (fromAddr && fromAddr !== EMAIL_USER.toLowerCase()) {
+      const contact = findContactByEmail(fromAddr);
+      if (contact) {
+        toLog.push({ uid: e.uid, mailbox: 'INBOX', envelope: env, type: 'email_received', contactId: contact.id, needsBody: true });
+      }
+    }
+  }
+
+  // Sent: match recipient to contact; no body fetch needed (you wrote it)
+  for (const e of sentEnvs) {
+    const env = e.envelope;
+    const messageId = env.messageId;
+    if (!messageId) continue;
+    if (db.prepare('SELECT 1 FROM activities WHERE source_message_id = ?').get(messageId)) continue;
+
+    const toAddrs = (env.to || []).concat(env.cc || []).map(a => a.address?.toLowerCase()).filter(Boolean);
+    for (const addr of toAddrs) {
+      if (addr && addr !== EMAIL_USER.toLowerCase()) {
+        const contact = findContactByEmail(addr);
+        if (contact) {
+          toLog.push({ uid: e.uid, mailbox: sentName, envelope: env, type: 'email_sent', contactId: contact.id, needsBody: false });
+          break;
         }
       }
     }
+  }
 
-    setSyncState('last_sync_at', new Date().toISOString());
-    if (synced > 0) console.log(`[email sync] Logged ${synced} new email(s)`);
+  // Quickly handle the no-body-needed ones right now (all Sent entries)
+  let synced = 0;
+  for (const item of toLog) {
+    if (item.needsBody) continue;
+    synced += writeSyncedActivity(item, null) ? 1 : 0;
+  }
+
+  // ─── PHASE 3 ─── short second connection JUST for body fetches.
+  const needBodies = toLog.filter(x => x.needsBody);
+  if (needBodies.length) {
+    const client = makeImapClient();
+    try {
+      await client.connect();
+      let currentMailbox = null;
+      for (const item of needBodies) {
+        try {
+          if (currentMailbox !== item.mailbox) {
+            await client.mailboxOpen(item.mailbox);
+            currentMailbox = item.mailbox;
+          }
+          const body = await extractBody(client, item.uid);
+          if (item.type === 'email_bounce') {
+            if (!body) continue;
+            const failedEmail = extractBouncedRecipient(body);
+            if (!failedEmail) continue;
+            const contact = findContactByEmail(failedEmail);
+            if (!contact) continue;
+            item.contactId = contact.id;
+            item.bounceTarget = failedEmail;
+          }
+          synced += writeSyncedActivity(item, body) ? 1 : 0;
+        } catch (err) {
+          console.warn('[email sync] skipped one body fetch:', err && err.message);
+        }
+      }
+    } catch (err) {
+      console.warn('[email sync] Phase 3 error:', err && err.message);
+    } finally {
+      await client.logout().catch(() => {});
+    }
+  }
+
+  // Reconcile: any contact with an email_bounce activity should be flagged
+  // Bounced. This self-heals if a recompute accidentally overwrote the flag.
+  try {
+    db.prepare(`
+      UPDATE contacts
+      SET reply_status = 'Bounced'
+      WHERE id IN (SELECT DISTINCT contact_id FROM activities WHERE type = 'email_bounce')
+      AND reply_status NOT IN ('Booked', 'Not Interested', 'Bounced')
+    `).run();
+  } catch {}
+
+  setSyncState('last_sync_at', new Date().toISOString());
+  if (synced > 0) console.log(`[email sync] Logged ${synced} new email(s)`);
+}
+
+// Helper — does the actual INSERT + status update for a single synced message.
+// Returns true if a row was inserted, false otherwise.
+function writeSyncedActivity(item, body) {
+  try {
+    const env = item.envelope;
+    const subject = env.subject || '(no subject)';
+    const loggedAt = env.date ? new Date(env.date).toISOString() : new Date().toISOString();
+    db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at, source_message_id) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .run(uuidv4(), item.contactId, item.type, subject, body || null, loggedAt, env.messageId);
+    db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(item.contactId);
+    if (item.type === 'email_bounce') {
+      db.prepare("UPDATE contacts SET reply_status = 'Bounced' WHERE id = ?").run(item.contactId);
+      if (item.bounceTarget) console.log(`[bounce] ${item.bounceTarget} bounced (contact flagged)`);
+    } else {
+      recomputeReplyStatus(item.contactId);
+    }
+    return true;
   } catch (err) {
-    console.error('[email sync] Error:', err.message);
-  } finally {
-    await client.logout().catch(() => {});
+    if (!err.message.includes('UNIQUE')) console.warn('[email sync] insert failed:', err.message);
+    return false;
   }
 }
 
