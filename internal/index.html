@@ -177,6 +177,10 @@ textarea { resize: vertical; min-height: 80px; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       Automation
     </div>
+    <div class="nav-item" onclick="nav(this,'bulk')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Bulk Email
+    </div>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">Sign out</button>
@@ -328,6 +332,238 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
     <div id="templates-list"></div>
+  </div>
+
+  <!-- ── BULK EMAIL ── -->
+  <div class="page" id="page-bulk">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Bulk Email</div>
+        <div class="page-sub">Send a templated email to multiple recipients — throttled so you stay in good graces with your email host.</div>
+      </div>
+    </div>
+
+    <!-- Mode toggle -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;">
+        <button id="bulk-mode-crm-btn" onclick="bulkSetMode('crm')" style="padding:16px 20px;border:none;background:var(--forest);color:var(--white);font-family:'Epilogue',sans-serif;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:.04em;">👥 Select from CRM</button>
+        <button id="bulk-mode-csv-btn" onclick="bulkSetMode('csv')" style="padding:16px 20px;border:none;background:var(--white);color:var(--mid);font-family:'Epilogue',sans-serif;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:.04em;">📄 Upload a list</button>
+      </div>
+    </div>
+
+    <!-- Step indicator -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin:20px 0 24px;">
+      <div class="bulk-step" data-step="1" style="padding:10px 14px;background:var(--forest);color:var(--white);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;border-radius:3px;">1. Recipients</div>
+      <div class="bulk-step" data-step="2" style="padding:10px 14px;background:var(--parch);color:var(--tan);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;border-radius:3px;">2. Compose</div>
+      <div class="bulk-step" data-step="3" style="padding:10px 14px;background:var(--parch);color:var(--tan);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;border-radius:3px;">3. Review</div>
+      <div class="bulk-step" data-step="4" style="padding:10px 14px;background:var(--parch);color:var(--tan);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;border-radius:3px;">4. Send</div>
+    </div>
+
+    <!-- STEP 1 (CRM mode): filter -->
+    <div id="bulk-step1-crm" class="bulk-step-panel">
+      <div class="card">
+        <div class="card-title">Filter Contacts</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Industry</label>
+            <select id="bulk-filter-industry">
+              <option value="">Any</option>
+              <option value="insurance">Insurance</option>
+              <option value="law">Law</option>
+              <option value="cpa">CPA</option>
+              <option value="realestate">Real Estate</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Pipeline Stage</label>
+            <select id="bulk-filter-stage">
+              <option value="">Any</option>
+              <option>Lead</option>
+              <option>Session Booked</option>
+              <option>Proposal Sent</option>
+              <option>Active Client</option>
+              <option>Dormant</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Reply Status</label>
+            <select id="bulk-filter-replystatus">
+              <option value="">Any</option>
+              <option>None</option>
+              <option>Sent</option>
+              <option>Replied</option>
+              <option>Booked</option>
+              <option>Not Interested</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-secondary" onclick="bulkCrmPreview()">↻ Preview Recipients</button>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--light);display:flex;justify-content:space-between;align-items:center;">
+          <div><strong id="bulk-crm-count">0</strong> <span style="color:var(--tan);font-size:13px;">contacts selected</span></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="bulkCrmSelectAll(true)">Select All</button>
+            <button class="btn btn-secondary btn-sm" onclick="bulkCrmSelectAll(false)">Clear</button>
+          </div>
+        </div>
+        <div id="bulk-crm-list" style="max-height:420px;overflow-y:auto;"></div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:20px;">
+        <button class="btn btn-primary" id="bulk-crm-continue" onclick="bulkGoToStep(2)" disabled>Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 1 (CSV mode): upload -->
+    <div id="bulk-step1-csv" class="bulk-step-panel" style="display:none;">
+      <div class="card">
+        <div class="card-title">Upload Recipients CSV</div>
+        <div id="bulk-csv-dropzone" ondragover="event.preventDefault();this.style.borderColor='var(--forest)'" ondragleave="this.style.borderColor='var(--light)'" ondrop="bulkCsvDrop(event)"
+          style="border:2px dashed var(--light);border-radius:4px;padding:48px 24px;text-align:center;cursor:pointer;transition:border-color .2s;"
+          onclick="document.getElementById('bulk-csv-file').click()">
+          <div style="font-size:32px;margin-bottom:8px;">📄</div>
+          <div style="font-size:14px;color:var(--navy);font-weight:500;margin-bottom:4px;">Drag a CSV here, or click to select</div>
+          <div style="font-size:12px;color:var(--tan);">Required column: <code style="background:var(--parch);padding:1px 5px;border-radius:2px;">email</code> &nbsp; Recommended: <code style="background:var(--parch);padding:1px 5px;border-radius:2px;">first_name</code>, <code style="background:var(--parch);padding:1px 5px;border-radius:2px;">firm</code>, <code style="background:var(--parch);padding:1px 5px;border-radius:2px;">industry</code></div>
+          <input type="file" id="bulk-csv-file" accept=".csv,text/csv" onchange="bulkCsvFile(this.files[0])" style="display:none;">
+        </div>
+      </div>
+
+      <div id="bulk-csv-preview" style="display:none;">
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="padding:14px 20px;border-bottom:1px solid var(--light);">
+            <strong id="bulk-csv-stat-sendable">0</strong> <span style="color:var(--tan);font-size:13px;">to send</span>
+            &middot; <strong id="bulk-csv-stat-skip">0</strong> <span style="color:var(--tan);font-size:13px;">will be skipped (already in CRM)</span>
+            &middot; <strong id="bulk-csv-stat-invalid">0</strong> <span style="color:var(--tan);font-size:13px;">invalid/missing email</span>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Firm</th><th>Industry</th><th>Status</th></tr></thead>
+            <tbody id="bulk-csv-tbody"></tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:20px;gap:10px;">
+          <button class="btn btn-secondary" onclick="bulkCsvReset()">Upload Different CSV</button>
+          <button class="btn btn-primary" id="bulk-csv-continue" onclick="bulkGoToStep(2)" disabled>Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: compose -->
+    <div id="bulk-step2" class="bulk-step-panel" style="display:none;">
+      <div class="card">
+        <div class="card-title">Compose Email</div>
+        <div class="form-group">
+          <label class="form-label">Load from Template</label>
+          <select id="bulk-template" onchange="bulkLoadTemplate(this.value)">
+            <option value="">— or compose from scratch —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Subject *</span>
+            <span style="display:flex;gap:4px;">
+              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-subject','first_name')">{{first_name}}</button>
+              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-subject','firm')">{{firm}}</button>
+              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-subject','industry')">{{industry}}</button>
+            </span>
+          </label>
+          <input type="text" id="bulk-subject">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Body *</span>
+            <span style="display:flex;gap:4px;">
+              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-body','first_name')">{{first_name}}</button>
+              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-body','firm')">{{firm}}</button>
+              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="bulkInsertMerge('bulk-body','industry')">{{industry}}</button>
+              <button type="button" class="btn btn-secondary" style="padding:2px 8px;font-size:10px;" onclick="insertLink('bulk-body')">🔗 Link</button>
+            </span>
+          </label>
+          <textarea id="bulk-body" style="min-height:260px;"></textarea>
+          <div style="font-size:11px;color:var(--tan);margin-top:4px;">Signature will be auto-appended. URLs become clickable links when sent.</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+        <button class="btn btn-secondary" onclick="bulkGoToStep(1)">← Back</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary" onclick="bulkPreviewFirst()">Preview for first recipient</button>
+          <button class="btn btn-primary" id="bulk-compose-continue" onclick="bulkGoToStep(3)">Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: review -->
+    <div id="bulk-step3" class="bulk-step-panel" style="display:none;">
+      <div class="card">
+        <div class="card-title">Review</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:18px;">
+          <div class="metric" style="margin:0;"><div class="metric-label">Recipients</div><div class="metric-value" id="bulk-review-count">0</div></div>
+          <div class="metric" style="margin:0;"><div class="metric-label">Delay Between Sends</div><div class="metric-value" style="font-size:20px;">3 sec</div></div>
+          <div class="metric" style="margin:0;"><div class="metric-label">Estimated Duration</div><div class="metric-value" id="bulk-review-duration" style="font-size:20px;">—</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--ember);padding:12px 16px;background:rgba(192,57,43,.08);border-left:3px solid var(--ember);border-radius:3px;margin-bottom:14px;">
+          ⚠ <strong>This will send real emails from neil@sidecaradvisory.com.</strong> This cannot be undone. Review the rendered subject lines below before confirming.
+        </div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:12px 20px;border-bottom:1px solid var(--light);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);font-weight:600;">Rendered Per-Recipient Preview</div>
+        <div id="bulk-review-list" style="max-height:380px;overflow-y:auto;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+        <button class="btn btn-secondary" onclick="bulkGoToStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="bulkStartSend()" style="padding:12px 24px;font-size:13px;">Send Now →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: sending + results -->
+    <div id="bulk-step4" class="bulk-step-panel" style="display:none;">
+      <div class="card">
+        <div class="card-title" id="bulk-progress-title">Sending…</div>
+        <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;color:var(--mid);"><strong id="bulk-progress-current">0</strong> of <strong id="bulk-progress-total">0</strong> sent</span>
+          <span style="font-size:12px;color:var(--tan);" id="bulk-progress-eta">—</span>
+        </div>
+        <div style="height:10px;background:var(--parch);border-radius:5px;overflow:hidden;">
+          <div id="bulk-progress-bar" style="height:100%;background:var(--forest);width:0%;transition:width .3s;"></div>
+        </div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:12px 20px;border-bottom:1px solid var(--light);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);font-weight:600;">Live Results</div>
+        <div id="bulk-results-list" style="max-height:380px;overflow-y:auto;"></div>
+      </div>
+      <div id="bulk-done-actions" style="display:none;margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;">
+        <div id="bulk-done-summary" style="font-size:13px;"></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary" id="bulk-import-csv-btn" onclick="bulkImportCsvToCrm()" style="display:none;">+ Import These Contacts to CRM</button>
+          <button class="btn btn-primary" onclick="bulkReset()">Start New Bulk Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview modal -->
+  <div class="overlay" id="bulk-preview-modal">
+    <div class="modal" style="width:720px;">
+      <button class="modal-close" onclick="closeModal('bulk-preview-modal')">×</button>
+      <div class="modal-title">Preview for <span id="bulk-preview-name" style="color:var(--forest);"></span></div>
+      <div class="form-group">
+        <label class="form-label">To</label>
+        <input type="text" id="bulk-preview-to" readonly style="background:var(--cream);color:var(--tan);">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input type="text" id="bulk-preview-subject" readonly style="background:var(--cream);color:var(--navy);">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Body</label>
+        <div id="bulk-preview-body" style="padding:16px 18px;background:var(--white);border:1px solid var(--light);border-radius:3px;font-size:13px;line-height:1.6;white-space:pre-wrap;min-height:200px;max-height:400px;overflow-y:auto;"></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn btn-secondary" onclick="closeModal('bulk-preview-modal')">Close</button>
+      </div>
+    </div>
   </div>
 
   <!-- ── AUTOMATION ── -->
@@ -705,6 +941,444 @@ function nav(el, page) {
   if (page === 'portal-mgr') loadPortalClients();
   if (page === 'templates') loadTemplates();
   if (page === 'automation') loadAutomation();
+  if (page === 'bulk') loadBulk();
+}
+
+// ── BULK EMAIL ───────────────────────────────────────
+// State: mode, selected contacts, subject, body, current step, CSV rows
+window._bulk = {
+  mode: 'crm',
+  selected: [],        // array of { id, name, firm, email, industry, ... }
+  csvRows: [],         // parsed CSV rows (all of them, pre-skip)
+  csvSendable: [],     // rows that will actually send
+  subject: '',
+  body: '',
+  jobId: null,
+  pollTimer: null,
+};
+
+function loadBulk() {
+  bulkSetMode(window._bulk.mode);
+  bulkGoToStep(1);
+  // preload templates into the picker
+  api('/api/crm/templates').then(ts => {
+    const sel = document.getElementById('bulk-template');
+    sel.innerHTML = '<option value="">— or compose from scratch —</option>' +
+      ts.map(t => `<option value="${t.id}">${escHtml(t.name)}</option>`).join('');
+    window._bulkTemplates = ts;
+  });
+}
+
+function bulkSetMode(mode) {
+  window._bulk.mode = mode;
+  const crmBtn = document.getElementById('bulk-mode-crm-btn');
+  const csvBtn = document.getElementById('bulk-mode-csv-btn');
+  if (mode === 'crm') {
+    crmBtn.style.background = 'var(--forest)'; crmBtn.style.color = 'var(--white)';
+    csvBtn.style.background = 'var(--white)'; csvBtn.style.color = 'var(--mid)';
+  } else {
+    csvBtn.style.background = 'var(--forest)'; csvBtn.style.color = 'var(--white)';
+    crmBtn.style.background = 'var(--white)'; crmBtn.style.color = 'var(--mid)';
+  }
+  // reset selections & state when switching modes
+  window._bulk.selected = [];
+  window._bulk.csvRows = [];
+  window._bulk.csvSendable = [];
+  bulkGoToStep(1);
+}
+
+function bulkGoToStep(n) {
+  // Step indicator
+  document.querySelectorAll('.bulk-step').forEach(el => {
+    const step = parseInt(el.dataset.step, 10);
+    if (step === n)       { el.style.background = 'var(--forest)'; el.style.color = 'var(--white)'; }
+    else if (step < n)    { el.style.background = 'var(--forest-light)'; el.style.color = 'var(--white)'; }
+    else                  { el.style.background = 'var(--parch)'; el.style.color = 'var(--tan)'; }
+  });
+  // Panels
+  document.querySelectorAll('.bulk-step-panel').forEach(el => el.style.display = 'none');
+  if (n === 1) {
+    document.getElementById(window._bulk.mode === 'crm' ? 'bulk-step1-crm' : 'bulk-step1-csv').style.display = 'block';
+    if (window._bulk.mode === 'crm') bulkCrmPreview();
+  } else if (n === 2) {
+    document.getElementById('bulk-step2').style.display = 'block';
+  } else if (n === 3) {
+    document.getElementById('bulk-step3').style.display = 'block';
+    bulkRenderReview();
+  } else if (n === 4) {
+    document.getElementById('bulk-step4').style.display = 'block';
+  }
+}
+
+// ── STEP 1 — CRM mode ─────────────────────────────────
+async function bulkCrmPreview() {
+  const industry = document.getElementById('bulk-filter-industry').value;
+  const stage    = document.getElementById('bulk-filter-stage').value;
+  const replyStatus = document.getElementById('bulk-filter-replystatus').value;
+  const rows = await api('/api/email/bulk-preview', {
+    method: 'POST', body: JSON.stringify({ industry, stage, replyStatus }),
+  });
+  // Default: everyone matching the filter is selected
+  window._bulk.selected = rows.map(r => ({ ...r, _selected: true }));
+  bulkCrmRender();
+}
+
+function bulkCrmRender() {
+  const rows = window._bulk.selected;
+  const container = document.getElementById('bulk-crm-list');
+  if (!rows.length) {
+    container.innerHTML = '<div style="padding:32px;text-align:center;color:var(--tan);font-size:13px;">No contacts match the filter. Adjust the filters above and click Preview Recipients.</div>';
+  } else {
+    container.innerHTML = `
+      <table class="data-table">
+        <thead><tr><th style="width:40px;"></th><th>Name</th><th>Firm</th><th>Email</th><th>Industry</th><th>Stage</th></tr></thead>
+        <tbody>${rows.map((c, i) => `
+          <tr>
+            <td style="padding-left:20px;"><input type="checkbox" ${c._selected ? 'checked' : ''} onchange="bulkCrmToggle(${i}, this.checked)"></td>
+            <td style="font-weight:500;">${escHtml(c.name || '')}</td>
+            <td style="font-size:12px;color:var(--mid);">${escHtml(c.firm || '—')}</td>
+            <td style="font-size:12px;color:var(--tan);font-family:monospace;">${escHtml(c.email || '—')}</td>
+            <td style="font-size:12px;color:var(--mid);">${industryLabel[c.industry] || '—'}</td>
+            <td>${stageBadge(c.pipeline_stage || 'Lead')}</td>
+          </tr>`).join('')}</tbody>
+      </table>`;
+  }
+  const count = rows.filter(r => r._selected).length;
+  document.getElementById('bulk-crm-count').textContent = count;
+  document.getElementById('bulk-crm-continue').disabled = count === 0;
+}
+
+function bulkCrmToggle(i, checked) {
+  window._bulk.selected[i]._selected = checked;
+  const count = window._bulk.selected.filter(r => r._selected).length;
+  document.getElementById('bulk-crm-count').textContent = count;
+  document.getElementById('bulk-crm-continue').disabled = count === 0;
+}
+
+function bulkCrmSelectAll(val) {
+  window._bulk.selected.forEach(r => { r._selected = val; });
+  bulkCrmRender();
+}
+
+// ── STEP 1 — CSV mode ─────────────────────────────────
+function bulkCsvDrop(e) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = 'var(--light)';
+  const file = e.dataTransfer.files[0];
+  if (file) bulkCsvFile(file);
+}
+
+function bulkCsvFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => bulkCsvParse(e.target.result);
+  reader.readAsText(file);
+}
+
+function parseCsvLine(line) {
+  const out = [];
+  let cur = '';
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (ch === ',' && !inQ) {
+      out.push(cur); cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out.map(s => s.trim());
+}
+
+async function bulkCsvParse(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (!lines.length) { alert('CSV file is empty'); return; }
+  const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase().replace(/\s+/g, '_'));
+  if (!headers.includes('email')) {
+    alert('CSV must have an "email" column');
+    return;
+  }
+  const rows = lines.slice(1).map(line => {
+    const vals = parseCsvLine(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+    return obj;
+  });
+
+  // Check which are already in CRM
+  const emails = rows.map(r => r.email).filter(Boolean);
+  const lookup = await api('/api/email/bulk-lookup', {
+    method: 'POST', body: JSON.stringify({ emails }),
+  });
+  const existingSet = new Set(lookup.filter(l => l.exists).map(l => l.email));
+
+  // Annotate each row
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  let sendable = 0, skipped = 0, invalid = 0;
+  rows.forEach(r => {
+    const email = String(r.email || '').toLowerCase().trim();
+    r.email = email;
+    if (!email || !emailRe.test(email))     { r._status = 'invalid';    invalid++; }
+    else if (existingSet.has(email))        { r._status = 'exists';     skipped++; }
+    else                                    { r._status = 'sendable';   sendable++; }
+  });
+
+  window._bulk.csvRows = rows;
+  window._bulk.csvSendable = rows.filter(r => r._status === 'sendable');
+
+  document.getElementById('bulk-csv-stat-sendable').textContent = sendable;
+  document.getElementById('bulk-csv-stat-skip').textContent     = skipped;
+  document.getElementById('bulk-csv-stat-invalid').textContent  = invalid;
+
+  const tbody = document.getElementById('bulk-csv-tbody');
+  tbody.innerHTML = rows.map(r => {
+    let statusCell;
+    if (r._status === 'sendable')    statusCell = '<span class="badge badge-Active">Will send</span>';
+    else if (r._status === 'exists') statusCell = '<span class="badge badge-Dormant" title="Already exists in CRM — will be skipped">Skip (in CRM)</span>';
+    else                             statusCell = '<span class="badge badge-lost" style="background:#FDECEA;color:#993C1D;">Invalid</span>';
+    const displayName = r.first_name
+      ? (r.last_name ? r.first_name + ' ' + r.last_name : r.first_name)
+      : (r.name || r.email || '—');
+    return `<tr>
+      <td style="font-weight:500;">${escHtml(displayName)}</td>
+      <td style="font-size:12px;color:var(--tan);font-family:monospace;">${escHtml(r.email || '—')}</td>
+      <td style="font-size:12px;color:var(--mid);">${escHtml(r.firm || '—')}</td>
+      <td style="font-size:12px;color:var(--mid);">${escHtml(r.industry || '—')}</td>
+      <td>${statusCell}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('bulk-csv-preview').style.display = 'block';
+  document.getElementById('bulk-csv-continue').disabled = sendable === 0;
+}
+
+function bulkCsvReset() {
+  window._bulk.csvRows = [];
+  window._bulk.csvSendable = [];
+  document.getElementById('bulk-csv-file').value = '';
+  document.getElementById('bulk-csv-preview').style.display = 'none';
+}
+
+// ── STEP 2 — Compose ──────────────────────────────────
+function bulkLoadTemplate(id) {
+  if (!id) return;
+  const t = (window._bulkTemplates || []).find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('bulk-subject').value = t.subject || '';
+  document.getElementById('bulk-body').value = t.body || '';
+}
+
+function bulkInsertMerge(textareaId, field) {
+  const el = document.getElementById(textareaId);
+  const tag = '{{' + field + '}}';
+  const before = el.value.substring(0, el.selectionStart);
+  const after  = el.value.substring(el.selectionEnd);
+  el.value = before + tag + after;
+  const pos = before.length + tag.length;
+  el.focus();
+  el.setSelectionRange(pos, pos);
+}
+
+function bulkGetRecipients() {
+  if (window._bulk.mode === 'crm') return window._bulk.selected.filter(r => r._selected);
+  return window._bulk.csvSendable;
+}
+
+function bulkRenderMerge(str, contact) {
+  // Mirror renderMergeFields on the server
+  const nameParts = (contact.name || contact.first_name || '').split(/\s+/).filter(Boolean);
+  const firstName = contact.first_name || nameParts[0] || contact.name || '';
+  const lastName = contact.last_name || (nameParts.length > 1 ? nameParts[nameParts.length - 1] : '');
+  const industryLabels = { insurance: 'Insurance Agency', law: 'Law Firm', cpa: 'CPA', realestate: 'Real Estate Office', other: '' };
+  const industryPlurals = { insurance: 'insurance agencies', law: 'law firms', cpa: 'accounting firms', realestate: 'real estate offices', other: 'small businesses' };
+  const ind = industryLabels[contact.industry] || contact.industry || '';
+  const indPlural = industryPlurals[contact.industry] || 'small businesses';
+  return (str || '')
+    .replace(/\{\{name\}\}/g, contact.name || firstName || '')
+    .replace(/\{\{first_name\}\}/g, firstName)
+    .replace(/\{\{firstName\}\}/g, firstName)
+    .replace(/\{\{last_name\}\}/g, lastName)
+    .replace(/\{\{lastName\}\}/g, lastName)
+    .replace(/\{\{firm\}\}/g, contact.firm || contact.name || 'your business')
+    .replace(/\{\{industry\}\}/g, ind)
+    .replace(/\{\{industryPlural\}\}/g, indPlural);
+}
+
+function bulkPreviewFirst() {
+  const recipients = bulkGetRecipients();
+  if (!recipients.length) return alert('No recipients selected.');
+  const subject = document.getElementById('bulk-subject').value;
+  const body    = document.getElementById('bulk-body').value;
+  if (!subject || !body) return alert('Please enter a subject and body first.');
+  const first = recipients[0];
+  const rSubject = bulkRenderMerge(subject, first);
+  const rBody = bulkRenderMerge(body, first);
+  document.getElementById('bulk-preview-name').textContent = first.name || first.first_name || first.email;
+  document.getElementById('bulk-preview-to').value = first.email;
+  document.getElementById('bulk-preview-subject').value = rSubject;
+  document.getElementById('bulk-preview-body').textContent = rBody;
+  document.getElementById('bulk-preview-modal').classList.add('open');
+}
+
+// ── STEP 3 — Review ───────────────────────────────────
+function bulkRenderReview() {
+  const recipients = bulkGetRecipients();
+  const subject = document.getElementById('bulk-subject').value;
+  if (!subject || !document.getElementById('bulk-body').value) {
+    alert('Please enter a subject and body first.');
+    bulkGoToStep(2);
+    return;
+  }
+  document.getElementById('bulk-review-count').textContent = recipients.length;
+  const mins = Math.ceil((recipients.length * 3) / 60);
+  document.getElementById('bulk-review-duration').textContent = mins >= 1 ? `~${mins} min` : `~${recipients.length * 3}s`;
+  const list = document.getElementById('bulk-review-list');
+  list.innerHTML = `
+    <table class="data-table">
+      <thead><tr><th>To</th><th>Rendered Subject</th></tr></thead>
+      <tbody>${recipients.map(r => `
+        <tr>
+          <td><div style="font-weight:500;font-size:13px;">${escHtml(r.name || r.first_name || '—')}</div><div style="font-size:11px;color:var(--tan);font-family:monospace;">${escHtml(r.email)}</div></td>
+          <td style="font-size:13px;color:var(--mid);">${escHtml(bulkRenderMerge(subject, r))}</td>
+        </tr>`).join('')}</tbody>
+    </table>`;
+}
+
+// ── STEP 4 — Send ─────────────────────────────────────
+async function bulkStartSend() {
+  const subject = document.getElementById('bulk-subject').value;
+  const body    = document.getElementById('bulk-body').value;
+  const recipients = bulkGetRecipients();
+  if (!recipients.length) return;
+  if (recipients.length > 100) {
+    alert('Max 100 contacts per batch. Narrow your filter or split the CSV.');
+    return;
+  }
+
+  bulkGoToStep(4);
+  document.getElementById('bulk-progress-title').textContent = 'Sending…';
+  document.getElementById('bulk-progress-current').textContent = '0';
+  document.getElementById('bulk-progress-total').textContent = recipients.length;
+  document.getElementById('bulk-progress-bar').style.width = '0%';
+  document.getElementById('bulk-results-list').innerHTML = '<div style="padding:24px;text-align:center;color:var(--tan);font-size:13px;">Waiting for first send…</div>';
+  document.getElementById('bulk-done-actions').style.display = 'none';
+
+  // Build request payload
+  const payload = { subject, body, delayMs: 3000 };
+  if (window._bulk.mode === 'crm') {
+    payload.contactIds = recipients.map(r => r.id);
+  } else {
+    payload.contacts = recipients.map(r => ({
+      email: r.email,
+      first_name: r.first_name || '',
+      last_name: r.last_name || '',
+      firm: r.firm || '',
+      industry: r.industry || '',
+    }));
+  }
+
+  let kickoff;
+  try {
+    kickoff = await api('/api/email/bulk-send', { method: 'POST', body: JSON.stringify(payload) });
+  } catch (err) {
+    alert('Failed to start bulk send: ' + err.message);
+    return;
+  }
+  if (!kickoff.ok || !kickoff.jobId) {
+    alert('Failed to start bulk send: ' + (kickoff.error || 'unknown'));
+    return;
+  }
+  window._bulk.jobId = kickoff.jobId;
+  // Begin polling
+  bulkPollProgress();
+}
+
+async function bulkPollProgress() {
+  const jobId = window._bulk.jobId;
+  if (!jobId) return;
+  try {
+    const job = await api('/api/email/bulk-progress/' + jobId);
+    bulkRenderProgress(job);
+    if (job.status === 'complete' || job.status === 'error') {
+      bulkFinish(job);
+      return;
+    }
+  } catch (err) {
+    document.getElementById('bulk-progress-title').textContent = 'Lost connection to server — retrying…';
+  }
+  window._bulk.pollTimer = setTimeout(bulkPollProgress, 2000);
+}
+
+function bulkRenderProgress(job) {
+  const pct = job.total > 0 ? Math.round((job.current / job.total) * 100) : 0;
+  document.getElementById('bulk-progress-current').textContent = job.current;
+  document.getElementById('bulk-progress-total').textContent = job.total;
+  document.getElementById('bulk-progress-bar').style.width = pct + '%';
+  const remaining = (job.total - job.current) * 3;
+  document.getElementById('bulk-progress-eta').textContent = remaining > 0 ? `~${remaining}s remaining` : '';
+
+  const list = document.getElementById('bulk-results-list');
+  const results = job.results || [];
+  if (!results.length) return;
+  list.innerHTML = results.map(r => {
+    const icon = r.status === 'sent'
+      ? '<span style="color:var(--forest);font-weight:600;">✓</span>'
+      : '<span style="color:var(--ember);font-weight:600;">✗</span>';
+    return `<div style="padding:10px 20px;border-bottom:1px solid var(--cream);display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+      <div>${icon} <strong>${escHtml(r.name || '—')}</strong> <span style="color:var(--tan);font-family:monospace;">${escHtml(r.email)}</span></div>
+      <div style="font-size:11px;color:${r.status === 'sent' ? 'var(--forest)' : 'var(--ember)'};">${r.status === 'sent' ? 'Sent' : (r.error || 'Failed')}</div>
+    </div>`;
+  }).join('');
+}
+
+function bulkFinish(job) {
+  const sent = (job.results || []).filter(r => r.status === 'sent').length;
+  const failed = (job.results || []).filter(r => r.status === 'failed').length;
+  document.getElementById('bulk-progress-title').textContent = job.status === 'complete' ? '✓ Complete' : 'Completed with errors';
+  document.getElementById('bulk-done-summary').innerHTML =
+    `<strong>${sent}</strong> sent successfully` +
+    (failed ? ` · <strong style="color:var(--ember);">${failed}</strong> failed` : '') +
+    (job.skipped && job.skipped.length ? ` · ${job.skipped.length} skipped (already in CRM)` : '');
+  document.getElementById('bulk-done-actions').style.display = 'flex';
+
+  // For CSV mode, offer the import button
+  if (window._bulk.mode === 'csv' && sent > 0) {
+    document.getElementById('bulk-import-csv-btn').style.display = 'inline-block';
+  } else {
+    document.getElementById('bulk-import-csv-btn').style.display = 'none';
+  }
+}
+
+async function bulkImportCsvToCrm() {
+  const sentResults = (window._bulk.csvSendable || []);
+  if (!sentResults.length) return;
+  if (!confirm(`Import ${sentResults.length} recipient(s) as Lead-stage CRM contacts?`)) return;
+  const r = await api('/api/email/bulk-import-csv', {
+    method: 'POST',
+    body: JSON.stringify({ contacts: sentResults.map(s => ({
+      email: s.email, first_name: s.first_name, last_name: s.last_name, firm: s.firm, industry: s.industry,
+    })) }),
+  });
+  alert(`Imported ${r.created} new contact(s)${r.existed ? ` · ${r.existed} already existed` : ''}.`);
+  document.getElementById('bulk-import-csv-btn').style.display = 'none';
+}
+
+function bulkReset() {
+  clearTimeout(window._bulk.pollTimer);
+  window._bulk.jobId = null;
+  window._bulk.selected = [];
+  window._bulk.csvRows = [];
+  window._bulk.csvSendable = [];
+  document.getElementById('bulk-subject').value = '';
+  document.getElementById('bulk-body').value = '';
+  document.getElementById('bulk-csv-preview').style.display = 'none';
+  const fileInput = document.getElementById('bulk-csv-file');
+  if (fileInput) fileInput.value = '';
+  bulkGoToStep(1);
 }
 
 // ── AUTOMATION ───────────────────────────────────────

@@ -106,6 +106,34 @@ async function saveToSentFolder(rawMessage) {
   }
 }
 
+// Open a shared IMAP connection + Sent folder once, for reuse across many sends.
+// Returns { imap, sentFolder }. Caller must eventually call closeSharedImapClient().
+async function openSharedImapClient() {
+  const imap = new ImapFlow({
+    host: IMAP_HOST, port: IMAP_PORT, secure: true,
+    auth: { user: EMAIL_USER, pass: EMAIL_PASS }, logger: false,
+  });
+  try {
+    await imap.connect();
+    for (const name of ['Sent', 'Sent Messages', 'Sent Items', 'INBOX.Sent']) {
+      try {
+        await imap.mailboxOpen(name);
+        return { imap, sentFolder: name };
+      } catch {}
+    }
+    // No Sent folder found — still return client so SMTP sends work without APPEND
+    return { imap, sentFolder: null };
+  } catch (err) {
+    try { await imap.logout(); } catch {}
+    throw err;
+  }
+}
+
+async function closeSharedImapClient(shared) {
+  if (!shared || !shared.imap) return;
+  try { await shared.imap.logout(); } catch {}
+}
+
 // Convert a plain-text body (with optional [text](url) markdown links)
 // into HTML that auto-linkifies bare URLs + email addresses, and
 // preserves paragraph/line breaks.
@@ -145,7 +173,15 @@ function textToHtml(text) {
   return `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #2C2418;">${html}</div>`;
 }
 
-async function sendEmail({ to, subject, body, contactId }) {
+// Send an email.
+// Params:
+//   to, subject, body  — required
+//   contactId          — optional; if null/undefined, skip CRM activity logging
+//                        (used for CSV bulk sends to contacts not in CRM)
+//   shared             — optional { imap, sentFolder } from openSharedImapClient().
+//                        When provided, uses the shared connection for the IMAP APPEND
+//                        instead of opening a fresh one each send (huge win for bulk).
+async function sendEmail({ to, subject, body, contactId, shared }) {
   const finalBody = withSignature(body);
   const messageOptions = {
     from: `Neil Barris <${EMAIL_USER}>`,
@@ -155,26 +191,113 @@ async function sendEmail({ to, subject, body, contactId }) {
     html: textToHtml(finalBody),
   };
 
-  // 1. Send via SMTP (required — if this fails, abort and surface the error)
+  // 1. Send via SMTP (required)
   await transport.sendMail(messageOptions);
 
-  // 2. Save a copy to the Sent folder via IMAP — best-effort, never blocks/crashes
+  // 2. Save to Sent folder — best-effort
   try {
     const raw = await buildRawMessage(messageOptions);
-    await saveToSentFolder(raw);
+    if (shared && shared.imap && shared.sentFolder) {
+      // Reuse existing connection; wrap in its own 15s timeout so one bad APPEND
+      // doesn't stall a whole bulk run.
+      await Promise.race([
+        shared.imap.append(shared.sentFolder, raw, ['\\Seen']),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('APPEND timed out')), 15000)),
+      ]);
+    } else {
+      await saveToSentFolder(raw);
+    }
   } catch (err) {
     console.warn('[send-email] Sent-folder copy failed:', err && err.message);
   }
 
-  // 3. Log as activity in the CRM (defensive — wrap in try/catch)
-  try {
-    db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at) VALUES (?, ?, ?, ?, ?, ?)')
-      .run(uuidv4(), contactId, 'email_sent', subject, finalBody, new Date().toISOString());
-    db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contactId);
-    recomputeReplyStatus(contactId);
-  } catch (err) {
-    console.warn('[send-email] Activity logging failed:', err && err.message);
+  // 3. Log as activity in the CRM (only if contactId present)
+  if (contactId) {
+    try {
+      db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at) VALUES (?, ?, ?, ?, ?, ?)')
+        .run(uuidv4(), contactId, 'email_sent', subject, finalBody, new Date().toISOString());
+      db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contactId);
+      recomputeReplyStatus(contactId);
+    } catch (err) {
+      console.warn('[send-email] Activity logging failed:', err && err.message);
+    }
   }
+}
+
+// ── MERGE FIELD RENDERING ────────────────────────────
+// Accepts both {{firstName}} and {{first_name}} styles.
+// Contact can be a CRM row or a CSV-derived object.
+function renderMergeFields(str, contact) {
+  if (!str) return '';
+  const parts = (contact.name || contact.first_name || '').split(/\s+/).filter(Boolean);
+  const firstName = contact.first_name || parts[0] || contact.name || '';
+  const lastName = contact.last_name || (parts.length > 1 ? parts[parts.length - 1] : '');
+  const industryLabels = { insurance: 'Insurance Agency', law: 'Law Firm', cpa: 'CPA', realestate: 'Real Estate Office', other: '' };
+  const industryPlurals = { insurance: 'insurance agencies', law: 'law firms', cpa: 'accounting firms', realestate: 'real estate offices', other: 'small businesses' };
+  const ind = industryLabels[contact.industry] || contact.industry || '';
+  const indPlural = industryPlurals[contact.industry] || 'small businesses';
+  return str
+    .replace(/\{\{name\}\}/g, contact.name || firstName || '')
+    .replace(/\{\{first_name\}\}/g, firstName)
+    .replace(/\{\{firstName\}\}/g, firstName)
+    .replace(/\{\{last_name\}\}/g, lastName)
+    .replace(/\{\{lastName\}\}/g, lastName)
+    .replace(/\{\{firm\}\}/g, contact.firm || contact.name || 'your business')
+    .replace(/\{\{industry\}\}/g, ind)
+    .replace(/\{\{industryPlural\}\}/g, indPlural);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Send the same templated email to many contacts, throttled.
+// onProgress({ current, total, results, last }) is called after each send.
+async function bulkSend({ contacts, subject, body, delayMs = 3000, onProgress }) {
+  const results = [];
+  let shared = null;
+  try {
+    shared = await openSharedImapClient();
+  } catch (err) {
+    console.warn('[bulk-send] could not pre-open IMAP:', err && err.message);
+  }
+
+  for (let i = 0; i < contacts.length; i++) {
+    const contact = contacts[i];
+    const renderedSubject = renderMergeFields(subject, contact);
+    const renderedBody = renderMergeFields(body, contact);
+    let entry;
+    try {
+      await sendEmail({
+        to: contact.email,
+        subject: renderedSubject,
+        body: renderedBody,
+        contactId: contact.id || null,
+        shared,
+      });
+      entry = {
+        contactId: contact.id || null,
+        name: contact.name || contact.first_name || contact.email,
+        email: contact.email,
+        status: 'sent',
+      };
+    } catch (err) {
+      entry = {
+        contactId: contact.id || null,
+        name: contact.name || contact.first_name || contact.email,
+        email: contact.email,
+        status: 'failed',
+        error: err && err.message,
+      };
+    }
+    results.push(entry);
+    if (onProgress) {
+      try { onProgress({ current: i + 1, total: contacts.length, results, last: entry }); } catch {}
+    }
+    // Delay between sends (skip after the last one)
+    if (i < contacts.length - 1) await sleep(delayMs);
+  }
+
+  await closeSharedImapClient(shared);
+  return results;
 }
 
 // ── AUTO REPLY STATUS ────────────────────────────────
@@ -740,4 +863,5 @@ module.exports = {
   recomputeAllReplyStatuses, backfillEmailBodies, EMAIL_SIGNATURE,
   getFollowUpSettings, setFollowUpSettings, runFollowUpSweep,
   previewFollowUpQueue, startFollowUpScheduler,
+  bulkSend, renderMergeFields,
 };

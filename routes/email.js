@@ -6,6 +6,7 @@ const {
   sendEmail, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses,
   backfillEmailBodies, EMAIL_SIGNATURE,
   getFollowUpSettings, setFollowUpSettings, runFollowUpSweep, previewFollowUpQueue,
+  bulkSend, renderMergeFields,
 } = require('../services/email');
 const router = express.Router();
 
@@ -183,6 +184,191 @@ router.post('/contacts/:id/followup-paused', (req, res) => {
   const db = require('../db');
   db.prepare('UPDATE contacts SET follow_up_paused = ? WHERE id = ?').run(paused ? 1 : 0, req.params.id);
   res.json({ ok: true });
+});
+
+// ── BULK EMAIL ──────────────────────────────────────────────
+// In-memory job store. Jobs are ephemeral — survive only as long as the
+// server process. That's fine: bulk sends take ~2-5 min max, way under
+// typical session / uptime windows.
+const bulkJobs = new Map();
+function genJobId() { return Math.random().toString(36).slice(2, 12); }
+
+// Preview recipients matching a filter (or an explicit ID list)
+router.post('/bulk-preview', (req, res) => {
+  try {
+    const { industry, stage, replyStatus, contactIds } = req.body;
+    if (Array.isArray(contactIds) && contactIds.length) {
+      const placeholders = contactIds.map(() => '?').join(',');
+      const rows = db.prepare(
+        `SELECT id, name, firm, email, industry, pipeline_stage, reply_status
+         FROM contacts WHERE id IN (${placeholders}) AND email IS NOT NULL AND email != ''`
+      ).all(...contactIds);
+      return res.json(rows);
+    }
+    let sql = `SELECT id, name, firm, email, industry, pipeline_stage, reply_status
+               FROM contacts WHERE email IS NOT NULL AND email != ''`;
+    const params = [];
+    if (industry) { sql += ' AND industry = ?'; params.push(industry); }
+    if (stage)    { sql += ' AND pipeline_stage = ?'; params.push(stage); }
+    if (replyStatus) { sql += ' AND reply_status = ?'; params.push(replyStatus); }
+    sql += ' ORDER BY created_at DESC LIMIT 500';
+    res.json(db.prepare(sql).all(...params));
+  } catch (err) {
+    console.error('[bulk-preview]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Given an array of emails, report which ones already exist in the CRM.
+// Used by CSV upload to warn about duplicates before sending.
+router.post('/bulk-lookup', (req, res) => {
+  try {
+    const { emails } = req.body;
+    if (!Array.isArray(emails)) return res.status(400).json({ error: 'emails array required' });
+    const result = emails.map(e => {
+      const lower = String(e || '').toLowerCase().trim();
+      if (!lower) return { email: lower, exists: false };
+      const existing = db.prepare('SELECT id, name FROM contacts WHERE LOWER(email) = ?').get(lower);
+      return { email: lower, exists: !!existing, contact: existing || null };
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Kick off a bulk send. Returns immediately with a jobId; work runs in the
+// background. Poll GET /bulk-progress/:jobId every 2s to track.
+router.post('/bulk-send', async (req, res) => {
+  try {
+    let { contactIds, contacts: csvContacts, subject, body, delayMs } = req.body;
+    if (!subject || !body) return res.status(400).json({ error: 'subject and body required' });
+    delayMs = parseInt(delayMs, 10);
+    if (!delayMs || delayMs < 1000) delayMs = 3000;
+
+    let contactsToSend = [];
+    const skipped = [];
+
+    if (Array.isArray(contactIds) && contactIds.length) {
+      if (contactIds.length > 100) return res.status(400).json({ error: 'Max 100 contacts per batch' });
+      const placeholders = contactIds.map(() => '?').join(',');
+      contactsToSend = db.prepare(
+        `SELECT * FROM contacts WHERE id IN (${placeholders}) AND email IS NOT NULL AND email != ''`
+      ).all(...contactIds);
+    } else if (Array.isArray(csvContacts) && csvContacts.length) {
+      if (csvContacts.length > 100) return res.status(400).json({ error: 'Max 100 contacts per batch' });
+      // For CSV mode: skip anyone whose email already exists in the CRM
+      for (const c of csvContacts) {
+        const email = String(c.email || '').toLowerCase().trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          skipped.push({ email: c.email || '(no email)', reason: 'invalid_email' });
+          continue;
+        }
+        const existing = db.prepare('SELECT id, name FROM contacts WHERE LOWER(email) = ?').get(email);
+        if (existing) {
+          skipped.push({ email, name: existing.name, reason: 'already_in_crm' });
+          continue;
+        }
+        contactsToSend.push({
+          id: null,
+          email,
+          first_name: c.first_name || '',
+          last_name: c.last_name || '',
+          name: c.first_name || c.name || email,
+          firm: c.firm || '',
+          industry: c.industry || '',
+        });
+      }
+    } else {
+      return res.status(400).json({ error: 'contactIds or contacts required' });
+    }
+
+    if (!contactsToSend.length) {
+      return res.status(400).json({
+        error: 'No eligible contacts to send to',
+        skipped,
+      });
+    }
+
+    const jobId = genJobId();
+    bulkJobs.set(jobId, {
+      jobId,
+      status: 'starting',
+      current: 0,
+      total: contactsToSend.length,
+      results: [],
+      skipped,
+      started_at: new Date().toISOString(),
+    });
+
+    // Run the sends in the background so the request returns fast.
+    setImmediate(async () => {
+      const job = bulkJobs.get(jobId);
+      job.status = 'running';
+      try {
+        await bulkSend({
+          contacts: contactsToSend, subject, body, delayMs,
+          onProgress: ({ current, total, results, last }) => {
+            job.current = current;
+            job.total = total;
+            job.results = results;
+            job.last = last;
+          },
+        });
+        job.status = 'complete';
+        job.finished_at = new Date().toISOString();
+      } catch (err) {
+        job.status = 'error';
+        job.error = err && err.message;
+      }
+    });
+
+    // Clean up jobs older than 1 hour to keep memory bounded
+    const cutoff = Date.now() - 60 * 60 * 1000;
+    for (const [id, j] of bulkJobs) {
+      if (j.finished_at && new Date(j.finished_at).getTime() < cutoff) bulkJobs.delete(id);
+    }
+
+    res.json({ ok: true, jobId, total: contactsToSend.length, skipped: skipped.length });
+  } catch (err) {
+    console.error('[bulk-send]', err && err.stack ? err.stack : err);
+    res.status(500).json({ error: err && err.message });
+  }
+});
+
+// Poll for progress + results
+router.get('/bulk-progress/:jobId', (req, res) => {
+  const job = bulkJobs.get(req.params.jobId);
+  if (!job) return res.status(404).json({ error: 'Job not found or expired' });
+  res.json(job);
+});
+
+// After a CSV bulk send completes, the user can optionally import the
+// recipients as CRM contacts at Lead stage
+router.post('/bulk-import-csv', (req, res) => {
+  try {
+    const { contacts } = req.body;
+    if (!Array.isArray(contacts) || !contacts.length) return res.status(400).json({ error: 'contacts array required' });
+    let created = 0, existed = 0;
+    for (const c of contacts) {
+      const email = String(c.email || '').toLowerCase().trim();
+      if (!email) continue;
+      const existing = db.prepare('SELECT id FROM contacts WHERE LOWER(email) = ?').get(email);
+      if (existing) { existed++; continue; }
+      const name = c.first_name
+        ? (c.last_name ? `${c.first_name} ${c.last_name}` : c.first_name)
+        : email;
+      db.prepare(`
+        INSERT INTO contacts (id, name, firm, email, industry, pipeline_stage, source, reply_status)
+        VALUES (?, ?, ?, ?, ?, 'Lead', 'CSV Bulk Import', 'Sent')
+      `).run(uuidv4(), name, c.firm || null, email, c.industry || null);
+      created++;
+    }
+    res.json({ ok: true, created, existed });
+  } catch (err) {
+    console.error('[bulk-import-csv]', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
