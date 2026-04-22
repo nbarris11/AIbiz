@@ -219,6 +219,41 @@ function textToHtml(text) {
   return `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #2C2418;">${html}</div>`;
 }
 
+// Rewrite all <a href="..."> links in HTML for click tracking.
+// Creates a link_clicks row per link, returns new HTML with /r/:id hrefs.
+// Falls back to original HTML on any error — never blocks email delivery.
+function rewriteLinks(html, { activityId, campaignId, contactId, stepNumber }) {
+  try {
+    let rewritten = html;
+    const linkRe = /<a\s[^>]*href="(https?:\/\/[^"]+)"[^>]*>/gi;
+    let match;
+    while ((match = linkRe.exec(html)) !== null) {
+      const originalHref = match[1];
+      // Skip tracking pixel links
+      if (originalHref.includes('/t/')) continue;
+
+      // Build UTM-appended destination URL
+      const slug = campaignId ? campaignId.slice(0, 20) : '';
+      const step = stepNumber != null ? `step-${stepNumber}` : 'direct';
+      const separator = originalHref.includes('?') ? '&' : '?';
+      const utmUrl = `${originalHref}${separator}utm_source=sidecar-crm&utm_medium=email&utm_campaign=${encodeURIComponent(slug)}&utm_content=${step}`;
+
+      // Insert link_clicks row
+      const clickId = uuidv4();
+      db.prepare(
+        'INSERT INTO link_clicks (id, activity_id, campaign_id, contact_id, url) VALUES (?, ?, ?, ?, ?)'
+      ).run(clickId, activityId || null, campaignId || null, contactId || null, utmUrl);
+
+      // Replace href in output HTML
+      rewritten = rewritten.replace(originalHref, `${APP_BASE_URL}/r/${clickId}`);
+    }
+    return rewritten;
+  } catch (err) {
+    console.warn('[link-rewrite] failed, sending original HTML:', err && err.message);
+    return html;
+  }
+}
+
 // Send an email.
 // Params:
 //   to, subject, body  — required
@@ -227,16 +262,21 @@ function textToHtml(text) {
 //   shared             — optional { imap, sentFolder } from openSharedImapClient().
 //                        When provided, uses the shared connection for the IMAP APPEND
 //                        instead of opening a fresh one each send (huge win for bulk).
-async function sendEmail({ to, subject, body, contactId, shared }) {
+//   campaignId         — optional; campaign UUID for link tracking + activity logging
+//   stepNumber         — optional; sequence step index for UTM content tagging
+async function sendEmail({ to, subject, body, contactId, shared, campaignId = null, stepNumber = null }) {
   const finalBody = withSignature(body);
   const trackingId = uuidv4();
+  const activityId = uuidv4();
+  const baseHtml = textToHtml(finalBody);
+  const trackedHtml = rewriteLinks(baseHtml, { activityId, campaignId, contactId, stepNumber });
 
   const messageOptions = {
     from: `Neil Barris <${EMAIL_USER}>`,
     to,
     subject,
     text: finalBody,
-    html: textToHtml(finalBody) + buildTrackingPixelHtml(trackingId),
+    html: trackedHtml + buildTrackingPixelHtml(trackingId),
   };
 
   // 1. Send via SMTP (required)
@@ -263,8 +303,8 @@ async function sendEmail({ to, subject, body, contactId, shared }) {
   if (contactId) {
     try {
       db.prepare(
-        'INSERT INTO activities (id, contact_id, type, subject, body, logged_at, tracking_id) VALUES (?, ?, ?, ?, ?, ?, ?)'
-      ).run(uuidv4(), contactId, 'email_sent', subject, finalBody, new Date().toISOString(), trackingId);
+        'INSERT INTO activities (id, contact_id, type, subject, body, logged_at, tracking_id, campaign_id, step_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+      ).run(activityId, contactId, 'email_sent', subject, finalBody, new Date().toISOString(), trackingId, campaignId, stepNumber);
       db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contactId);
       recomputeReplyStatus(contactId);
     } catch (err) {
