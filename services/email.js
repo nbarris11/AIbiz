@@ -37,16 +37,32 @@ const transport = nodemailer.createTransport({
   auth: { user: EMAIL_USER, pass: EMAIL_PASS },
 });
 
+// Email signature appended to every outgoing email
+const EMAIL_SIGNATURE = `—
+Neil Barris
+CEO & Founder, Sidecar Advisory
+📞 (248) 762-0531
+🌐 sidecaradvisory.com
+📅 Book a free clarity session: https://calendly.com/sidecaradvisory/30min`;
+
+function withSignature(body) {
+  const trimmed = (body || '').trimEnd();
+  // Don't double-append if signature already present
+  if (trimmed.includes('CEO & Founder, Sidecar Advisory')) return trimmed;
+  return `${trimmed}\n\n${EMAIL_SIGNATURE}`;
+}
+
 async function sendEmail({ to, subject, body, contactId }) {
+  const finalBody = withSignature(body);
   await transport.sendMail({
     from: `Neil Barris <${EMAIL_USER}>`,
     to,
     subject,
-    text: body,
+    text: finalBody,
   });
   // Log as activity
   db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at) VALUES (?, ?, ?, ?, ?, ?)')
-    .run(uuidv4(), contactId, 'email_sent', subject, body, new Date().toISOString());
+    .run(uuidv4(), contactId, 'email_sent', subject, finalBody, new Date().toISOString());
   db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contactId);
   recomputeReplyStatus(contactId);
 }
@@ -440,4 +456,4 @@ function startEmailSync() {
   console.log('[email sync] Started — polling every 5 minutes');
 }
 
-module.exports = { sendEmail, startEmailSync, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses, backfillEmailBodies };
+module.exports = { sendEmail, startEmailSync, syncInbox, importContactsFromInbox, recomputeAllReplyStatuses, backfillEmailBodies, EMAIL_SIGNATURE };

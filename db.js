@@ -94,7 +94,9 @@ try {
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_activities_source_msg ON activities(source_message_id) WHERE source_message_id IS NOT NULL');
 } catch (e) { /* ignore if index creation fails (e.g. existing duplicates) */ }
 
-// Seed default templates on first run
+// Seed default templates on first run (only if table is empty).
+// For users with existing templates, newly-added seed entries are added below via a
+// separate idempotent insert keyed by name.
 const templateCount = db.prepare('SELECT COUNT(*) as n FROM email_templates').get().n;
 if (templateCount === 0) {
   const seedTemplates = [
@@ -184,6 +186,85 @@ Happy to jump on a 20-minute call this week or next if easier. Otherwise, just r
   const insert = db.prepare('INSERT INTO email_templates (id, name, subject, body) VALUES (?, ?, ?, ?)');
   for (const t of seedTemplates) insert.run(uuidv4(), t.name, t.subject, t.body);
   console.log(`Seeded ${seedTemplates.length} email templates`);
+}
+
+// Additional templates — idempotent, only inserted if a template with that name doesn't exist yet
+const additionalTemplates = [
+  {
+    name: 'Cold Outreach — Admin Load',
+    subject: '{{firm}} — quick question about your admin load',
+    body: `Hi {{firstName}},
+
+I run a small advisory firm called Sidecar that helps professional service firms in Metro Detroit cut the time they spend on admin, follow-up, and repetitive tasks — usually by 5 to 10 hours a week.
+
+Most [insurance agencies / law firms / CPA offices] at your size are still doing renewal follow-up, client intake, and status updates by hand. It adds up fast, and it usually means the owner is the one plugging the holes.
+
+I offer a free 45-minute Clarity Session where I map out exactly where the bottlenecks are and give you a written estimate of what you could save. No pitch deck, no retainer ask on the call. You walk away with a real number. Most firms see a path to at least $5,000 in recovered time annually.
+
+Worth a quick look? sidecaradvisory.com`,
+  },
+  {
+    name: 'Research Question — Client Intake',
+    subject: 'Quick question about how {{firm}} handles client intake',
+    body: `Hi {{firstName}},
+
+I've been doing some research on [CPA / estate planning / financial advisory] firms in the [city] area, and I have a genuine question for you — how are you currently handling [client document collection / new client intake / recurring client communication]? Still mostly manual, or have you gotten something automated?
+
+I ask because I work with a handful of firms your size on exactly this, and the answer varies a lot more than I expected. Some are surprisingly ahead of the curve; most are doing it the way they always have.
+
+Either way, I'd love to hear what's working and what isn't. I'm not trying to sell you anything on this email. If there's alignment after a quick conversation, great. If not, I'll at least have learned something.
+
+Worth a 20-minute chat sometime? I'm flexible.`,
+  },
+  {
+    name: 'Sidecar Advisory — Quick Intro',
+    subject: 'Sidecar Advisory — quick intro',
+    body: `Hi {{firstName}},
+
+My name is Neil Barris. I run a firm called Sidecar Advisory out of Metro Detroit. We help small professional service businesses figure out where they're spending too much time on admin and repetitive work, and then build simple systems to get some of it back.
+
+I came across {{firm}} and wanted to reach out because [something specific — e.g., "you've clearly built a strong reputation in the Birmingham market" / "your team looks like it's grown a lot in the last couple years"].
+
+I don't have a specific ask here. Just wanted to introduce myself and see if there's any overlap between what you're working on and what we do. If there is, I'd love to find 20 minutes to compare notes.
+
+No pressure either way.`,
+  },
+  {
+    name: 'Case Study — Similar Firm',
+    subject: '{{firm}} — something a [CPA / insurance agency / law firm] just told me',
+    body: `Hi {{firstName}},
+
+I was just wrapping up a project with a [CPA firm / insurance agency / law office] in [city] — three-person team, similar size to {{firm}}. They'd been spending close to 6 hours a week chasing client documents and sending follow-up emails by hand.
+
+We built a simple intake and follow-up workflow for them. It took about a day to set up. They got those 6 hours back the first week.
+
+I'm not saying your situation is the same. But I'm noticing that most [CPAs / agency owners / attorneys] at your stage are dealing with a version of the same thing, and most haven't had a chance to look at it clearly.
+
+I offer a free 45-minute Clarity Session to do exactly that. No charge, no commitment. Just a real look at where the time is going and what a fix might look like. Interested? sidecaradvisory.com`,
+  },
+  {
+    name: 'Referral Partnership Ask',
+    subject: '{{firm}} — your clients are probably asking about AI',
+    body: `Hi {{firstName}},
+
+I run Sidecar Advisory, a small firm in Metro Detroit that helps business owners figure out where AI and automation can actually save them time. Not the theoretical stuff — the practical, do-it-this-week kind.
+
+I'm reaching out to you specifically because your clients are probably already asking you about this. And right now, most [CPAs / advisors / attorneys] don't have a great answer to send them to.
+
+That's actually the reason I'm writing. I'm looking for a handful of [CPA / financial planning / legal] firms to build a referral relationship with — where if a client asks you about streamlining their operations, you have somewhere credible to send them. In return, if I'm working with a business and they need [tax help / financial planning / legal counsel], I send them to you.
+
+No fee arrangement, no formal contract. Just two people who work with small business owners pointing each other's way when it makes sense.
+
+Worth a conversation? Happy to keep it to 20 minutes.`,
+  },
+];
+
+for (const t of additionalTemplates) {
+  const exists = db.prepare('SELECT id FROM email_templates WHERE name = ?').get(t.name);
+  if (!exists) {
+    db.prepare('INSERT INTO email_templates (id, name, subject, body) VALUES (?, ?, ?, ?)')
+      .run(uuidv4(), t.name, t.subject, t.body);
+  }
 }
 
 // Seed admin user on first run

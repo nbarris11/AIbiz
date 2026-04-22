@@ -136,6 +136,9 @@ textarea { resize: vertical; min-height: 80px; }
     <div class="name">Sidecar Advisory</div>
     <div class="label">Internal CRM</div>
   </div>
+  <div style="padding: 14px 20px 10px;">
+    <button class="btn btn-primary" onclick="openComposeModal()" style="width:100%;padding:10px 14px;font-size:12px;letter-spacing:.06em;">✉ Compose Email</button>
+  </div>
   <nav class="nav">
     <div class="nav-item active" onclick="nav(this,'dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -454,6 +457,69 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<!-- COMPOSE EMAIL MODAL — for sending to any address, creates contact automatically -->
+<div class="overlay" id="compose-modal">
+  <div class="modal" style="width:720px;">
+    <button class="modal-close" onclick="closeModal('compose-modal')">×</button>
+    <div class="modal-title">Compose Email</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">To *</label>
+        <input type="text" id="cp-to" placeholder="name@example.com" oninput="checkComposeContact()" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Use Template</label>
+        <select id="cp-template" onchange="applyTemplateToCompose()">
+          <option value="">— Start from scratch —</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="cp-lookup-result" style="margin: -6px 0 16px; font-size:12px; padding:10px 14px; border-radius:3px; display:none; line-height:1.5;"></div>
+
+    <div class="form-row" id="cp-newfields" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Name <span style="color:var(--tan);font-weight:400;text-transform:none;">(optional — auto-derived from email)</span></label>
+        <input type="text" id="cp-name" placeholder="Jane Smith">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Firm <span style="color:var(--tan);font-weight:400;text-transform:none;">(optional)</span></label>
+        <input type="text" id="cp-firm" placeholder="Smith Law">
+      </div>
+      <div class="form-group" style="grid-column:1 / -1;">
+        <label class="form-label">Industry</label>
+        <select id="cp-industry">
+          <option value="">—</option>
+          <option value="insurance">Insurance</option>
+          <option value="law">Law</option>
+          <option value="cpa">CPA</option>
+          <option value="realestate">Real Estate</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group"><label class="form-label">Subject *</label><input type="text" id="cp-subject"></div>
+    <div class="form-group">
+      <label class="form-label">Body *</label>
+      <textarea id="cp-body" style="min-height:200px;" placeholder="Write your email here…"></textarea>
+    </div>
+
+    <div style="background:var(--parch);border-left:3px solid var(--forest-light);padding:12px 16px;border-radius:3px;margin-top:-4px;">
+      <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tan);margin-bottom:6px;">Your signature (auto-appended)</div>
+      <pre id="cp-signature-preview" style="font-family:'Epilogue',sans-serif;font-size:12px;color:var(--mid);line-height:1.6;white-space:pre-wrap;margin:0;">Loading…</pre>
+    </div>
+
+    <hr class="divider">
+    <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
+      <span id="cp-status" style="font-size:12px;color:var(--tan);flex:1;"></span>
+      <button class="btn btn-secondary" onclick="closeModal('compose-modal')">Cancel</button>
+      <button class="btn btn-primary" id="cp-send-btn" onclick="doComposeSend()">Send Email</button>
+    </div>
+  </div>
+</div>
+
 <!-- SEND EMAIL MODAL -->
 <div class="overlay" id="send-email-modal">
   <div class="modal">
@@ -474,6 +540,10 @@ textarea { resize: vertical; min-height: 80px; }
     </div>
     <div class="form-group"><label class="form-label">Subject *</label><input type="text" id="sem-subject"></div>
     <div class="form-group"><label class="form-label">Body *</label><textarea id="sem-body" style="min-height:200px;"></textarea></div>
+    <div style="background:var(--parch);border-left:3px solid var(--forest-light);padding:12px 16px;border-radius:3px;">
+      <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tan);margin-bottom:6px;">Your signature (auto-appended)</div>
+      <pre id="sem-signature-preview" style="font-family:'Epilogue',sans-serif;font-size:12px;color:var(--mid);line-height:1.6;white-space:pre-wrap;margin:0;">Loading…</pre>
+    </div>
     <hr class="divider">
     <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
       <span id="sem-status" style="font-size:12px;color:var(--tan);flex:1;"></span>
@@ -905,6 +975,144 @@ async function importFromEmail() {
   }
 }
 
+// ── COMPOSE (send to any address, auto-creates contact) ────
+async function openComposeModal(prefillTo) {
+  // Reset fields
+  document.getElementById('cp-to').value = prefillTo || '';
+  document.getElementById('cp-name').value = '';
+  document.getElementById('cp-firm').value = '';
+  document.getElementById('cp-industry').value = '';
+  document.getElementById('cp-subject').value = '';
+  document.getElementById('cp-body').value = '';
+  document.getElementById('cp-status').textContent = '';
+  document.getElementById('cp-send-btn').disabled = false;
+  document.getElementById('cp-lookup-result').style.display = 'none';
+  document.getElementById('cp-newfields').style.display = 'none';
+
+  // Load templates
+  const templates = await api('/api/crm/templates');
+  const sel = document.getElementById('cp-template');
+  sel.innerHTML = '<option value="">— Start from scratch —</option>' +
+    templates.map(t => `<option value="${t.id}">${escHtml(t.name)}</option>`).join('');
+  window._cachedTemplates = templates;
+
+  // Load signature preview
+  const sig = await api('/api/email/signature');
+  document.getElementById('cp-signature-preview').textContent = sig.signature || '';
+
+  document.getElementById('compose-modal').classList.add('open');
+  if (prefillTo) checkComposeContact();
+}
+
+// Debounced contact lookup as the user types the To address
+let _lookupDebounce = null;
+function checkComposeContact() {
+  clearTimeout(_lookupDebounce);
+  _lookupDebounce = setTimeout(doComposeLookup, 400);
+}
+
+async function doComposeLookup() {
+  const email = document.getElementById('cp-to').value.trim().toLowerCase();
+  const result = document.getElementById('cp-lookup-result');
+  const newFields = document.getElementById('cp-newfields');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    result.style.display = 'none';
+    newFields.style.display = 'none';
+    return;
+  }
+  const r = await api('/api/email/lookup?email=' + encodeURIComponent(email));
+  if (r.exists) {
+    const c = r.contact;
+    const last = r.lastEmail
+      ? ` · last ${r.lastEmail.type === 'email_sent' ? 'sent' : 'received'} ${fmtDate(r.lastEmail.logged_at)}`
+      : '';
+    result.style.display = 'block';
+    result.style.background = '#E1F5EE';
+    result.style.color = '#0F6E56';
+    result.innerHTML = `<strong>Existing contact:</strong> ${escHtml(c.name)}${c.firm ? ' · ' + escHtml(c.firm) : ''} ${stageBadge(c.pipeline_stage)}
+      <br>${r.emailCount} prior email${r.emailCount === 1 ? '' : 's'}${last} · <a href="#" onclick="closeModal('compose-modal');openPanel('${c.id}');return false;" style="color:#0F6E56;text-decoration:underline;">Open contact</a>`;
+    newFields.style.display = 'none';
+  } else {
+    result.style.display = 'block';
+    result.style.background = '#FFF3E0';
+    result.style.color = '#8C5A0C';
+    result.innerHTML = '<strong>New contact</strong> — will be auto-created when you send. You can optionally fill in their name, firm, and industry below, or leave blank to let us derive them from the email address.';
+    newFields.style.display = 'grid';
+  }
+}
+
+async function applyTemplateToCompose() {
+  const id = document.getElementById('cp-template').value;
+  if (!id) return;
+  const template = (window._cachedTemplates || []).find(t => t.id === id);
+  if (!template) return;
+  const email = document.getElementById('cp-to').value.trim().toLowerCase();
+  // Build a contact-like object for substitution using fields filled in so far
+  let contact;
+  if (email) {
+    const r = await api('/api/email/lookup?email=' + encodeURIComponent(email));
+    if (r.exists) contact = r.contact;
+  }
+  if (!contact) {
+    contact = {
+      name: document.getElementById('cp-name').value.trim() || (email ? email.split('@')[0] : ''),
+      firm: document.getElementById('cp-firm').value.trim() || '',
+      industry: document.getElementById('cp-industry').value || '',
+    };
+  }
+  const filled = applyTemplate(template, contact);
+  document.getElementById('cp-subject').value = filled.subject;
+  document.getElementById('cp-body').value = filled.body;
+}
+
+async function doComposeSend() {
+  const to = document.getElementById('cp-to').value.trim().toLowerCase();
+  const subject = document.getElementById('cp-subject').value.trim();
+  const body = document.getElementById('cp-body').value.trim();
+  const status = document.getElementById('cp-status');
+  const btn = document.getElementById('cp-send-btn');
+
+  if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+    status.textContent = 'Enter a valid email address.';
+    status.style.color = 'var(--ember)';
+    return;
+  }
+  if (!subject || !body) return alert('Subject and body are required.');
+
+  btn.disabled = true;
+  status.textContent = 'Sending…';
+  status.style.color = 'var(--tan)';
+
+  try {
+    const payload = {
+      to, subject, body,
+      name: document.getElementById('cp-name').value.trim(),
+      firm: document.getElementById('cp-firm').value.trim(),
+      industry: document.getElementById('cp-industry').value,
+    };
+    const r = await post('/api/email/compose', payload);
+    if (r.ok) {
+      status.innerHTML = r.wasNew
+        ? `Sent ✓ &middot; new contact created: <strong>${escHtml(r.contactName)}</strong>`
+        : `Sent ✓ &middot; logged to <strong>${escHtml(r.contactName)}</strong>`;
+      status.style.color = 'var(--forest)';
+      setTimeout(() => {
+        closeModal('compose-modal');
+        loadContacts();
+        loadDashboard();
+      }, 1800);
+    } else {
+      status.textContent = r.error || 'Send failed.';
+      status.style.color = 'var(--ember)';
+      btn.disabled = false;
+    }
+  } catch (e) {
+    status.textContent = 'Connection error: ' + e.message;
+    status.style.color = 'var(--ember)';
+    btn.disabled = false;
+  }
+}
+
 // ── SEND EMAIL ───────────────────────────────────────
 async function openSendEmailModal(contactId, toEmail) {
   document.getElementById('sem-contact-id').value = contactId;
@@ -913,12 +1121,16 @@ async function openSendEmailModal(contactId, toEmail) {
   document.getElementById('sem-body').value = '';
   document.getElementById('sem-status').textContent = '';
   document.getElementById('sem-send-btn').disabled = false;
-  // Load templates into the picker
-  const templates = await api('/api/crm/templates');
+  // Load templates + signature
+  const [templates, sig] = await Promise.all([
+    api('/api/crm/templates'),
+    api('/api/email/signature'),
+  ]);
   const sel = document.getElementById('sem-template');
   sel.innerHTML = '<option value="">— Start from scratch —</option>' +
     templates.map(t => `<option value="${t.id}">${escHtml(t.name)}</option>`).join('');
   window._cachedTemplates = templates;
+  document.getElementById('sem-signature-preview').textContent = sig.signature || '';
   document.getElementById('send-email-modal').classList.add('open');
 }
 
