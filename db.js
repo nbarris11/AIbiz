@@ -106,6 +106,24 @@ try {
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_activities_source_msg ON activities(source_message_id) WHERE source_message_id IS NOT NULL');
 } catch (e) { /* ignore if index creation fails (e.g. existing duplicates) */ }
 
+// Migration: add email open tracking columns to activities
+try {
+  const actCols = db.prepare('PRAGMA table_info(activities)').all().map(c => c.name);
+  if (!actCols.includes('tracking_id')) {
+    db.exec('ALTER TABLE activities ADD COLUMN tracking_id TEXT');
+  }
+  if (!actCols.includes('opened_at')) {
+    db.exec('ALTER TABLE activities ADD COLUMN opened_at TEXT');
+  }
+  if (!actCols.includes('open_count')) {
+    db.exec('ALTER TABLE activities ADD COLUMN open_count INTEGER NOT NULL DEFAULT 0');
+  }
+} catch (e) { /* ignore */ }
+
+try {
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_activities_tracking_id ON activities(tracking_id) WHERE tracking_id IS NOT NULL');
+} catch (e) { /* ignore */ }
+
 // Seed default templates on first run (only if table is empty).
 // For users with existing templates, newly-added seed entries are added below via a
 // separate idempotent insert keyed by name.
