@@ -145,7 +145,10 @@ router.get('/insights', (req, res) => {
       WHERE r.t > s.t
     `).get();
 
+    const lastSyncRow = db.prepare("SELECT value FROM email_sync_state WHERE key = 'last_sync_at'").get();
+
     res.json({
+      last_sync_at: lastSyncRow?.value || null,
       today: { sent: sentToday, received: receivedToday, bounces: bouncesToday, sent_yesterday: sentYesterday },
       week: { sent: sentThisWeek },
       month: { sent: sentThisMonth, received: receivedThisMonth },

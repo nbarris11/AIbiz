@@ -533,16 +533,23 @@ async function syncInbox() {
         }
 
         if (contact && type) {
+          // FAST PATH: skip messages we've already logged
+          const already = db.prepare('SELECT 1 FROM activities WHERE source_message_id = ?').get(messageId);
+          if (already) continue;
+
           const subject = env.subject || '(no subject)';
           const loggedAt = env.date ? new Date(env.date).toISOString() : new Date().toISOString();
-          // Fetch body only if we're going to log this message
-          const body = await extractBody(client, msg.uid);
+          // Body-fetch is slow (IMAP download). Only do it for inbound emails
+          // (email_received, email_bounce) where you actually need to read it.
+          // For email_sent, the subject alone is enough for the timeline — you
+          // wrote the body yourself. Outbound body can be backfilled later via
+          // POST /api/email/backfill-bodies if you ever need it.
+          const body = (type === 'email_sent') ? null : await extractBody(client, msg.uid);
           try {
             db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at, source_message_id) VALUES (?, ?, ?, ?, ?, ?, ?)')
               .run(uuidv4(), contact.id, type, subject, body, loggedAt, messageId);
             db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contact.id);
             if (type === 'email_bounce') {
-              // Mark the contact so it shows up at the top of a 'bounces' filter
               db.prepare("UPDATE contacts SET reply_status = 'Bounced' WHERE id = ?").run(contact.id);
               console.log(`[bounce] ${bounceTargetEmail} bounced (contact flagged)`);
             } else {
@@ -968,15 +975,36 @@ function startFollowUpScheduler() {
   console.log('[auto-followup] Scheduler started — sweeps every 30 min during business hours');
 }
 
-// Run sync on a 5-minute interval
+// Run sync on a 5-minute interval with a hard timeout per run so a hung
+// IMAP connection can't stall the whole system. If one run overlaps the
+// next, we skip rather than running two concurrently.
+let _syncInFlight = false;
+async function syncInboxWithGuard() {
+  if (_syncInFlight) {
+    console.log('[email sync] Previous sync still running, skipping this tick');
+    return;
+  }
+  _syncInFlight = true;
+  try {
+    await Promise.race([
+      syncInbox(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('sync timed out after 4 min')), 4 * 60 * 1000)),
+    ]);
+  } catch (err) {
+    console.warn('[email sync] Failed:', err && err.message);
+  } finally {
+    _syncInFlight = false;
+  }
+}
+
 function startEmailSync() {
   if (!EMAIL_USER || !EMAIL_PASS) {
     console.log('[email sync] No credentials configured, skipping.');
     return;
   }
-  syncInbox();
-  setInterval(syncInbox, 5 * 60 * 1000);
-  console.log('[email sync] Started — polling every 5 minutes');
+  syncInboxWithGuard();
+  setInterval(syncInboxWithGuard, 5 * 60 * 1000);
+  console.log('[email sync] Started — polling every 5 minutes (4-min timeout per run)');
 }
 
 module.exports = {

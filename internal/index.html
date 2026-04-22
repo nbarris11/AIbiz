@@ -594,8 +594,13 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="page-title">Insights</div>
         <div class="page-sub">Email performance, pipeline health, what's working. Data refreshes every time you open this tab.</div>
       </div>
-      <button class="btn btn-secondary" onclick="loadInsights()">↻ Refresh</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" id="ins-sync-btn" onclick="insightsSyncNow()" title="Manually trigger an inbox sync to pick up any emails you sent from other clients">↓ Sync Now</button>
+        <button class="btn btn-secondary" onclick="loadInsights()">↻ Refresh</button>
+      </div>
     </div>
+
+    <div id="ins-sync-note" style="font-size:11px;color:var(--tan);margin-bottom:16px;"></div>
 
     <!-- Today's snapshot -->
     <div class="metric-row">
@@ -1063,8 +1068,37 @@ function nav(el, page) {
 }
 
 // ── INSIGHTS ─────────────────────────────────────────
+async function insightsSyncNow() {
+  const btn = document.getElementById('ins-sync-btn');
+  btn.disabled = true;
+  btn.textContent = 'Syncing…';
+  try {
+    await api('/api/email/sync', { method: 'POST' });
+    await loadInsights();
+  } catch (e) {
+    alert('Sync failed: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '↓ Sync Now';
+  }
+}
+
 async function loadInsights() {
   const d = await api('/api/crm/insights');
+
+  // Last-sync indicator
+  const noteEl = document.getElementById('ins-sync-note');
+  if (d.last_sync_at) {
+    const ago = Math.round((Date.now() - new Date(d.last_sync_at).getTime()) / 60000);
+    const when = ago < 1 ? 'just now' : ago < 60 ? ago + ' min ago' : Math.round(ago / 60) + 'h ago';
+    const stale = ago > 10;
+    noteEl.innerHTML = stale
+      ? `⚠ Last inbox sync: <strong style="color:var(--ember);">${when}</strong> — click Sync Now to catch up on recent sends.`
+      : `Last inbox sync: ${when}`;
+    noteEl.style.color = stale ? 'var(--ember)' : 'var(--tan)';
+  } else {
+    noteEl.textContent = '';
+  }
 
   // Today tiles
   document.getElementById('ins-today-sent').textContent     = d.today.sent;

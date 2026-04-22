@@ -257,7 +257,10 @@ router.post('/bulk-send', async (req, res) => {
       ).all(...contactIds);
     } else if (Array.isArray(csvContacts) && csvContacts.length) {
       if (csvContacts.length > 100) return res.status(400).json({ error: 'Max 100 contacts per batch' });
-      // For CSV mode: skip anyone whose email already exists in the CRM
+      // For CSV mode: skip anyone already in the CRM, CREATE contacts for
+      // everyone else RIGHT NOW (before sending), so sendEmail has a real
+      // contactId and activities log inline — no dependency on the IMAP
+      // sync catching up.
       for (const c of csvContacts) {
         const email = String(c.email || '').toLowerCase().trim();
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -269,15 +272,27 @@ router.post('/bulk-send', async (req, res) => {
           skipped.push({ email, name: existing.name, reason: 'already_in_crm' });
           continue;
         }
+        // Create contact up-front — Lead stage, 'Sent' reply status (will
+        // be set after send), source 'CSV Bulk Send', so insights and
+        // activities are correct the moment each email goes out.
+        const newId = uuidv4();
+        const derivedName = c.first_name
+          ? (c.last_name ? `${c.first_name} ${c.last_name}` : c.first_name)
+          : (c.name || email);
+        db.prepare(`
+          INSERT INTO contacts (id, name, firm, email, industry, pipeline_stage, source, notes)
+          VALUES (?, ?, ?, ?, ?, 'Lead', 'CSV Bulk Send', 'Auto-created by bulk send')
+        `).run(newId, derivedName, c.firm || null, email, c.industry || null);
+
         contactsToSend.push({
-          // Preserve ALL columns from the CSV — any of them can be used as
+          // Preserve ALL columns from the CSV — any column can be used as
           // {{merge_field}} in the template (e.g., {{custom_opener}}).
           ...c,
-          id: null,
+          id: newId,                          // ← real CRM id now, not null
           email,
           first_name: c.first_name || '',
           last_name: c.last_name || '',
-          name: c.first_name || c.name || email,
+          name: derivedName,
           firm: c.firm || '',
           industry: c.industry || '',
         });
@@ -328,31 +343,10 @@ router.post('/bulk-send', async (req, res) => {
           shouldCancel: () => !!job.cancelled,
         });
 
-        // Auto-import CSV recipients who successfully received an email.
-        // (In-CRM recipients were already skipped at preflight; only
-        // brand-new CSV contacts reach this point.)
+        // CSV contacts are now created up-front (see above) — count them
+        // for reporting in the UI
         if (isCsvMode) {
-          let imported = 0;
-          for (const r of (job.results || [])) {
-            if (r.status !== 'sent') continue;
-            const orig = originalsByEmail[r.email];
-            if (!orig) continue;
-            const existing = db.prepare('SELECT id FROM contacts WHERE LOWER(email) = ?').get(r.email);
-            if (existing) continue;
-            const name = orig.first_name
-              ? (orig.last_name ? `${orig.first_name} ${orig.last_name}` : orig.first_name)
-              : r.email;
-            const source = 'CSV Bulk Send';
-            db.prepare(`
-              INSERT INTO contacts (id, name, firm, email, industry, pipeline_stage, source, reply_status, notes)
-              VALUES (?, ?, ?, ?, ?, 'Lead', ?, 'Sent', ?)
-            `).run(
-              uuidv4(), name, orig.firm || null, r.email, orig.industry || null,
-              source, 'Auto-added after bulk email send',
-            );
-            imported++;
-          }
-          job.auto_imported = imported;
+          job.auto_imported = contactsToSend.length;
         }
 
         job.status = job.cancelled ? 'cancelled' : 'complete';
