@@ -703,7 +703,20 @@ async function loadAutomation() {
     : '<div style="font-size:12px;color:var(--tan);padding:6px 12px;background:var(--parch);border-radius:3px;margin-bottom:14px;">⏸ Outside business hours — no sends until next Mon-Fri 9am ET</div>';
 
   if (!c.length) {
-    qDiv.innerHTML = bizBanner + '<div style="color:var(--tan);font-size:13px;padding:8px 0;">No contacts currently eligible for follow-up. The queue will populate as you send new outreach emails and they hit the ' + (settings.delayDays || 2) + '-day threshold.</div>';
+    const diag = preview.diagnostics || {};
+    let explain = '<strong>No contacts eligible for follow-up right now.</strong><br>';
+    if (diag.total_no_reply_contacts === 0) {
+      explain += `There are no contacts in your CRM with an outgoing email awaiting a reply. Send some outreach first — those contacts will appear here ${settings.delayDays || 2} days after the initial send.`;
+    } else if (diag.waiting_to_age > 0) {
+      const nextAt = diag.next_eligible_at ? new Date(diag.next_eligible_at) : null;
+      const whenStr = nextAt
+        ? nextAt.toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit', timeZoneName:'short' })
+        : 'soon';
+      explain += `<strong>${diag.waiting_to_age}</strong> contact${diag.waiting_to_age === 1 ? ' is' : 's are'} in the "awaiting reply" state but ${diag.waiting_to_age === 1 ? 'is' : 'are'} not old enough yet. The next one becomes eligible at <strong>${whenStr}</strong>. Reduce the "Wait" days if you want to see them now.`;
+    } else {
+      explain += 'All waiting contacts have already either gotten a follow-up, been marked Booked/Not Interested, or replied.';
+    }
+    qDiv.innerHTML = bizBanner + `<div style="color:var(--mid);font-size:13px;padding:14px 18px;background:var(--parch);border-radius:3px;line-height:1.7;">${explain}</div>`;
     return;
   }
   qDiv.innerHTML = bizBanner + `

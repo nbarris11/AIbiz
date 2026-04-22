@@ -609,11 +609,55 @@ async function runFollowUpSweep() {
   return { sent, failed, total_candidates: candidates.length };
 }
 
-// Preview — who would we send to if we ran a sweep right now
+// Preview — who would we send to if we ran a sweep right now.
+// Also returns diagnostic info so the UI can explain an empty queue.
 function previewFollowUpQueue() {
   const settings = getFollowUpSettings();
   const candidates = findFollowUpCandidates(settings.delayDays);
-  return { settings, candidates, within_business_hours: isWithinBusinessHours() };
+
+  // Diagnostics: count contacts in "Sent" status who aren't old enough yet,
+  // and find the most-recent email_sent timestamp across them.
+  const waiting = db.prepare(`
+    SELECT c.id, c.name, c.firm,
+      (SELECT MAX(logged_at) FROM activities WHERE contact_id = c.id AND type = 'email_sent') as last_sent_at
+    FROM contacts c
+    WHERE c.email IS NOT NULL AND c.email != ''
+      AND c.follow_up_sent_at IS NULL
+      AND c.follow_up_paused = 0
+      AND c.reply_status NOT IN ('Replied','Booked','Not Interested')
+      AND EXISTS (SELECT 1 FROM activities WHERE contact_id = c.id AND type = 'email_sent')
+      AND NOT EXISTS (
+        SELECT 1 FROM activities a2 WHERE a2.contact_id = c.id AND a2.type = 'email_received'
+        AND a2.logged_at > (SELECT MAX(logged_at) FROM activities WHERE contact_id = c.id AND type = 'email_sent')
+      )
+  `).all();
+
+  // Oldest "waiting" contact — the one closest to being eligible
+  let nextEligibleAt = null;
+  let totalWaiting = 0;
+  for (const w of waiting) {
+    const isCandidate = candidates.some(c => c.id === w.id);
+    if (!isCandidate && w.last_sent_at) {
+      totalWaiting++;
+      // SQLite datetime() format: "YYYY-MM-DD HH:MM:SS" — normalize to ISO
+      const iso = w.last_sent_at.includes('T') ? w.last_sent_at : w.last_sent_at.replace(' ', 'T') + 'Z';
+      const parsed = new Date(iso);
+      if (isNaN(parsed.getTime())) continue;
+      const eligibleAt = new Date(parsed.getTime() + settings.delayDays * 24 * 60 * 60 * 1000);
+      if (!nextEligibleAt || eligibleAt < nextEligibleAt) nextEligibleAt = eligibleAt;
+    }
+  }
+
+  return {
+    settings,
+    candidates,
+    within_business_hours: isWithinBusinessHours(),
+    diagnostics: {
+      total_no_reply_contacts: waiting.length,
+      waiting_to_age: totalWaiting,
+      next_eligible_at: nextEligibleAt ? nextEligibleAt.toISOString() : null,
+    },
+  };
 }
 
 function startFollowUpScheduler() {
