@@ -14,11 +14,15 @@ router.get('/stats', (req, res) => {
   const booked = db.prepare("SELECT COUNT(*) as n FROM contacts WHERE pipeline_stage = 'Session Booked'").get().n;
   const today = new Date().toISOString().split('T')[0];
   const followups = db.prepare('SELECT COUNT(*) as n FROM contacts WHERE follow_up_date <= ? AND follow_up_date IS NOT NULL').get(today).n;
+  const bounced = db.prepare("SELECT COUNT(*) as n FROM contacts WHERE reply_status = 'Bounced'").get().n;
+  const bouncedList = db.prepare(
+    "SELECT id, name, firm, email FROM contacts WHERE reply_status = 'Bounced' ORDER BY updated_at DESC LIMIT 10"
+  ).all();
   const pipeline = db.prepare('SELECT pipeline_stage, COUNT(*) as count FROM contacts GROUP BY pipeline_stage').all();
   const overdue = db.prepare(
     'SELECT id, name, firm, follow_up_date FROM contacts WHERE follow_up_date <= ? AND follow_up_date IS NOT NULL ORDER BY follow_up_date ASC'
   ).all(today);
-  res.json({ total, active, booked, followups, pipeline, overdue });
+  res.json({ total, active, booked, followups, bounced, bouncedList, pipeline, overdue });
 });
 
 // ── CONTACTS ─────────────────────────────────────────
@@ -112,7 +116,7 @@ router.get('/outreach', (req, res) => {
 
 router.post('/contacts/:id/reply-status', (req, res) => {
   const { reply_status } = req.body;
-  const valid = ['None', 'Sent', 'Replied', 'Booked', 'Not Interested'];
+  const valid = ['None', 'Sent', 'Replied', 'Booked', 'Not Interested', 'Bounced'];
   if (!valid.includes(reply_status)) return res.status(400).json({ error: 'Invalid reply_status' });
   db.prepare("UPDATE contacts SET reply_status=?, updated_at=datetime('now') WHERE id=?")
     .run(reply_status, req.params.id);

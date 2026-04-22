@@ -5,6 +5,35 @@ const { simpleParser } = require('mailparser');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db');
 
+// Scan a bounce-message body for the email address that failed.
+// Bounces tend to include the original recipient after phrases like
+// "message wasn't delivered to" / "Final-Recipient: rfc822;" / "RCPT TO:<...>".
+// We match our email pattern and prefer addresses adjacent to these cues.
+function extractBouncedRecipient(text) {
+  if (!text) return null;
+  const emailRe = /\b([\w.+-]+@[\w-]+\.[\w.-]+)\b/gi;
+  const cues = [
+    /Final-Recipient:\s*rfc822;\s*([\w.+-]+@[\w-]+\.[\w.-]+)/i,
+    /RCPT TO:\s*<([\w.+-]+@[\w-]+\.[\w.-]+)>/i,
+    /delivered to[:\s]+([\w.+-]+@[\w-]+\.[\w.-]+)/i,
+    /message (?:wasn'?t|could not be|cannot be) delivered to[:\s]+([\w.+-]+@[\w-]+\.[\w.-]+)/i,
+    /to[:\s]+([\w.+-]+@[\w-]+\.[\w.-]+)[\s\S]{0,80}(?:failed|undeliverable|bounced|does not exist)/i,
+  ];
+  for (const re of cues) {
+    const m = text.match(re);
+    if (m && m[1]) return m[1].toLowerCase();
+  }
+  // Fallback: first email in the body that isn't ours and isn't a daemon
+  let m;
+  while ((m = emailRe.exec(text)) !== null) {
+    const addr = m[1].toLowerCase();
+    if (addr === (EMAIL_USER || '').toLowerCase()) continue;
+    if (/(mailer-daemon|postmaster|bounce|no-?reply)/i.test(addr)) continue;
+    return addr;
+  }
+  return null;
+}
+
 // Parse an email body from an imapflow message. Returns plain-text.
 async function extractBody(client, uid) {
   try {
@@ -274,8 +303,12 @@ function findUnrenderedTags(text) {
 }
 
 // Send the same templated email to many contacts, throttled.
-// onProgress({ current, total, results, last }) is called after each send.
-async function bulkSend({ contacts, subject, body, delayMs = 3000, onProgress }) {
+// Each contact may carry per-recipient overrides:
+//   contact._final_subject — if set, used as-is (no merge-field rendering)
+//   contact._final_body    — if set, used as-is
+// shouldCancel() is polled between sends; if it returns true, the loop
+// exits and remaining contacts are reported as 'cancelled'.
+async function bulkSend({ contacts, subject, body, delayMs = 3000, onProgress, shouldCancel }) {
   const results = [];
   let shared = null;
   try {
@@ -285,9 +318,30 @@ async function bulkSend({ contacts, subject, body, delayMs = 3000, onProgress })
   }
 
   for (let i = 0; i < contacts.length; i++) {
+    // Cancellation check — runs before each send
+    if (shouldCancel && shouldCancel()) {
+      // Report remaining contacts as cancelled
+      for (let j = i; j < contacts.length; j++) {
+        const c = contacts[j];
+        results.push({
+          contactId: c.id || null,
+          name: c.name || c.first_name || c.email,
+          email: c.email,
+          status: 'cancelled',
+        });
+      }
+      if (onProgress) { try { onProgress({ current: results.length, total: contacts.length, results, last: results[results.length - 1] }); } catch {} }
+      break;
+    }
+
     const contact = contacts[i];
-    const renderedSubject = renderMergeFields(subject, contact);
-    const renderedBody = renderMergeFields(body, contact);
+    // Use per-recipient overrides if present, else render the template
+    const renderedSubject = contact._final_subject != null
+      ? contact._final_subject
+      : renderMergeFields(subject, contact);
+    const renderedBody = contact._final_body != null
+      ? contact._final_body
+      : renderMergeFields(body, contact);
     let entry;
 
     // Safety: if any {{tag}} is still unresolved, refuse to send this one.
@@ -443,13 +497,28 @@ async function syncInbox() {
         const messageId = env.messageId;
         if (!messageId) continue;
 
-        // If in INBOX → match sender to contact, log as email_received.
+        // If in INBOX → either a bounce or a normal inbound reply.
         // If in Sent  → match recipient to contact, log as email_sent.
         let contact = null;
         let type = null;
+        let bounceTargetEmail = null;
         if (isInbox) {
           const fromAddr = env.from?.[0]?.address?.toLowerCase();
-          if (fromAddr && fromAddr !== EMAIL_USER.toLowerCase()) {
+          const subject = (env.subject || '').toLowerCase();
+
+          // Bounce detection — mailer-daemon / postmaster / bounce-ish subjects
+          const isBounceSender = !!fromAddr && /(mailer-daemon|postmaster|mail-daemon|bounce)/i.test(fromAddr);
+          const isBounceSubject = /(undeliver|delivery (status|failure)|returned to sender|failure notice|mail delivery failed|could not be delivered)/i.test(subject);
+
+          if (isBounceSender || isBounceSubject) {
+            // Extract the original recipient from the body
+            const bodyText = (await extractBody(client, msg.uid)) || '';
+            bounceTargetEmail = extractBouncedRecipient(bodyText);
+            if (bounceTargetEmail) {
+              contact = findContactByEmail(bounceTargetEmail);
+              type = 'email_bounce';
+            }
+          } else if (fromAddr && fromAddr !== EMAIL_USER.toLowerCase()) {
             contact = findContactByEmail(fromAddr);
             type = 'email_received';
           }
@@ -472,7 +541,13 @@ async function syncInbox() {
             db.prepare('INSERT INTO activities (id, contact_id, type, subject, body, logged_at, source_message_id) VALUES (?, ?, ?, ?, ?, ?, ?)')
               .run(uuidv4(), contact.id, type, subject, body, loggedAt, messageId);
             db.prepare("UPDATE contacts SET updated_at=datetime('now') WHERE id=?").run(contact.id);
-            recomputeReplyStatus(contact.id);
+            if (type === 'email_bounce') {
+              // Mark the contact so it shows up at the top of a 'bounces' filter
+              db.prepare("UPDATE contacts SET reply_status = 'Bounced' WHERE id = ?").run(contact.id);
+              console.log(`[bounce] ${bounceTargetEmail} bounced (contact flagged)`);
+            } else {
+              recomputeReplyStatus(contact.id);
+            }
             synced++;
           } catch (err) {
             if (!err.message.includes('UNIQUE')) throw err;

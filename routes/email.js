@@ -304,6 +304,14 @@ router.post('/bulk-send', async (req, res) => {
       started_at: new Date().toISOString(),
     });
 
+    // Is this a CSV-mode job? Track originals so we can auto-import
+    // successfully-sent recipients into the CRM at the end.
+    const isCsvMode = Array.isArray(csvContacts);
+    const originalsByEmail = {};
+    if (isCsvMode) {
+      for (const c of contactsToSend) originalsByEmail[c.email] = c;
+    }
+
     // Run the sends in the background so the request returns fast.
     setImmediate(async () => {
       const job = bulkJobs.get(jobId);
@@ -317,8 +325,37 @@ router.post('/bulk-send', async (req, res) => {
             job.results = results;
             job.last = last;
           },
+          shouldCancel: () => !!job.cancelled,
         });
-        job.status = 'complete';
+
+        // Auto-import CSV recipients who successfully received an email.
+        // (In-CRM recipients were already skipped at preflight; only
+        // brand-new CSV contacts reach this point.)
+        if (isCsvMode) {
+          let imported = 0;
+          for (const r of (job.results || [])) {
+            if (r.status !== 'sent') continue;
+            const orig = originalsByEmail[r.email];
+            if (!orig) continue;
+            const existing = db.prepare('SELECT id FROM contacts WHERE LOWER(email) = ?').get(r.email);
+            if (existing) continue;
+            const name = orig.first_name
+              ? (orig.last_name ? `${orig.first_name} ${orig.last_name}` : orig.first_name)
+              : r.email;
+            const source = 'CSV Bulk Send';
+            db.prepare(`
+              INSERT INTO contacts (id, name, firm, email, industry, pipeline_stage, source, reply_status, notes)
+              VALUES (?, ?, ?, ?, ?, 'Lead', ?, 'Sent', ?)
+            `).run(
+              uuidv4(), name, orig.firm || null, r.email, orig.industry || null,
+              source, 'Auto-added after bulk email send',
+            );
+            imported++;
+          }
+          job.auto_imported = imported;
+        }
+
+        job.status = job.cancelled ? 'cancelled' : 'complete';
         job.finished_at = new Date().toISOString();
       } catch (err) {
         job.status = 'error';
@@ -344,6 +381,19 @@ router.get('/bulk-progress/:jobId', (req, res) => {
   const job = bulkJobs.get(req.params.jobId);
   if (!job) return res.status(404).json({ error: 'Job not found or expired' });
   res.json(job);
+});
+
+// Cancel an in-progress bulk job. The running loop checks this flag
+// between each send and exits on true; any remaining contacts are
+// reported as 'cancelled' in the results.
+router.post('/bulk-cancel/:jobId', (req, res) => {
+  const job = bulkJobs.get(req.params.jobId);
+  if (!job) return res.status(404).json({ error: 'Job not found' });
+  if (job.status === 'complete' || job.status === 'error' || job.status === 'cancelled') {
+    return res.json({ ok: true, status: job.status, message: 'Job already finished' });
+  }
+  job.cancelled = true;
+  res.json({ ok: true, status: 'cancelling' });
 });
 
 // After a CSV bulk send completes, the user can optionally import the
