@@ -709,14 +709,23 @@ textarea { resize: vertical; min-height: 80px; }
     <div class="page-header">
       <div>
         <div class="page-title">Insights</div>
-        <div class="page-sub">Email performance, pipeline health, what's working. Data refreshes every time you open this tab.</div>
+        <div class="page-sub">Email performance, pipeline health, what's working.</div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-secondary" id="ins-sync-btn" onclick="insightsSyncNow()" title="Manually trigger an inbox sync to pick up any emails you sent from other clients">↓ Sync Now</button>
-        <button class="btn btn-secondary" onclick="loadInsights()">↻ Refresh</button>
+        <button class="btn btn-secondary" onclick="loadInsightsCurrentView()">↻ Refresh</button>
       </div>
     </div>
 
+    <!-- Sub-nav -->
+    <div style="display:flex;gap:0;border-bottom:2px solid var(--light);margin-bottom:20px;">
+      <button id="ins-tab-overview" onclick="showInsightsView('overview')" style="padding:8px 18px;background:none;border:none;border-bottom:2px solid var(--forest);margin-bottom:-2px;color:var(--forest);font-weight:600;font-size:13px;cursor:pointer;">Overview</button>
+      <button id="ins-tab-industry" onclick="showInsightsView('industry')" style="padding:8px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--tan);font-size:13px;cursor:pointer;">By Industry</button>
+      <button id="ins-tab-attribution" onclick="showInsightsView('attribution')" style="padding:8px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--tan);font-size:13px;cursor:pointer;">Attribution</button>
+    </div>
+
+    <!-- ── Overview sub-view ── -->
+    <div id="ins-view-overview">
     <div id="ins-sync-note" style="font-size:11px;color:var(--tan);margin-bottom:16px;"></div>
 
     <!-- Today's snapshot -->
@@ -823,7 +832,51 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="card-title">Recent Replies (last 7 days)</div>
       <div id="ins-recent-replies"></div>
     </div>
-  </div>
+    </div><!-- end ins-view-overview -->
+
+    <!-- ── By Industry sub-view ── -->
+    <div id="ins-view-industry" style="display:none;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tan);margin-bottom:12px;">INDUSTRY PERFORMANCE</div>
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>INDUSTRY</th><th>SENT</th><th>OPEN %</th><th>REPLY %</th><th>INTERESTED</th><th>BOOKED</th>
+          </tr></thead>
+          <tbody id="ins-industry-tbody">
+            <tr><td colspan="6" style="text-align:center;color:var(--tan);padding:24px;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--tan);">Green = above average · Yellow = below average</div>
+    </div>
+
+    <!-- ── Attribution sub-view ── -->
+    <div id="ins-view-attribution" style="display:none;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tan);margin-bottom:12px;">PER-CAMPAIGN PERFORMANCE</div>
+      <div class="tbl-wrap" style="margin-bottom:24px;">
+        <table class="data-table">
+          <thead><tr>
+            <th>CAMPAIGN</th><th>SENT</th><th>OPENED</th><th>OPEN %</th><th>BOOKED</th><th>STATUS</th>
+          </tr></thead>
+          <tbody id="ins-attrib-campaigns">
+            <tr><td colspan="6" style="text-align:center;color:var(--tan);padding:24px;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tan);margin-bottom:12px;">PIPELINE</div>
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>CONTACT</th><th>FIRM</th><th>CAMPAIGN</th><th>STATUS</th><th>ENROLLED</th>
+          </tr></thead>
+          <tbody id="ins-attrib-pipeline">
+            <tr><td colspan="5" style="text-align:center;color:var(--tan);padding:24px;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- end page-insights -->
 
   <!-- ── AUTOMATION ── -->
   <div class="page" id="page-automation">
@@ -1202,7 +1255,7 @@ function nav(el, page) {
   if (page === 'templates') loadTemplates();
   if (page === 'automation') loadAutomation();
   if (page === 'bulk') loadBulk();
-  if (page === 'insights') loadInsights();
+  if (page === 'insights') { showInsightsView('overview'); loadInsights(); }
 }
 
 // ── INSIGHTS ─────────────────────────────────────────
@@ -3011,6 +3064,96 @@ const hour = now.getHours();
 document.getElementById('dash-greeting').textContent = hour < 12 ? 'Good morning.' : hour < 17 ? 'Good afternoon.' : 'Good evening.';
 document.getElementById('dash-date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 loadDashboard();
+
+// ── INSIGHTS SUB-VIEWS ───────────────────────────────
+let currentInsightsView = 'overview';
+
+function showInsightsView(view) {
+  currentInsightsView = view;
+  ['overview','industry','attribution'].forEach(v => {
+    document.getElementById('ins-view-' + v).style.display = v === view ? '' : 'none';
+    const tab = document.getElementById('ins-tab-' + v);
+    tab.style.borderBottomColor = v === view ? 'var(--forest)' : 'transparent';
+    tab.style.color = v === view ? 'var(--forest)' : 'var(--tan)';
+    tab.style.fontWeight = v === view ? '600' : '400';
+  });
+  if (view === 'industry') loadInsightsByIndustry();
+  if (view === 'attribution') loadInsightsAttribution();
+}
+
+function loadInsightsCurrentView() {
+  if (currentInsightsView === 'overview') loadInsights();
+  else if (currentInsightsView === 'industry') loadInsightsByIndustry();
+  else if (currentInsightsView === 'attribution') loadInsightsAttribution();
+}
+
+async function loadInsightsByIndustry() {
+  const tbody = document.getElementById('ins-industry-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--tan);padding:24px;">Loading…</td></tr>';
+  try {
+    const d = await fetch('/api/campaigns/insights/by-industry').then(r => r.json());
+    if (!d.rows || !d.rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--tan);padding:24px;">No data yet — send some emails first.</td></tr>';
+      return;
+    }
+    const fmt = n => (n * 100).toFixed(1) + '%';
+    const cellColor = (val, avg) => {
+      if (avg === 0) return '';
+      if (val >= avg * 1.1) return 'background:#d4edda;color:#1a5c2a;font-weight:600;border-radius:3px;padding:2px 6px;';
+      if (val < avg * 0.9) return 'background:#fef3cd;color:#8a6d00;border-radius:3px;padding:2px 6px;';
+      return '';
+    };
+    const industryLabel = { insurance: 'Insurance', law: 'Law', cpa: 'CPA / Accounting', realestate: 'Real Estate', other: 'Other' };
+    tbody.innerHTML = d.rows.map(r => `
+      <tr>
+        <td style="font-weight:600;">${esc(industryLabel[r.industry] || r.industry)}</td>
+        <td>${r.sent}</td>
+        <td><span style="${cellColor(r.open_rate, d.avgOpenRate)}">${fmt(r.open_rate)}</span></td>
+        <td><span style="${cellColor(r.reply_rate, d.avgReplyRate)}">${fmt(r.reply_rate)}</span></td>
+        <td>${r.interested}</td>
+        <td>${r.booked}</td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--ember);padding:16px;">Error loading data.</td></tr>';
+    console.error('loadInsightsByIndustry:', err);
+  }
+}
+
+async function loadInsightsAttribution() {
+  const campTbody = document.getElementById('ins-attrib-campaigns');
+  const pipeTbody = document.getElementById('ins-attrib-pipeline');
+  campTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--tan);padding:24px;">Loading…</td></tr>';
+  pipeTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tan);padding:24px;">Loading…</td></tr>';
+  try {
+    const d = await fetch('/api/campaigns/insights/attribution').then(r => r.json());
+
+    campTbody.innerHTML = d.perCampaign.length
+      ? d.perCampaign.map(c => `
+          <tr>
+            <td style="font-weight:600;">${esc(c.name)}${c.industry ? `<div style="font-size:11px;color:var(--tan);">${esc(c.industry)}</div>` : ''}</td>
+            <td>${c.sent}</td>
+            <td>${c.opened}</td>
+            <td>${c.sent > 0 ? (c.opened / c.sent * 100).toFixed(1) + '%' : '—'}</td>
+            <td style="${c.booked > 0 ? 'color:var(--forest);font-weight:600;' : ''}">${c.booked}</td>
+            <td><span class="camp-status camp-status-${esc(c.status)}">${esc(c.status)}</span></td>
+          </tr>`).join('')
+      : '<tr><td colspan="6" style="text-align:center;color:var(--tan);padding:24px;">No campaigns yet.</td></tr>';
+
+    pipeTbody.innerHTML = d.pipeline.length
+      ? d.pipeline.map(p => `
+          <tr>
+            <td style="font-weight:600;">${esc(p.contact_name)}</td>
+            <td>${esc(p.contact_firm || '—')}</td>
+            <td>${esc(p.campaign_name)}</td>
+            <td><span class="camp-status camp-status-${p.reply_status === 'Booked' ? 'active' : 'draft'}" style="white-space:nowrap;">${esc(p.reply_status)}</span></td>
+            <td>${fmtDate(p.enrolled_at)}</td>
+          </tr>`).join('')
+      : '<tr><td colspan="5" style="text-align:center;color:var(--tan);padding:24px;">No pipeline contacts yet.</td></tr>';
+  } catch (err) {
+    campTbody.innerHTML = '<tr><td colspan="6" style="color:var(--ember);padding:16px;">Error loading data.</td></tr>';
+    console.error('loadInsightsAttribution:', err);
+  }
+}
 
 // ── CAMPAIGNS ────────────────────────────────────────
 let currentCampaignId = null;
