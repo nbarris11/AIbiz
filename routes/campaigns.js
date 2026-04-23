@@ -146,4 +146,77 @@ router.post('/:id/enroll', (req, res) => {
   }
 });
 
+// GET /api/campaigns/insights/by-industry
+router.get('/insights/by-industry', (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT
+        COALESCE(c.industry, 'other') as industry,
+        COUNT(DISTINCT CASE WHEN a.type = 'email_sent' THEN a.id END) as sent,
+        COUNT(DISTINCT CASE WHEN a.type = 'email_sent' AND a.opened_at IS NOT NULL THEN a.id END) as opened,
+        COUNT(DISTINCT CASE WHEN a.type = 'email_received' THEN c.id END) as replied,
+        COUNT(DISTINCT CASE WHEN c.reply_status = 'Replied — Interested' THEN c.id END) as interested,
+        COUNT(DISTINCT CASE WHEN c.reply_status = 'Booked' THEN c.id END) as booked
+      FROM contacts c
+      JOIN activities a ON a.contact_id = c.id
+      WHERE a.type IN ('email_sent', 'email_received')
+      GROUP BY COALESCE(c.industry, 'other')
+      ORDER BY sent DESC
+    `).all();
+
+    // Compute averages for color-coding
+    const withRates = rows.map(r => ({
+      ...r,
+      open_rate: r.sent > 0 ? r.opened / r.sent : 0,
+      reply_rate: r.sent > 0 ? r.replied / r.sent : 0,
+    }));
+
+    const avgOpenRate = withRates.length
+      ? withRates.reduce((s, r) => s + r.open_rate, 0) / withRates.length : 0;
+    const avgReplyRate = withRates.length
+      ? withRates.reduce((s, r) => s + r.reply_rate, 0) / withRates.length : 0;
+
+    res.json({ rows: withRates, avgOpenRate, avgReplyRate });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/campaigns/insights/attribution
+router.get('/insights/attribution', (req, res) => {
+  try {
+    const campaigns = db.prepare('SELECT * FROM campaigns ORDER BY created_at DESC').all();
+
+    const perCampaign = campaigns.map(c => {
+      const sent = db.prepare(
+        "SELECT COUNT(*) as n FROM activities WHERE campaign_id = ? AND type = 'email_sent'"
+      ).get(c.id).n;
+      const opened = db.prepare(
+        "SELECT COUNT(*) as n FROM activities WHERE campaign_id = ? AND type = 'email_sent' AND opened_at IS NOT NULL"
+      ).get(c.id).n;
+      const booked = db.prepare(
+        "SELECT COUNT(DISTINCT ce.contact_id) as n FROM campaign_enrollments ce JOIN contacts ct ON ct.id = ce.contact_id WHERE ce.campaign_id = ? AND ct.reply_status = 'Booked'"
+      ).get(c.id).n;
+      return { id: c.id, name: c.name, industry: c.industry, status: c.status, sent, opened, booked };
+    });
+
+    // Pipeline: enrolled contacts who are Booked or have a reply sub-status
+    const pipeline = db.prepare(`
+      SELECT
+        ct.name as contact_name, ct.firm as contact_firm, ct.reply_status,
+        ce.campaign_id, ce.enrolled_at, ce.current_step,
+        cam.name as campaign_name
+      FROM campaign_enrollments ce
+      JOIN contacts ct ON ct.id = ce.contact_id
+      JOIN campaigns cam ON cam.id = ce.campaign_id
+      WHERE ct.reply_status IN ('Booked','Replied — Interested','Replied — Not Now','Replied — Not Interested')
+      ORDER BY ce.enrolled_at DESC
+    `).all();
+
+    res.json({ perCampaign, pipeline });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
