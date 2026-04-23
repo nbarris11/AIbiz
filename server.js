@@ -20,6 +20,7 @@ const filesRouter = require('./routes/files');
 const emailRouter = require('./routes/email');
 const trackRouter = require('./routes/track');
 const redirectRouter = require('./routes/redirect');
+const campaignsRouter = require('./routes/campaigns');
 const requireAdmin = require('./middleware/requireAdmin');
 const requireClient = require('./middleware/requireClient');
 const { startEmailSync, startFollowUpScheduler } = require('./services/email');
@@ -51,6 +52,7 @@ app.use('/api/email', emailRouter);
 // ── EMAIL TRACKING ROUTE ────────────────────────────
 app.use('/t', trackRouter);
 app.use('/r', redirectRouter);
+app.use('/api/campaigns', campaignsRouter);
 
 // ── INTERNAL CRM PAGES ───────────────────────────────
 app.get('/internal/login', (req, res) => {
