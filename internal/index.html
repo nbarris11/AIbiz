@@ -3111,13 +3111,16 @@ async function updateCampaignStatus() {
   });
 }
 
-function initCampaignBuilder() {
+async function initCampaignBuilder() {
   campStepCount = 0;
   document.getElementById('camp-steps-builder').innerHTML = '';
   document.getElementById('camp-new-name').value = '';
   document.getElementById('camp-new-industry').value = '';
   document.getElementById('camp-new-notes').value = '';
   document.getElementById('camp-new-error').style.display = 'none';
+  try {
+    campaignTemplates = await fetch('/api/crm/templates').then(r => r.json());
+  } catch (e) {}
   addCampaignStep();
 }
 
