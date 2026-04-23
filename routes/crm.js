@@ -298,7 +298,7 @@ router.get('/outreach', (req, res) => {
 
 router.post('/contacts/:id/reply-status', (req, res) => {
   const { reply_status } = req.body;
-  const valid = ['None', 'Sent', 'Replied', 'Booked', 'Not Interested', 'Bounced'];
+  const valid = ['None', 'Sent', 'Opened', 'Replied', 'Replied — Interested', 'Replied — Not Now', 'Replied — Not Interested', 'Booked', 'Unsubscribed', 'Bounced'];
   if (!valid.includes(reply_status)) return res.status(400).json({ error: 'Invalid reply_status' });
   db.prepare("UPDATE contacts SET reply_status=?, updated_at=datetime('now') WHERE id=?")
     .run(reply_status, req.params.id);

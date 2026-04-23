@@ -2855,7 +2855,7 @@ async function loadOutreach() {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--tan);padding:32px;">${empty}</td></tr>`;
     return;
   }
-  const statuses = ['None', 'Sent', 'Replied', 'Booked', 'Not Interested', 'Bounced'];
+  const statuses = ['None', 'Sent', 'Opened', 'Replied', 'Replied — Interested', 'Replied — Not Now', 'Replied — Not Interested', 'Booked', 'Unsubscribed', 'Bounced'];
   tbody.innerHTML = data.map(c => `
     <tr>
       <td style="font-weight:500;cursor:pointer;" onclick="openPanel('${c.id}')">${c.name}</td>
@@ -2885,7 +2885,7 @@ async function recomputeStatuses() {
   btn.innerHTML = original;
   if (r.ok) {
     loadOutreach();
-    alert(`✓ Recomputed reply status for ${r.contacts_processed} contact(s).\n\n• "Sent" = you emailed, no reply yet\n• "Replied" = they responded\n• "Booked" and "Not Interested" left as-is`);
+    alert(`✓ Recomputed reply status for ${r.contacts_processed} contact(s).\n\n• "Sent" = you emailed, no reply yet\n• "Replied" = they responded (upgrade to sub-status manually)\n• Manual statuses (Booked, Replied — Interested, etc.) left as-is`);
   } else {
     alert('Recompute failed: ' + (r.error || 'unknown'));
   }
