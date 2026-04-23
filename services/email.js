@@ -548,7 +548,8 @@ function recomputeReplyStatus(contactId) {
   // once an address fails, subsequent outbound sends to the same contact
   // (e.g. if we retry before updating the email) shouldn't silently flip
   // it back to 'Sent'.
-  if (row.reply_status === 'Booked' || row.reply_status === 'Not Interested' || row.reply_status === 'Bounced') return;
+  const terminalStatuses = ['Booked', 'Not Interested', 'Bounced', 'Replied — Interested', 'Replied — Not Now', 'Replied — Not Interested', 'Unsubscribed'];
+  if (terminalStatuses.includes(row.reply_status)) return;
 
   const activities = db.prepare(
     'SELECT type FROM activities WHERE contact_id = ? AND type IN (?, ?)'
@@ -735,7 +736,7 @@ async function syncInbox() {
       UPDATE contacts
       SET reply_status = 'Bounced'
       WHERE id IN (SELECT DISTINCT contact_id FROM activities WHERE type = 'email_bounce')
-      AND reply_status NOT IN ('Booked', 'Not Interested', 'Bounced')
+      AND reply_status NOT IN ('Booked', 'Not Interested', 'Bounced', 'Replied — Interested', 'Replied — Not Now', 'Replied — Not Interested', 'Unsubscribed')
     `).run();
   } catch {}
 
@@ -1032,7 +1033,7 @@ function findFollowUpCandidates(delayDays) {
     WHERE c.email IS NOT NULL AND c.email != ''
       AND c.follow_up_sent_at IS NULL
       AND c.follow_up_paused = 0
-      AND c.reply_status NOT IN ('Replied','Booked','Not Interested')
+      AND c.reply_status NOT IN ('Replied','Booked','Not Interested','Replied — Interested','Replied — Not Now','Replied — Not Interested','Unsubscribed','Bounced')
       AND EXISTS (SELECT 1 FROM activities WHERE contact_id = c.id AND type = 'email_sent' AND logged_at <= ?)
       AND NOT EXISTS (
         SELECT 1 FROM activities a2 WHERE a2.contact_id = c.id AND a2.type = 'email_received'
@@ -1197,5 +1198,5 @@ module.exports = {
   recomputeAllReplyStatuses, backfillEmailBodies, EMAIL_SIGNATURE,
   getFollowUpSettings, setFollowUpSettings, runFollowUpSweep,
   previewFollowUpQueue, startFollowUpScheduler,
-  bulkSend, renderMergeFields, scanForBounces,
+  bulkSend, renderMergeFields, scanForBounces, isWithinBusinessHours,
 };
