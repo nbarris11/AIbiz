@@ -24,6 +24,7 @@ const campaignsRouter = require('./routes/campaigns');
 const requireAdmin = require('./middleware/requireAdmin');
 const requireClient = require('./middleware/requireClient');
 const { startEmailSync, startFollowUpScheduler } = require('./services/email');
+const { startCampaignRunner } = require('./services/campaign-runner');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -85,4 +86,5 @@ app.listen(PORT, () => {
   console.log(`Sidecar Advisory running at http://localhost:${PORT}`);
   startEmailSync();
   startFollowUpScheduler();
+  startCampaignRunner();
 });
