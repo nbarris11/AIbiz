@@ -116,6 +116,11 @@ textarea { resize: vertical; min-height: 80px; }
 .activity-type-pill { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 10px; font-weight: 600; background: var(--cream); color: var(--mid); margin-right: 6px; text-transform: uppercase; letter-spacing: .04em; }
 .activity-meta { font-size: 11px; color: var(--tan); margin-top: 4px; }
 .open-badge { display:inline-block; margin-top:4px; padding:2px 8px; background:#e8f4ec; color:#2D5A3D; border-radius:10px; font-size:11px; font-weight:500; }
+.camp-status { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:500; }
+.camp-status-draft { background:#f0ebe2; color:var(--tan); }
+.camp-status-active { background:#e8f4ec; color:var(--forest); }
+.camp-status-paused { background:#fef3cd; color:#8a6d00; }
+.camp-status-completed { background:#e8f0fe; color:#3a5bc7; }
 
 /* TOGGLE SWITCH */
 .toggle-slider::before {
@@ -166,6 +171,10 @@ textarea { resize: vertical; min-height: 80px; }
     <div class="nav-item" onclick="nav(this,'followups')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Follow-ups
+    </div>
+    <div class="nav-item" onclick="nav(this,'campaigns')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Campaigns
     </div>
     <div class="nav-item" onclick="nav(this,'portal-mgr')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
@@ -318,6 +327,105 @@ textarea { resize: vertical; min-height: 80px; }
         <tbody id="followups-tbody"></tbody>
       </table>
     </div>
+  </div>
+
+  <!-- ── CAMPAIGNS ── -->
+  <div class="page" id="page-campaigns">
+
+    <!-- Sub-view: list -->
+    <div id="camp-view-list">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Campaigns</div>
+          <div class="page-sub">Multi-step email sequences with tracking.</div>
+        </div>
+        <button class="btn btn-primary" onclick="showCampaignView('new')">+ New Campaign</button>
+      </div>
+      <div class="metric-row" style="margin-bottom:20px;">
+        <div class="metric"><div class="metric-label">Active</div><div class="metric-value" id="camp-active-count">—</div></div>
+        <div class="metric"><div class="metric-label">Avg Open Rate</div><div class="metric-value" id="camp-avg-open">—</div></div>
+        <div class="metric"><div class="metric-label">Total Booked</div><div class="metric-value" id="camp-total-booked">—</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>CAMPAIGN</th><th>SENT</th><th>OPENED</th><th>ENROLLED</th><th>BOOKED</th><th>STATUS</th>
+          </tr></thead>
+          <tbody id="camp-table-body">
+            <tr><td colspan="6" style="text-align:center;color:var(--tan);padding:32px;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sub-view: detail -->
+    <div id="camp-view-detail" style="display:none;">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="btn btn-secondary" onclick="showCampaignView('list')">← Back</button>
+          <div>
+            <div class="page-title" id="camp-detail-name">—</div>
+            <div class="page-sub" id="camp-detail-meta">—</div>
+          </div>
+        </div>
+        <select id="camp-status-select" class="form-input" style="width:auto;" onchange="updateCampaignStatus()">
+          <option value="draft">Draft</option>
+          <option value="active">Active</option>
+          <option value="paused">Paused</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <div class="metric-row" style="margin-bottom:20px;">
+        <div class="metric"><div class="metric-label">Sent</div><div class="metric-value" id="camp-d-sent">—</div></div>
+        <div class="metric"><div class="metric-label">Opened</div><div class="metric-value" id="camp-d-opened">—</div></div>
+        <div class="metric"><div class="metric-label">Enrolled</div><div class="metric-value" id="camp-d-enrolled">—</div></div>
+        <div class="metric"><div class="metric-label">Booked</div><div class="metric-value" id="camp-d-booked">—</div></div>
+      </div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tan);margin-bottom:8px;">SEQUENCE STEPS</div>
+      <div id="camp-d-steps" style="margin-bottom:24px;max-width:560px;"></div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tan);margin-bottom:8px;">ENROLLED CONTACTS</div>
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead><tr><th>CONTACT</th><th>FIRM</th><th>STEP</th><th>STATUS</th><th>ENROLLED</th></tr></thead>
+          <tbody id="camp-d-enrollments"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sub-view: new campaign form -->
+    <div id="camp-view-new" style="display:none;">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="btn btn-secondary" onclick="showCampaignView('list')">← Back</button>
+          <div class="page-title">New Campaign</div>
+        </div>
+      </div>
+      <div style="max-width:600px;">
+        <div class="form-group">
+          <label class="form-label">CAMPAIGN NAME *</label>
+          <input id="camp-new-name" class="form-input" type="text" placeholder="e.g. Insurance Agencies — April 2026">
+        </div>
+        <div class="form-group">
+          <label class="form-label">INDUSTRY / SEGMENT</label>
+          <input id="camp-new-industry" class="form-input" type="text" placeholder="e.g. Insurance">
+        </div>
+        <div class="form-group">
+          <label class="form-label">NOTES</label>
+          <textarea id="camp-new-notes" class="form-input" rows="2" placeholder="Optional notes about this campaign"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">SEQUENCE STEPS</label>
+          <div id="camp-steps-builder"></div>
+          <button class="btn btn-secondary" style="margin-top:8px;" onclick="addCampaignStep()">+ Add Step</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:24px;">
+          <button class="btn btn-primary" onclick="saveCampaign('active')">Activate</button>
+          <button class="btn btn-secondary" onclick="saveCampaign('draft')">Save as Draft</button>
+        </div>
+        <div id="camp-new-error" style="color:#c0392b;margin-top:8px;display:none;"></div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ── PORTAL MANAGER ── -->
@@ -1089,6 +1197,7 @@ function nav(el, page) {
   if (page === 'contacts') loadContacts();
   if (page === 'outreach') loadOutreach();
   if (page === 'followups') loadFollowups();
+  if (page === 'campaigns') loadCampaigns();
   if (page === 'portal-mgr') loadPortalClients();
   if (page === 'templates') loadTemplates();
   if (page === 'automation') loadAutomation();
@@ -2902,6 +3011,196 @@ const hour = now.getHours();
 document.getElementById('dash-greeting').textContent = hour < 12 ? 'Good morning.' : hour < 17 ? 'Good afternoon.' : 'Good evening.';
 document.getElementById('dash-date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 loadDashboard();
+
+// ── CAMPAIGNS ────────────────────────────────────────
+let currentCampaignId = null;
+let campaignTemplates = [];
+let campStepCount = 0;
+
+function showCampaignView(view) {
+  document.getElementById('camp-view-list').style.display = view === 'list' ? '' : 'none';
+  document.getElementById('camp-view-detail').style.display = view === 'detail' ? '' : 'none';
+  document.getElementById('camp-view-new').style.display = view === 'new' ? '' : 'none';
+  if (view === 'new') initCampaignBuilder();
+}
+
+async function loadCampaigns() {
+  showCampaignView('list');
+  try {
+    const [camps, templates] = await Promise.all([
+      fetch('/api/campaigns').then(r => r.json()),
+      fetch('/api/crm/templates').then(r => r.json()),
+    ]);
+    campaignTemplates = templates;
+
+    const active = camps.filter(c => c.status === 'active');
+    document.getElementById('camp-active-count').textContent = active.length;
+    const openRates = camps.filter(c => c.sent > 0).map(c => c.opened / c.sent * 100);
+    document.getElementById('camp-avg-open').textContent = openRates.length
+      ? (openRates.reduce((a, b) => a + b, 0) / openRates.length).toFixed(1) + '%' : '—';
+    document.getElementById('camp-total-booked').textContent = camps.reduce((s, c) => s + (c.booked || 0), 0);
+
+    const tbody = document.getElementById('camp-table-body');
+    if (!camps.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--tan);padding:32px;">No campaigns yet. Create your first one.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = camps.map(c => `
+      <tr style="cursor:pointer;" onclick="loadCampaignDetail('${esc(c.id)}')">
+        <td><div style="font-weight:600;">${esc(c.name)}</div><div style="font-size:12px;color:var(--tan);">${c.steps} step${c.steps !== 1 ? 's' : ''}${c.industry ? ' · ' + esc(c.industry) : ''}</div></td>
+        <td>${c.sent}</td>
+        <td>${c.sent > 0 ? (c.opened / c.sent * 100).toFixed(1) + '%' : '—'}</td>
+        <td>${c.enrollments}</td>
+        <td>${c.booked}</td>
+        <td><span class="camp-status camp-status-${esc(c.status)}">${esc(c.status)}</span></td>
+      </tr>`).join('');
+  } catch (err) {
+    console.error('loadCampaigns error:', err);
+  }
+}
+
+async function loadCampaignDetail(id) {
+  currentCampaignId = id;
+  showCampaignView('detail');
+  try {
+    const c = await fetch('/api/campaigns/' + id).then(r => r.json());
+    document.getElementById('camp-detail-name').textContent = c.name;
+    const meta = [c.industry, c.started_at ? 'Started ' + fmtDate(c.started_at) : null].filter(Boolean).join(' · ');
+    document.getElementById('camp-detail-meta').textContent = meta || 'Draft';
+    document.getElementById('camp-status-select').value = c.status;
+
+    document.getElementById('camp-d-sent').textContent = c.stats.sent;
+    document.getElementById('camp-d-opened').textContent = c.stats.sent > 0
+      ? (c.stats.opened / c.stats.sent * 100).toFixed(1) + '%' : '—';
+    document.getElementById('camp-d-enrolled').textContent = c.enrollments.length;
+    document.getElementById('camp-d-booked').textContent = c.enrollments.filter(e => e.reply_status === 'Booked').length;
+
+    document.getElementById('camp-d-steps').innerHTML = c.steps.length
+      ? c.steps.map((s, i) => `
+          <div style="margin-bottom:4px;">
+            ${i > 0 ? `<div style="padding-left:20px;color:var(--tan);font-size:12px;margin-bottom:2px;">↓ wait ${s.delay_days} day${s.delay_days !== 1 ? 's' : ''}</div>` : ''}
+            <div style="background:var(--white);border:1px solid var(--light);border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+              <div style="width:22px;height:22px;background:var(--forest);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${s.step_number}</div>
+              <div><div style="font-weight:600;">${esc(s.template_name || 'No template')}</div><div style="font-size:12px;color:var(--tan);">${esc(s.subject_override || s.template_subject || '')}</div></div>
+            </div>
+          </div>`).join('')
+      : '<div style="color:var(--tan);">No steps defined.</div>';
+
+    document.getElementById('camp-d-enrollments').innerHTML = c.enrollments.length
+      ? c.enrollments.map(e => `
+          <tr>
+            <td>${esc(e.contact_name)}</td>
+            <td>${esc(e.contact_firm || '—')}</td>
+            <td>Step ${e.current_step}</td>
+            <td><span class="camp-status camp-status-${esc(e.status)}">${esc(e.status)}</span></td>
+            <td>${fmtDate(e.enrolled_at)}</td>
+          </tr>`).join('')
+      : '<tr><td colspan="5" style="text-align:center;color:var(--tan);">No contacts enrolled.</td></tr>';
+  } catch (err) {
+    console.error('loadCampaignDetail error:', err);
+  }
+}
+
+async function updateCampaignStatus() {
+  if (!currentCampaignId) return;
+  const status = document.getElementById('camp-status-select').value;
+  await fetch('/api/campaigns/' + currentCampaignId, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+}
+
+function initCampaignBuilder() {
+  campStepCount = 0;
+  document.getElementById('camp-steps-builder').innerHTML = '';
+  document.getElementById('camp-new-name').value = '';
+  document.getElementById('camp-new-industry').value = '';
+  document.getElementById('camp-new-notes').value = '';
+  document.getElementById('camp-new-error').style.display = 'none';
+  addCampaignStep();
+}
+
+function addCampaignStep() {
+  campStepCount++;
+  const n = campStepCount;
+  const isFirst = n === 1;
+  const templateOptions = campaignTemplates.map(t =>
+    `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
+  const div = document.createElement('div');
+  div.id = 'camp-step-' + n;
+  div.style.cssText = 'background:var(--white);border:1px solid var(--light);border-radius:6px;padding:12px 14px;margin-bottom:8px;';
+  div.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <div style="width:22px;height:22px;background:var(--forest);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${n}</div>
+      <div style="font-weight:600;flex:1;">Step ${n}</div>
+      ${n > 1 ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:12px;" onclick="removeCampaignStep(${n})">Remove</button>` : ''}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <label class="form-label" style="font-size:11px;">TEMPLATE</label>
+        <select id="camp-step-tpl-${n}" class="form-input">${templateOptions}</select>
+      </div>
+      <div>
+        <label class="form-label" style="font-size:11px;">DELAY ${isFirst ? '(send immediately)' : '(days after previous step)'}</label>
+        <input id="camp-step-delay-${n}" class="form-input" type="number" min="0" value="${isFirst ? '0' : '3'}" ${isFirst ? 'disabled' : ''}>
+      </div>
+    </div>`;
+  document.getElementById('camp-steps-builder').appendChild(div);
+}
+
+function removeCampaignStep(n) {
+  const el = document.getElementById('camp-step-' + n);
+  if (el) el.remove();
+}
+
+async function saveCampaign(status) {
+  const name = document.getElementById('camp-new-name').value.trim();
+  if (!name) {
+    const errEl = document.getElementById('camp-new-error');
+    errEl.textContent = 'Campaign name is required.';
+    errEl.style.display = '';
+    return;
+  }
+  const steps = [];
+  for (let i = 1; i <= campStepCount; i++) {
+    const tplEl = document.getElementById('camp-step-tpl-' + i);
+    const delayEl = document.getElementById('camp-step-delay-' + i);
+    if (!tplEl) continue;
+    steps.push({ template_id: tplEl.value || null, delay_days: parseInt(delayEl ? delayEl.value : '0', 10) || 0 });
+  }
+  try {
+    const res = await fetch('/api/campaigns', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        industry: document.getElementById('camp-new-industry').value.trim() || null,
+        notes: document.getElementById('camp-new-notes').value.trim() || null,
+        steps,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    if (status === 'active') {
+      await fetch('/api/campaigns/' + data.id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'active' }),
+      });
+    }
+    loadCampaigns();
+  } catch (err) {
+    const errEl = document.getElementById('camp-new-error');
+    errEl.textContent = err.message;
+    errEl.style.display = '';
+  }
+}
+
+function esc(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>
