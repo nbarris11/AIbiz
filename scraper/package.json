@@ -1,0 +1,27 @@
+{
+  "name": "metro-detroit-contact-scraper",
+  "version": "1.0.0",
+  "description": "Cold email contact discovery for Metro Detroit professional service firms",
+  "type": "module",
+  "main": "scraper.js",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern='__tests__'",
+    "scrape": "node scraper.js"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "csv-parse": "^5.5.5",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2",
+    "playwright": "^1.44.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "extensionsToTreatAsEsm": [".js"],
+    "transform": {},
+    "testEnvironment": "node"
+  }
+}
