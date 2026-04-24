@@ -38,6 +38,10 @@ const NON_NAME_WORDS = new Set([
   'Consumer', 'Protection', 'Privacy', 'Policy', 'Terms', 'Service',
   'Complete', 'General', 'National', 'American', 'United', 'First', 'Premier',
   'Rights', 'Reserved', 'Copyright', 'Disclaimer', 'Notice',
+  // Accounting / finance specific
+  'Expat', 'Taxation', 'Global', 'Network', 'Alliance', 'Affiliated',
+  'Audit', 'Compliance', 'Advisory', 'Wealth', 'Retirement', 'Business',
+  'Needs', 'Kept', 'Crowe', 'Andersen', 'Deloitte', 'Grant', 'Thornton',
   // Common verbs / prepositions that appear capitalized
   'Talk', 'To', 'With', 'For', 'And', 'Our', 'Your', 'The', 'All',
   'Partnering', 'Contact', 'About', 'Home', 'Menu', 'Call', 'Click',
