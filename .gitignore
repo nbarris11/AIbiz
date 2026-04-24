@@ -4,3 +4,4 @@ sidecar.db
 .env
 uploads/*
 !uploads/.gitkeep
+.worktrees/
