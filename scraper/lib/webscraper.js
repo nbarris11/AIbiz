@@ -22,27 +22,37 @@ function extractEmails(text) {
 }
 
 const NON_NAME_WORDS = new Set([
+  // Industry terms
   'Insurance', 'Agent', 'Agents', 'Agency', 'Independent', 'Licensed',
-  'California', 'Michigan', 'Ohio', 'Florida', 'Texas', 'Illinois',
-  'Consumer', 'Protection', 'Privacy', 'Policy', 'Terms', 'Service',
-  'Partnering', 'With', 'Our', 'Your', 'The', 'All', 'Rights', 'Reserved',
-  'Complete', 'General', 'National', 'American', 'United', 'First', 'Premier',
   'Certified', 'Professional', 'Financial', 'Planning', 'Group', 'Team',
   'Real', 'Estate', 'Realty', 'Broker', 'Attorney', 'Legal', 'Law',
   'Building', 'Construction', 'Roofing', 'Plumbing', 'Electrical', 'Hvac',
-  'Contact', 'About', 'Home', 'Menu', 'Call', 'Click', 'Here', 'More',
-  'Read', 'Learn', 'Get', 'Find', 'View', 'See', 'Need', 'Want',
-  'Free', 'New', 'Best', 'Top', 'Local', 'Metro', 'Greater', 'West',
-  'North', 'South', 'East', 'Central', 'Downtown', 'Birmingham', 'Detroit',
-  'Inc', 'Llc', 'Pllc', 'Corp', 'Ltd', 'Co', 'Pc',
+  'Education', 'Department', 'Dealer', 'Member', 'Associates', 'Services',
+  'Solutions', 'Consulting', 'Management', 'Development', 'Properties',
+  // Geographic
+  'California', 'Michigan', 'Ohio', 'Florida', 'Texas', 'Illinois', 'Alabama',
+  'Birmingham', 'Detroit', 'Bloomfield', 'Hills', 'Royal', 'Troy', 'Novi',
+  'Plymouth', 'Northville', 'Farmington', 'Rochester', 'Metro', 'Greater',
+  'West', 'North', 'South', 'East', 'Central', 'Downtown',
+  // Generic / boilerplate
+  'Consumer', 'Protection', 'Privacy', 'Policy', 'Terms', 'Service',
+  'Complete', 'General', 'National', 'American', 'United', 'First', 'Premier',
+  'Rights', 'Reserved', 'Copyright', 'Disclaimer', 'Notice',
+  // Common verbs / prepositions that appear capitalized
+  'Talk', 'To', 'With', 'For', 'And', 'Our', 'Your', 'The', 'All',
+  'Partnering', 'Contact', 'About', 'Home', 'Menu', 'Call', 'Click',
+  'Here', 'More', 'Read', 'Learn', 'Get', 'Find', 'View', 'See',
+  'Free', 'New', 'Best', 'Top', 'Local',
+  // Entity suffixes
+  'Inc', 'Llc', 'Pllc', 'Corp', 'Ltd', 'Co', 'Pc', 'Plc',
 ]);
 
 function isLikelyName(candidate) {
   const parts = candidate.split(' ');
   if (parts.length !== 2) return false;
   if (parts.some(p => NON_NAME_WORDS.has(p))) return false;
-  // Both parts must be 2–15 chars
-  if (parts.some(p => p.length < 2 || p.length > 15)) return false;
+  // Both parts must be 3–15 chars (filters "To", "Of", etc.)
+  if (parts.some(p => p.length < 3 || p.length > 15)) return false;
   return true;
 }
 
