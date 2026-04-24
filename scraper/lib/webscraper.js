@@ -21,6 +21,31 @@ function extractEmails(text) {
   return [...new Set((text.match(EMAIL_REGEX) || []).map(e => e.toLowerCase()))];
 }
 
+const NON_NAME_WORDS = new Set([
+  'Insurance', 'Agent', 'Agents', 'Agency', 'Independent', 'Licensed',
+  'California', 'Michigan', 'Ohio', 'Florida', 'Texas', 'Illinois',
+  'Consumer', 'Protection', 'Privacy', 'Policy', 'Terms', 'Service',
+  'Partnering', 'With', 'Our', 'Your', 'The', 'All', 'Rights', 'Reserved',
+  'Complete', 'General', 'National', 'American', 'United', 'First', 'Premier',
+  'Certified', 'Professional', 'Financial', 'Planning', 'Group', 'Team',
+  'Real', 'Estate', 'Realty', 'Broker', 'Attorney', 'Legal', 'Law',
+  'Building', 'Construction', 'Roofing', 'Plumbing', 'Electrical', 'Hvac',
+  'Contact', 'About', 'Home', 'Menu', 'Call', 'Click', 'Here', 'More',
+  'Read', 'Learn', 'Get', 'Find', 'View', 'See', 'Need', 'Want',
+  'Free', 'New', 'Best', 'Top', 'Local', 'Metro', 'Greater', 'West',
+  'North', 'South', 'East', 'Central', 'Downtown', 'Birmingham', 'Detroit',
+  'Inc', 'Llc', 'Pllc', 'Corp', 'Ltd', 'Co', 'Pc',
+]);
+
+function isLikelyName(candidate) {
+  const parts = candidate.split(' ');
+  if (parts.length !== 2) return false;
+  if (parts.some(p => NON_NAME_WORDS.has(p))) return false;
+  // Both parts must be 2–15 chars
+  if (parts.some(p => p.length < 2 || p.length > 15)) return false;
+  return true;
+}
+
 function extractNamesNearKeywords(text) {
   const names = [];
   const lines = text.split('\n');
@@ -28,7 +53,7 @@ function extractNamesNearKeywords(text) {
     const lower = line.toLowerCase();
     if (!OWNER_KEYWORDS.some(kw => lower.includes(kw))) continue;
     const nameMatches = line.match(/\b([A-Z][a-z]{1,})\s+([A-Z][a-z]{1,})\b/g);
-    if (nameMatches) names.push(...nameMatches);
+    if (nameMatches) names.push(...nameMatches.filter(isLikelyName));
   }
   return [...new Set(names)];
 }
