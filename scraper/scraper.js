@@ -12,7 +12,7 @@ const VALID_CITIES = ['Birmingham', 'Royal Oak', 'Troy', 'Bloomfield Hills', 'No
 
 program
   .requiredOption('--industry <industry>', `Industry: ${VALID_INDUSTRIES.join(', ')}`)
-  .requiredOption('--city <city>', 'City name or "all"')
+  .option('--city <city>', 'City name or "all"', 'all')
   .option('--limit <n>', 'Max rows to write', '50')
   .option('--output <file>', 'Output CSV filename', 'contacts-output.csv')
   .option('--append', 'Append to existing CSV instead of overwriting')
