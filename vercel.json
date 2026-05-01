@@ -11,6 +11,11 @@
     { "source": "/preview/terms.html",                                     "destination": "/terms/",              "permanent": true }
   ],
   "rewrites": [
+    { "source": "/internal/:path*", "destination": "https://app.sidecaradvisory.com/internal/:path*" },
+    { "source": "/api/:path*",      "destination": "https://app.sidecaradvisory.com/api/:path*" },
+    { "source": "/portal/:path*",   "destination": "https://app.sidecaradvisory.com/portal/:path*" },
+    { "source": "/t/:path*",        "destination": "https://app.sidecaradvisory.com/t/:path*" },
+    { "source": "/r/:path*",        "destination": "https://app.sidecaradvisory.com/r/:path*" },
     { "source": "/contact",             "destination": "/contact.html" },
     { "source": "/contact/",            "destination": "/contact.html" },
     { "source": "/blog",                "destination": "/blog.html" },
