@@ -176,6 +176,10 @@ textarea { resize: vertical; min-height: 80px; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       Campaigns
     </div>
+    <div class="nav-item" onclick="nav(this,'scheduled')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Scheduled
+    </div>
     <div class="nav-item" onclick="nav(this,'portal-mgr')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
       Client Portal
@@ -317,6 +321,27 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 
   <!-- ── FOLLOW-UPS ── -->
+  <!-- SCHEDULED PAGE -->
+  <div class="page" id="page-scheduled">
+    <div class="page-header">
+      <div><div class="page-title">Scheduled Emails</div><div class="page-sub">Pending emails — sent automatically at scheduled time</div></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" onclick="loadScheduled()">↻ Refresh</button>
+        <button class="btn btn-primary" id="send-all-now-btn" onclick="sendAllScheduledNow(this)">Send All Now</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>TYPE</th><th>RECIPIENT(S)</th><th>SUBJECT</th><th>SCHEDULED FOR</th><th></th>
+        </tr></thead>
+        <tbody id="scheduled-tbody">
+          <tr><td colspan="5" style="text-align:center;color:var(--tan);padding:32px;">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="page" id="page-followups">
     <div class="page-header">
       <div><div class="page-title">Follow-up Queue</div><div class="page-sub">Sorted soonest first — amber = overdue</div></div>
@@ -624,7 +649,7 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="card-title">Review</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:18px;">
           <div class="metric" style="margin:0;"><div class="metric-label">Recipients</div><div class="metric-value" id="bulk-review-count">0</div></div>
-          <div class="metric" style="margin:0;"><div class="metric-label">Delay Between Sends</div><div class="metric-value" style="font-size:20px;">3 sec</div></div>
+          <div class="metric" style="margin:0;"><div class="metric-label">Delay Between Sends</div><div class="metric-value" style="font-size:20px;">18 sec</div></div>
           <div class="metric" style="margin:0;"><div class="metric-label">Estimated Duration</div><div class="metric-value" id="bulk-review-duration" style="font-size:20px;">—</div></div>
         </div>
         <div style="font-size:12px;color:var(--ember);padding:12px 16px;background:rgba(192,57,43,.08);border-left:3px solid var(--ember);border-radius:3px;margin-bottom:14px;">
@@ -637,7 +662,10 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
         <button class="btn btn-secondary" onclick="bulkGoToStep(2)">← Back</button>
-        <button class="btn btn-primary" onclick="bulkStartSend()" style="padding:12px 24px;font-size:13px;">Send Now →</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary" onclick="openSchedulePickerFor('bulk')" style="padding:12px 20px;font-size:13px;">Schedule…</button>
+          <button class="btn btn-primary" onclick="bulkStartSend()" style="padding:12px 24px;font-size:13px;">Send Now →</button>
+        </div>
       </div>
     </div>
 
@@ -688,6 +716,17 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       <div class="form-group">
         <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Template for this recipient <span style="color:var(--tan);font-weight:400;font-size:11px;text-transform:none;">(optional — overrides the bulk template)</span></span>
+        </label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="bulk-preview-template" onchange="bulkPreviewApplyTemplate()" style="flex:1;">
+            <option value="">— Use bulk template —</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="bulkPreviewClearTemplateOverride()" title="Remove per-recipient template override">✕ Clear</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Subject <span style="color:var(--ember);font-weight:400;font-size:11px;text-transform:none;" id="bulk-preview-edited-badge">(edited for this recipient)</span></span>
         </label>
         <input type="text" id="bulk-preview-subject" oninput="bulkPreviewMarkEdited()">
@@ -722,6 +761,7 @@ textarea { resize: vertical; min-height: 80px; }
       <button id="ins-tab-overview" onclick="showInsightsView('overview')" style="padding:8px 18px;background:none;border:none;border-bottom:2px solid var(--forest);margin-bottom:-2px;color:var(--forest);font-weight:600;font-size:13px;cursor:pointer;">Overview</button>
       <button id="ins-tab-industry" onclick="showInsightsView('industry')" style="padding:8px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--tan);font-size:13px;cursor:pointer;">By Industry</button>
       <button id="ins-tab-attribution" onclick="showInsightsView('attribution')" style="padding:8px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--tan);font-size:13px;cursor:pointer;">Attribution</button>
+      <button id="ins-tab-opens" onclick="showInsightsView('opens')" style="padding:8px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--tan);font-size:13px;cursor:pointer;">Opens</button>
     </div>
 
     <!-- ── Overview sub-view ── -->
@@ -876,6 +916,21 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
 
+    <!-- ── Opens sub-view ── -->
+    <div id="ins-view-opens" style="display:none;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tan);margin-bottom:12px;">WHO OPENED — MOST RECENT FIRST</div>
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>CONTACT</th><th>FIRM</th><th>SUBJECT</th><th>SENT</th><th>OPENED</th><th>LOCATION</th>
+          </tr></thead>
+          <tbody id="ins-opens-body">
+            <tr><td colspan="5" style="text-align:center;color:var(--tan);padding:24px;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div><!-- end page-insights -->
 
   <!-- ── AUTOMATION ── -->
@@ -909,15 +964,20 @@ textarea { resize: vertical; min-height: 80px; }
         </div>
         <div class="form-group" style="margin-bottom:0;">
           <label class="form-label">Follow-up Template *</label>
-          <select id="au-template" onchange="saveAutomationSettings()">
+          <select id="au-template" onchange="saveAutomationSettings();showAutomationTemplatePreview()">
             <option value="">— pick a template —</option>
           </select>
         </div>
       </div>
+      <div id="au-template-preview" style="display:none;margin-bottom:20px;background:var(--parch);border:1px solid var(--light);border-radius:4px;padding:16px;">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--tan);margin-bottom:8px;">Template Preview</div>
+        <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px;" id="au-tpl-subject"></div>
+        <pre id="au-tpl-body" style="font-family:'Epilogue',sans-serif;font-size:12px;color:var(--mid);line-height:1.6;white-space:pre-wrap;margin:0;"></pre>
+      </div>
       <div style="font-size:12px;color:var(--tan);line-height:1.7;background:var(--parch);padding:14px 18px;border-radius:3px;border-left:3px solid var(--forest-light);">
         <strong style="color:var(--forest);">How it works:</strong><br>
         Every 30 min, checks for contacts where: you sent an email ≥ <strong id="au-days-echo">2</strong> days ago · they haven't replied · they're not marked Booked or Not Interested · no follow-up has been sent yet for this contact.<br><br>
-        <strong style="color:var(--forest);">Guardrails:</strong> sends only Mon-Fri 9am-5pm Eastern · one follow-up per contact, ever · you can pause any individual contact from their detail panel · the initial email must be at least <strong id="au-days-echo-2">2</strong> days old.
+        <strong style="color:var(--forest);">Guardrails:</strong> sends only Mon-Fri 8am-5pm Eastern · one follow-up per contact, ever · you can pause any individual contact from their detail panel · the initial email must be at least <strong id="au-days-echo-2">2</strong> days old.
       </div>
     </div>
 
@@ -1145,6 +1205,7 @@ Use [display text](https://url.com) for hyperlinks, or just type a URL and it'll
     <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
       <span id="cp-status" style="font-size:12px;color:var(--tan);flex:1;"></span>
       <button class="btn btn-secondary" onclick="closeModal('compose-modal')">Cancel</button>
+      <button class="btn btn-secondary" onclick="openSchedulePickerFor('compose')">Schedule…</button>
       <button class="btn btn-primary" id="cp-send-btn" onclick="doComposeSend()">Send Email</button>
     </div>
   </div>
@@ -1185,12 +1246,60 @@ Use [display text](https://url.com) for hyperlinks, or just type a URL and it'll
     <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
       <span id="sem-status" style="font-size:12px;color:var(--tan);flex:1;"></span>
       <button class="btn btn-secondary" onclick="closeModal('send-email-modal')">Cancel</button>
+      <button class="btn btn-secondary" onclick="openSchedulePickerFor('sem')">Schedule…</button>
       <button class="btn btn-primary" id="sem-send-btn" onclick="doSendEmail()">Send Email</button>
     </div>
   </div>
 </div>
 
+<!-- SCHEDULE PICKER MODAL -->
+<div class="overlay" id="schedule-modal">
+  <div class="modal" style="max-width:420px;">
+    <button class="modal-close" onclick="closeModal('schedule-modal')">×</button>
+    <div class="modal-title">Schedule Email</div>
+    <p style="font-size:13px;color:var(--tan);margin-bottom:20px;">Choose when to send. The email will be sent automatically at the scheduled time.</p>
+    <div class="form-group">
+      <label class="form-label">Date &amp; Time</label>
+      <input type="datetime-local" id="schedule-dt-input" class="form-input" style="font-size:14px;" />
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+      <button class="btn btn-secondary btn-sm" onclick="scheduleQuick(1)">Tomorrow 8am</button>
+      <button class="btn btn-secondary btn-sm" onclick="scheduleQuick(2)">In 2 days</button>
+      <button class="btn btn-secondary btn-sm" onclick="scheduleQuick(5)">In 5 days</button>
+      <button class="btn btn-secondary btn-sm" onclick="scheduleQuick(7)">Next week</button>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('schedule-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSchedule()">Schedule Send</button>
+    </div>
+  </div>
+</div>
+
 <!-- FOLLOW-UP MODAL -->
+<div class="overlay" id="followup-preview-modal">
+  <div class="modal" style="max-width:680px;">
+    <button class="modal-close" onclick="closeModal('followup-preview-modal')">×</button>
+    <div class="modal-title">Follow-up Email Preview</div>
+    <div id="fu-preview-meta" style="font-size:12px;color:var(--tan);margin-bottom:10px;"></div>
+    <div style="border:1px solid var(--line);border-radius:3px;padding:14px 16px;background:#FAF8F3;max-height:60vh;overflow:auto;">
+      <div style="font-size:13px;color:var(--mid);margin-bottom:8px;"><strong>To:</strong> <span id="fu-preview-to"></span></div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:12px;color:var(--tan);display:block;margin-bottom:4px;">Subject</label>
+        <input type="text" id="fu-preview-subject" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:13px;font-family:inherit;">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--tan);display:block;margin-bottom:4px;">Body (edit as needed — the signature is added automatically on send)</label>
+        <textarea id="fu-preview-body" rows="18" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:3px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;color:#2C2418;resize:vertical;"></textarea>
+      </div>
+    </div>
+    <hr class="divider">
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('followup-preview-modal')">Close</button>
+      <button class="btn btn-primary" id="fu-preview-send-btn">Send Now</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="followup-modal">
   <div class="modal modal-sm">
     <button class="modal-close" onclick="closeModal('followup-modal')">×</button>
@@ -1256,6 +1365,7 @@ function nav(el, page) {
   if (page === 'automation') loadAutomation();
   if (page === 'bulk') loadBulk();
   if (page === 'insights') { showInsightsView('overview'); loadInsights(); }
+  if (page === 'scheduled') loadScheduled();
 }
 
 // ── INSIGHTS ─────────────────────────────────────────
@@ -1789,9 +1899,16 @@ function bulkRenderMerge(str, contact) {
   // Mirror renderMergeFields on the server — handles derived fields +
   // any arbitrary field on the contact object (incl. CSV extra columns)
   if (!str) return '';
-  const nameParts = (contact.name || contact.first_name || '').split(/\s+/).filter(Boolean);
-  const firstName = contact.first_name || nameParts[0] || contact.name || '';
-  const lastName = contact.last_name || (nameParts.length > 1 ? nameParts[nameParts.length - 1] : '');
+  const rawName = contact.name || contact.first_name || '';
+  const looksLikeEmail = /@/.test(rawName);
+  let derivedFirst = '';
+  if (looksLikeEmail) {
+    const local = rawName.split('@')[0].split(/[._-]/)[0] || '';
+    derivedFirst = local ? local.charAt(0).toUpperCase() + local.slice(1).toLowerCase() : '';
+  }
+  const nameParts = rawName.split(/\s+/).filter(Boolean);
+  const firstName = contact.first_name || derivedFirst || (looksLikeEmail ? '' : nameParts[0]) || (looksLikeEmail ? '' : rawName) || 'there';
+  const lastName = contact.last_name || (!looksLikeEmail && nameParts.length > 1 ? nameParts[nameParts.length - 1] : '');
   const industryLabels = { insurance: 'Insurance Agency', law: 'Law Firm', cpa: 'CPA', realestate: 'Real Estate Office', other: '' };
   const industryPlurals = { insurance: 'insurance agencies', law: 'law firms', cpa: 'accounting firms', realestate: 'real estate offices', other: 'small businesses' };
   const ind = industryLabels[contact.industry] || contact.industry || '';
@@ -1851,8 +1968,46 @@ function bulkRenderPreview() {
   document.getElementById('bulk-preview-edited-badge').style.display = ov ? 'inline' : 'none';
   document.getElementById('bulk-preview-body').scrollTop = 0;
 
+  // Populate template dropdown and reflect per-recipient template override
+  const tplSel = document.getElementById('bulk-preview-template');
+  if (tplSel) {
+    const tpls = window._bulkTemplates || [];
+    tplSel.innerHTML = '<option value="">— Use bulk template —</option>' +
+      tpls.map(t => `<option value="${t.id}">${escHtml(t.name)}</option>`).join('');
+    tplSel.value = ov?.templateId || '';
+  }
+
   // Track whether this render has been edited since it was opened
   window._bulk._previewPristine = { subject: rSubject, body: rBody, email: r.email };
+}
+
+// Apply a per-recipient template — renders its subject/body with merge fields
+// and stores as an override. This replaces any prior edits for this recipient.
+function bulkPreviewApplyTemplate() {
+  const pristine = window._bulk._previewPristine;
+  if (!pristine) return;
+  const tplId = document.getElementById('bulk-preview-template').value;
+  if (!tplId) return; // "Use bulk template" — clear handled separately
+  const tpl = (window._bulkTemplates || []).find(t => t.id === tplId);
+  if (!tpl) return;
+  const recipients = window._bulk.previewRecipients || bulkGetRecipients();
+  const idx = window._bulk.previewIdx || 0;
+  const r = recipients[idx];
+  const rSubject = bulkRenderMerge(tpl.subject || '', r);
+  const rBody    = bulkWithSignature(bulkRenderMerge(tpl.body || '', r));
+  window._bulk.overrides[r.email] = { subject: rSubject, body: rBody, templateId: tplId };
+  document.getElementById('bulk-preview-subject').value = rSubject;
+  document.getElementById('bulk-preview-body').value = rBody;
+  document.getElementById('bulk-preview-edited-badge').style.display = 'inline';
+  window._bulk._previewPristine = { subject: rSubject, body: rBody, email: r.email };
+}
+
+function bulkPreviewClearTemplateOverride() {
+  const pristine = window._bulk._previewPristine;
+  if (!pristine) return;
+  delete window._bulk.overrides[pristine.email];
+  document.getElementById('bulk-preview-template').value = '';
+  bulkRenderPreview();
 }
 
 // Saves any current preview edits to the overrides map (keyed by email)
@@ -1905,8 +2060,8 @@ function bulkRenderReview() {
   const skip = window._bulk.reviewSkip;
   const activeCount = allRecipients.filter(r => !skip.has(r.email)).length;
   document.getElementById('bulk-review-count').textContent = activeCount;
-  const mins = Math.ceil((activeCount * 3) / 60);
-  document.getElementById('bulk-review-duration').textContent = mins >= 1 ? `~${mins} min` : `~${activeCount * 3}s`;
+  const mins = Math.ceil((activeCount * 18) / 60);
+  document.getElementById('bulk-review-duration').textContent = mins >= 1 ? `~${mins} min` : `~${activeCount * 18}s`;
 
   const list = document.getElementById('bulk-review-list');
   list.innerHTML = `
@@ -1988,7 +2143,7 @@ async function bulkStartSend() {
   document.getElementById('bulk-stop-btn').style.display = 'inline-block';
 
   // Build request payload
-  const payload = { subject, body, delayMs: 3000 };
+  const payload = { subject, body, delayMs: 18000 };
   const overrides = window._bulk.overrides;
 
   const injectOverrides = (contactLike) => {
@@ -2160,22 +2315,24 @@ async function loadAutomation() {
 
   document.getElementById('au-enabled').checked = settings.enabled;
   document.getElementById('au-enabled-label').textContent = settings.enabled
-    ? 'On — follow-ups auto-send during business hours (Mon-Fri 9am-5pm ET)'
+    ? 'On — follow-ups auto-send during business hours (Mon-Fri 8am-5pm ET)'
     : 'Off — no follow-ups will be sent';
   document.getElementById('au-days').value = settings.delayDays || 2;
   document.getElementById('au-days-echo').textContent = settings.delayDays || 2;
   document.getElementById('au-days-echo-2').textContent = settings.delayDays || 2;
 
+  window._automationTemplates = templates;
   const sel = document.getElementById('au-template');
   sel.innerHTML = '<option value="">— pick a template —</option>' +
     templates.map(t => `<option value="${t.id}"${t.id === settings.templateId ? ' selected' : ''}>${escHtml(t.name)}</option>`).join('');
+  showAutomationTemplatePreview();
 
   const qDiv = document.getElementById('au-queue');
   const c = preview.candidates || [];
   const within = preview.within_business_hours;
   const bizBanner = within
-    ? '<div style="font-size:12px;color:var(--forest);padding:6px 12px;background:#E1F5EE;border-radius:3px;margin-bottom:14px;">✓ Currently within business hours (Mon-Fri 9am-5pm ET)</div>'
-    : '<div style="font-size:12px;color:var(--tan);padding:6px 12px;background:var(--parch);border-radius:3px;margin-bottom:14px;">⏸ Outside business hours — no sends until next Mon-Fri 9am ET</div>';
+    ? '<div style="font-size:12px;color:var(--forest);padding:6px 12px;background:#E1F5EE;border-radius:3px;margin-bottom:14px;">✓ Currently within business hours (Mon-Fri 8am-5pm ET)</div>'
+    : '<div style="font-size:12px;color:var(--tan);padding:6px 12px;background:var(--parch);border-radius:3px;margin-bottom:14px;">⏸ Outside business hours — no sends until next Mon-Fri 8am ET</div>';
 
   if (!c.length) {
     const diag = preview.diagnostics || {};
@@ -2195,19 +2352,152 @@ async function loadAutomation() {
     return;
   }
   qDiv.innerHTML = bizBanner + `
+    <div id="fu-bulk-bar" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:8px 12px;background:var(--parch);border-radius:3px;font-size:12px;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <input type="checkbox" id="fu-select-all" onchange="fuToggleAll(this.checked)"> Select all
+      </label>
+      <span id="fu-selected-count" style="color:var(--tan);">0 selected</span>
+      <span style="flex:1;"></span>
+      <span style="color:var(--tan);">Delay between sends:</span>
+      <input type="number" id="fu-bulk-delay" value="18" min="5" max="120" style="width:60px;padding:4px 6px;border:1px solid var(--line);border-radius:3px;font-size:12px;"> sec
+      <button class="btn btn-primary btn-sm" id="fu-bulk-send-btn" onclick="sendFollowUpsBulk()" disabled>Send Selected</button>
+    </div>
+    <div id="fu-bulk-progress" style="display:none;font-size:12px;color:var(--mid);margin-bottom:10px;padding:8px 12px;background:#E1F5EE;border-radius:3px;"></div>
     <table class="data-table">
-      <thead><tr><th>Name</th><th>Firm</th><th>Original Sent</th><th>Days Elapsed</th><th></th></tr></thead>
+      <thead><tr><th style="width:28px;"></th><th>Name</th><th>Firm</th><th>Original Sent</th><th>Days Elapsed</th><th></th></tr></thead>
       <tbody>${c.map(x => {
-        const days = Math.floor((Date.now() - new Date(x.last_sent_at + 'Z').getTime()) / (1000*60*60*24));
-        return `<tr>
+        const _rawTs = x.last_sent_at || '';
+        const _iso = _rawTs.endsWith('Z') ? _rawTs : (_rawTs.includes('T') ? _rawTs + 'Z' : _rawTs.replace(' ', 'T') + 'Z');
+        const days = Math.floor((Date.now() - new Date(_iso).getTime()) / (1000*60*60*24));
+        return `<tr data-fu-id="${x.id}">
+          <td><input type="checkbox" class="fu-row-check" value="${x.id}" onchange="fuUpdateSelectedCount()"></td>
           <td style="font-weight:500;cursor:pointer;" onclick="openPanel('${x.id}')">${escHtml(x.name)}</td>
           <td style="font-size:12px;color:var(--mid);">${escHtml(x.firm || '—')}</td>
           <td style="font-size:12px;color:var(--tan);">${fmtDate(x.last_sent_at)}</td>
           <td style="font-size:12px;">${days} day${days===1?'':'s'} ago</td>
-          <td style="text-align:right;"><button class="btn btn-danger" onclick="pauseFollowup('${x.id}', true)">Skip</button></td>
+          <td style="text-align:right;display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-secondary btn-sm" onclick="previewFollowUp('${x.id}')">Preview</button>
+            <button class="btn btn-primary btn-sm" onclick="sendFollowUpNow('${x.id}',this)">Send Now</button>
+            <button class="btn btn-danger btn-sm" onclick="pauseFollowup('${x.id}', true)">Skip</button>
+          </td>
         </tr>`;
       }).join('')}</tbody>
     </table>`;
+}
+
+function fuToggleAll(checked) {
+  document.querySelectorAll('.fu-row-check').forEach(cb => { cb.checked = checked; });
+  fuUpdateSelectedCount();
+}
+
+function fuUpdateSelectedCount() {
+  const n = document.querySelectorAll('.fu-row-check:checked').length;
+  const lbl = document.getElementById('fu-selected-count');
+  if (lbl) lbl.textContent = n + ' selected';
+  const btn = document.getElementById('fu-bulk-send-btn');
+  if (btn) btn.disabled = n === 0;
+}
+
+async function sendFollowUpsBulk() {
+  const templateId = document.getElementById('au-template').value;
+  if (!templateId) return alert('Please select a follow-up template first.');
+  const ids = [...document.querySelectorAll('.fu-row-check:checked')].map(cb => cb.value);
+  if (!ids.length) return;
+  const delaySec = Math.max(5, parseInt(document.getElementById('fu-bulk-delay').value, 10) || 18);
+  if (!confirm(`Send ${ids.length} follow-up${ids.length===1?'':'s'} with a ${delaySec}s delay between each? (~${Math.ceil(ids.length*delaySec/60)} min total)`)) return;
+
+  const btn = document.getElementById('fu-bulk-send-btn');
+  const progress = document.getElementById('fu-bulk-progress');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  progress.style.display = 'block';
+  let sent = 0, failed = 0;
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i];
+    progress.textContent = `Sending ${i+1} of ${ids.length}… (sent ${sent}, failed ${failed})`;
+    try {
+      await post('/api/email/followup-send/' + id, { templateId });
+      sent++;
+      // fade the row to show it was processed
+      const row = document.querySelector(`tr[data-fu-id="${id}"]`);
+      if (row) row.style.opacity = '0.4';
+    } catch (e) {
+      failed++;
+      console.warn('bulk follow-up send failed for', id, e.message);
+    }
+    if (i < ids.length - 1) await new Promise(r => setTimeout(r, delaySec * 1000));
+  }
+  progress.textContent = `Done — sent ${sent}, failed ${failed}. Refreshing queue…`;
+  btn.textContent = 'Send Selected';
+  setTimeout(() => loadAutomation(), 1200);
+}
+
+async function sendFollowUpNow(contactId, btn) {
+  const templateId = document.getElementById('au-template').value;
+  if (!templateId) return alert('Please select a follow-up template first.');
+  if (!confirm('Send follow-up to this contact now?')) return;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    await post('/api/email/followup-send/' + contactId, { templateId });
+    loadAutomation();
+  } catch (e) {
+    alert('Failed to send: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Send Now';
+  }
+}
+
+async function previewFollowUp(contactId) {
+  const templateId = document.getElementById('au-template').value;
+  if (!templateId) return alert('Please select a follow-up template first.');
+  try {
+    const data = await api('/api/email/followup-preview-email/' + contactId + '?templateId=' + encodeURIComponent(templateId));
+    document.getElementById('fu-preview-to').textContent = data.to;
+    document.getElementById('fu-preview-subject').value = data.subject;
+    document.getElementById('fu-preview-body').value = data.body;
+    document.getElementById('fu-preview-meta').textContent = data.inReplyTo
+      ? 'Will be sent as a reply (In-Reply-To: ' + data.inReplyTo + ')'
+      : 'Will be sent as a new message (no original found to reply to)';
+    const sendBtn = document.getElementById('fu-preview-send-btn');
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send Now';
+    sendBtn.onclick = async () => {
+      const editedSubject = document.getElementById('fu-preview-subject').value.trim();
+      const editedBody = document.getElementById('fu-preview-body').value;
+      if (!editedSubject || !editedBody.trim()) return alert('Subject and body are required.');
+      if (!confirm('Send follow-up to ' + data.to + ' now?')) return;
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending…';
+      try {
+        await post('/api/email/followup-send/' + contactId, {
+          templateId,
+          subject: editedSubject,
+          body: editedBody,
+        });
+        closeModal('followup-preview-modal');
+        loadAutomation();
+      } catch (e) {
+        alert('Failed to send: ' + e.message);
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send Now';
+      }
+    };
+    document.getElementById('followup-preview-modal').classList.add('open');
+  } catch (e) {
+    alert('Failed to load preview: ' + e.message);
+  }
+}
+
+function showAutomationTemplatePreview() {
+  const sel = document.getElementById('au-template');
+  const preview = document.getElementById('au-template-preview');
+  const id = sel?.value;
+  const tpl = (window._automationTemplates || []).find(t => t.id === id);
+  if (!tpl) { preview.style.display = 'none'; return; }
+  document.getElementById('au-tpl-subject').textContent = 'Subject: ' + (tpl.subject || '');
+  document.getElementById('au-tpl-body').textContent = tpl.body || '';
+  preview.style.display = '';
 }
 
 async function saveAutomationSettings() {
@@ -2223,7 +2513,7 @@ async function saveAutomationSettings() {
 
   await post('/api/email/followup-settings', { enabled, delayDays, templateId });
   document.getElementById('au-enabled-label').textContent = enabled
-    ? 'On — follow-ups auto-send during business hours (Mon-Fri 9am-5pm ET)'
+    ? 'On — follow-ups auto-send during business hours (Mon-Fri 8am-5pm ET)'
     : 'Off — no follow-ups will be sent';
   document.getElementById('au-days-echo').textContent = delayDays;
   document.getElementById('au-days-echo-2').textContent = delayDays;
@@ -2323,7 +2613,7 @@ function applyTemplate(template, contact) {
 }
 
 async function logout() {
-  await post('/api/auth/admin/logout', {});
+  try { await post('/api/auth/admin/logout', {}); } catch (_) {}
   window.location.href = '/internal/login';
 }
 
@@ -2572,7 +2862,7 @@ function renderActivity(a, idx) {
         ` : ''}
       ` : ''}
       <div class="activity-meta">${fmtDate(a.logged_at)}</div>
-      ${a.type === 'email_sent' && a.opened_at ? `<span class="open-badge">Opened · ${fmtDate(a.opened_at)}${a.open_count > 1 ? ` (${a.open_count}×)` : ''}</span>` : ''}
+      ${a.type === 'email_sent' && a.opened_at ? `<span class="open-badge">Opened · ${fmtDate(a.opened_at)}${a.open_count > 1 ? ` (${a.open_count}×)` : ''}${a.open_location ? ` · ${a.open_location}` : ''}</span>` : ''}
     </div>`;
 }
 
@@ -2908,7 +3198,7 @@ async function loadOutreach() {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--tan);padding:32px;">${empty}</td></tr>`;
     return;
   }
-  const statuses = ['None', 'Sent', 'Opened', 'Replied', 'Replied — Interested', 'Replied — Not Now', 'Replied — Not Interested', 'Booked', 'Unsubscribed', 'Bounced'];
+  const statuses = ['None', 'Sent', 'Opened', 'Replied', 'Replied — Interested', 'Replied — Not Now', 'Replied — Not Interested', 'Booked', 'Unsubscribed', 'Bounced', 'Do Not Contact'];
   tbody.innerHTML = data.map(c => `
     <tr>
       <td style="font-weight:500;cursor:pointer;" onclick="openPanel('${c.id}')">${c.name}</td>
@@ -3070,7 +3360,7 @@ let currentInsightsView = 'overview';
 
 function showInsightsView(view) {
   currentInsightsView = view;
-  ['overview','industry','attribution'].forEach(v => {
+  ['overview','industry','attribution','opens'].forEach(v => {
     document.getElementById('ins-view-' + v).style.display = v === view ? '' : 'none';
     const tab = document.getElementById('ins-tab-' + v);
     tab.style.borderBottomColor = v === view ? 'var(--forest)' : 'transparent';
@@ -3079,12 +3369,39 @@ function showInsightsView(view) {
   });
   if (view === 'industry') loadInsightsByIndustry();
   if (view === 'attribution') loadInsightsAttribution();
+  if (view === 'opens') loadInsightsOpens();
 }
 
 function loadInsightsCurrentView() {
   if (currentInsightsView === 'overview') loadInsights();
   else if (currentInsightsView === 'industry') loadInsightsByIndustry();
   else if (currentInsightsView === 'attribution') loadInsightsAttribution();
+  else if (currentInsightsView === 'opens') loadInsightsOpens();
+}
+
+async function loadInsightsOpens() {
+  const tbody = document.getElementById('ins-opens-body');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--tan);padding:24px;">Loading…</td></tr>';
+  try {
+    const rows = await fetch('/api/crm/insights/opens').then(r => r.json());
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--tan);padding:24px;">No opens recorded yet.</td></tr>';
+      return;
+    }
+    const fmtDate = iso => iso ? new Date(iso).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : '—';
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td><a href="#" onclick="showContact('${r.contact_id}');return false;" style="color:var(--forest);font-weight:600;">${esc(r.contact_name)}</a></td>
+        <td>${esc(r.firm || '—')}</td>
+        <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.subject || '(no subject)')}</td>
+        <td style="color:var(--tan);font-size:12px;">${fmtDate(r.sent_at)}</td>
+        <td style="color:var(--forest);font-weight:600;">${fmtDate(r.opened_at)}</td>
+        <td style="color:var(--tan);font-size:12px;">${esc(r.open_location || '—')}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:red;padding:24px;">Error loading data.</td></tr>';
+  }
 }
 
 async function loadInsightsByIndustry() {
@@ -3346,6 +3663,153 @@ async function saveCampaign(status) {
 function esc(str) {
   if (str == null) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── SCHEDULE ─────────────────────────────────────────
+let _scheduleFor = null; // 'compose' | 'sem' | 'bulk'
+
+function openSchedulePickerFor(source) {
+  _scheduleFor = source;
+  // Default to tomorrow 9am
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setHours(8, 0, 0, 0);
+  document.getElementById('schedule-dt-input').value = toLocalDatetimeValue(d);
+  document.getElementById('schedule-modal').classList.add('open');
+}
+
+function scheduleQuick(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  d.setHours(8, 0, 0, 0);
+  document.getElementById('schedule-dt-input').value = toLocalDatetimeValue(d);
+}
+
+function toLocalDatetimeValue(d) {
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+async function confirmSchedule() {
+  const val = document.getElementById('schedule-dt-input').value;
+  if (!val) return alert('Please pick a date and time.');
+  const scheduledAt = new Date(val).toISOString();
+
+  try {
+    if (_scheduleFor === 'compose') {
+      const contactId = document.getElementById('cp-contact-id')?.value;
+      const subject = document.getElementById('cp-subject').value.trim();
+      const body = document.getElementById('cp-body').value.trim();
+      if (!subject || !body) return alert('Subject and body are required.');
+      await post('/api/schedule/single', { contactId, subject, body, scheduledAt });
+      closeModal('schedule-modal');
+      closeModal('compose-modal');
+      alert('Email scheduled ✓');
+
+    } else if (_scheduleFor === 'sem') {
+      const contactId = document.getElementById('sem-contact-id').value;
+      const subject = document.getElementById('sem-subject').value.trim();
+      const body = document.getElementById('sem-body').value.trim();
+      if (!subject || !body) return alert('Subject and body are required.');
+      await post('/api/schedule/single', { contactId, subject, body, scheduledAt });
+      closeModal('schedule-modal');
+      closeModal('send-email-modal');
+      alert('Email scheduled ✓');
+
+    } else if (_scheduleFor === 'bulk') {
+      const rawSubject = document.getElementById('bulk-subject')?.value?.trim() || '';
+      const rawBody = document.getElementById('bulk-body')?.value?.trim() || '';
+      const contacts = bulkGetRecipients().map(c => ({
+        id: c.id, name: c.name, email: c.email, firm: c.firm, industry: c.industry,
+        _final_subject: bulkRenderMerge(rawSubject, c),
+        _final_body: bulkRenderMerge(rawBody, c),
+      }));
+      const subject = rawSubject;
+      const body = rawBody;
+      if (!contacts.length) return alert('No recipients selected.');
+      if (!subject || !body) return alert('Subject and body are required.');
+      const r = await post('/api/schedule/bulk', { contacts, subject, body, scheduledAt });
+      closeModal('schedule-modal');
+      alert(`Bulk email scheduled for ${r.count} recipient${r.count !== 1 ? 's' : ''} ✓`);
+      nav(document.querySelector('.nav-item[onclick*="scheduled"]'), 'scheduled');
+    }
+  } catch (e) {
+    alert('Failed to schedule: ' + e.message);
+  }
+}
+
+async function loadScheduled() {
+  const tbody = document.getElementById('scheduled-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tan);padding:32px;">Loading…</td></tr>';
+  try {
+    const rows = await api('/api/schedule');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tan);padding:32px;">No scheduled emails.</td></tr>';
+      return;
+    }
+    const fmt = iso => new Date(iso).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+    tbody.innerHTML = rows.map(r => {
+      const recipient = r.type === 'bulk'
+        ? `<span style="color:var(--forest);font-weight:600;">${(r.contacts||[]).length} contacts</span>`
+        : `<span style="color:var(--forest);">${esc(r.contact_name || r.contact_email || '—')}</span>`;
+      return `<tr>
+        <td><span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;background:${r.type==='bulk'?'var(--forest)':'var(--ember)'};color:var(--white);padding:2px 7px;border-radius:3px;">${r.type}</span></td>
+        <td>${recipient}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.subject)}</td>
+        <td style="font-weight:600;color:var(--forest);">${fmt(r.scheduled_at)}</td>
+        <td style="display:flex;gap:6px;">
+          <button class="btn btn-primary btn-sm" onclick="sendOneScheduledNow('${r.id}',this)">Send Now</button>
+          <button class="btn btn-secondary btn-sm" onclick="cancelScheduled('${r.id}',this)">Cancel</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:red;padding:32px;">Error loading scheduled emails.</td></tr>';
+  }
+}
+
+async function sendOneScheduledNow(id, btn) {
+  if (!confirm('Send this email now?')) return;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    await post('/api/schedule/' + id + '/send-now');
+    loadScheduled();
+  } catch (e) {
+    alert('Failed: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Send Now';
+  }
+}
+
+async function sendAllScheduledNow(btn) {
+  const count = document.querySelectorAll('#scheduled-tbody tr').length;
+  if (!confirm('Send all pending scheduled emails right now?')) return;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    await post('/api/schedule/send-all-now');
+    alert('All scheduled emails sent ✓');
+    loadScheduled();
+  } catch (e) {
+    alert('Failed: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send All Now';
+  }
+}
+
+async function cancelScheduled(id, btn) {
+  if (!confirm('Cancel this scheduled email?')) return;
+  btn.disabled = true;
+  try {
+    await api('/api/schedule/' + id, { method: 'DELETE' });
+    loadScheduled();
+  } catch (e) {
+    alert('Failed to cancel: ' + e.message);
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
