@@ -140,6 +140,35 @@
         ]
       }
     </script>
+    <!-- Schema: WebSite + SearchAction -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://www.sidecaradvisory.com/#website",
+        "name": "Sidecar Advisory",
+        "url": "https://www.sidecaradvisory.com",
+        "publisher": { "@id": "https://www.sidecaradvisory.com/#organization" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://www.sidecaradvisory.com/?s={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <!-- Schema: BreadcrumbList (homepage) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.sidecaradvisory.com/" }
+        ]
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
