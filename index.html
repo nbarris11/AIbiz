@@ -26,85 +26,118 @@
     <meta name="twitter:title" content="AI Advisory for Metro Detroit Professional Service Firms | Sidecar Advisory" />
     <meta name="twitter:description" content="Practical AI help for Metro Detroit insurance agencies, law firms, accountants, and real estate offices. Save 10+ hours a week. Free Clarity Session — $5,000 savings guaranteed." />
     <meta name="twitter:image" content="https://www.sidecaradvisory.com/assets/og-image.png" />
-    <!-- Schema: Organization -->
+    <!-- Schema: @graph (Organization, LocalBusiness, Services, Person) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Sidecar Advisory LLC",
-        "url": "https://www.sidecaradvisory.com",
-        "logo": "https://www.sidecaradvisory.com/assets/logo.png",
-        "founder": {
-          "@type": "Person",
-          "name": "Neil Barris"
-        },
-        "areaServed": {
-          "@type": "Place",
-          "name": "Metro Detroit, Michigan"
-        },
-        "email": "hello@sidecaradvisory.com",
-        "description": "AI implementation for Metro Detroit small professional service firms."
-      }
-    </script>
-    <!-- Schema: Services -->
-    <script type="application/ld+json">
-      [
-        {
-          "@context": "https://schema.org",
-          "@type": "Service",
-          "name": "AI Clarity Session",
-          "provider": { "@type": "Organization", "name": "Sidecar Advisory LLC" },
-          "description": "A free 45-minute working session to review workflows, identify at least $5,000 in annual savings, and deliver a prioritized list of highest-ROI AI improvements. If the savings threshold is not met, you pay nothing.",
-          "areaServed": "Metro Detroit, Michigan",
-          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "Service",
-          "name": "AI Starter Pack",
-          "provider": { "@type": "Organization", "name": "Sidecar Advisory LLC" },
-          "description": "A focused 30-day implementation to get the first practical workflow improvements live. Best for 3–5 recurring admin bottlenecks.",
-          "areaServed": "Metro Detroit, Michigan",
-          "offers": { "@type": "Offer", "lowPrice": "2500", "highPrice": "3500", "priceCurrency": "USD" }
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "Service",
-          "name": "Full Practice Automation",
-          "provider": { "@type": "Organization", "name": "Sidecar Advisory LLC" },
-          "description": "Broader AI and automation implementation for professional service firms with more complex or advanced workflow needs.",
-          "areaServed": "Metro Detroit, Michigan"
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "Service",
-          "name": "AI Co-Pilot Retainer",
-          "provider": { "@type": "Organization", "name": "Sidecar Advisory LLC" },
-          "description": "Month-to-month AI implementation support. Monitoring, tuning, new automations, and ongoing guidance after the initial engagement.",
-          "areaServed": "Metro Detroit, Michigan",
-          "offers": { "@type": "Offer", "lowPrice": "750", "highPrice": "2500", "priceCurrency": "USD" }
-        }
-      ]
-    </script>
-    <!-- Schema: LocalBusiness -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "name": "Sidecar Advisory",
-        "description": "AI advisory and workflow automation for professional service firms in Metro Detroit.",
-        "url": "https://www.sidecaradvisory.com",
-        "email": "hello@sidecaradvisory.com",
-        "areaServed": {
-          "@type": "Place",
-          "name": "Metro Detroit, Michigan"
-        },
-        "serviceType": ["AI Consulting", "Workflow Automation", "Business Process Automation"],
-        "priceRange": "$$",
-        "founder": {
-          "@type": "Person",
-          "name": "Neil Barris"
-        }
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://www.sidecaradvisory.com/#organization",
+            "name": "Sidecar Advisory LLC",
+            "alternateName": "Sidecar Advisory",
+            "url": "https://www.sidecaradvisory.com",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://www.sidecaradvisory.com/assets/logo.png"
+            },
+            "founder": {
+              "@type": "Person",
+              "@id": "https://www.sidecaradvisory.com/#neil-barris",
+              "name": "Neil Barris"
+            },
+            "areaServed": {
+              "@type": "Place",
+              "name": "Metro Detroit, Michigan"
+            },
+            "email": "hello@sidecaradvisory.com",
+            "description": "Fractional AI advisory and workflow automation for Metro Detroit small professional service firms — insurance agencies, law firms, accounting practices, and real estate offices.",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "email": "hello@sidecaradvisory.com",
+              "contactType": "sales",
+              "areaServed": "US-MI",
+              "availableLanguage": "English"
+            },
+            "sameAs": []
+          },
+          {
+            "@type": "LocalBusiness",
+            "@id": "https://www.sidecaradvisory.com/#local-business",
+            "name": "Sidecar Advisory LLC",
+            "alternateName": "Sidecar Advisory",
+            "description": "Fractional AI advisory and workflow automation for professional service firms in Metro Detroit.",
+            "url": "https://www.sidecaradvisory.com",
+            "email": "hello@sidecaradvisory.com",
+            "areaServed": {
+              "@type": "Place",
+              "name": "Metro Detroit, Michigan"
+            },
+            "serviceType": ["AI Consulting", "Workflow Automation", "Business Process Automation", "Fractional AI Advisory"],
+            "priceRange": "$$",
+            "parentOrganization": { "@id": "https://www.sidecaradvisory.com/#organization" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://www.sidecaradvisory.com/#neil-barris",
+            "name": "Neil Barris",
+            "jobTitle": "Fractional AI Advisor",
+            "worksFor": { "@id": "https://www.sidecaradvisory.com/#organization" },
+            "description": "Neil Barris is a fractional AI advisor helping Metro Detroit small professional service firms implement practical AI and workflow automation.",
+            "email": "hello@sidecaradvisory.com",
+            "knowsAbout": ["AI implementation", "Workflow automation", "Fractional AI advisory", "Professional services operations"]
+          },
+          {
+            "@type": "Service",
+            "name": "AI Clarity Session",
+            "serviceType": "AI Advisory",
+            "url": "https://www.sidecaradvisory.com/",
+            "provider": { "@id": "https://www.sidecaradvisory.com/#organization" },
+            "description": "A free 45-minute working session to review workflows, identify at least $5,000 in annual savings, and deliver a prioritized list of highest-ROI AI improvements. If the savings threshold is not met, you pay nothing.",
+            "areaServed": "Metro Detroit, Michigan",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+          },
+          {
+            "@type": "Service",
+            "name": "AI Starter Pack",
+            "serviceType": "AI Implementation",
+            "url": "https://www.sidecaradvisory.com/",
+            "provider": { "@id": "https://www.sidecaradvisory.com/#organization" },
+            "description": "A focused 30-day implementation to get the first practical workflow improvements live. Best for 3–5 recurring admin bottlenecks.",
+            "areaServed": "Metro Detroit, Michigan",
+            "offers": { "@type": "Offer", "lowPrice": "2500", "highPrice": "3500", "priceCurrency": "USD" }
+          },
+          {
+            "@type": "Service",
+            "name": "AI Co-Pilot Retainer",
+            "serviceType": "Fractional AI Advisory",
+            "url": "https://www.sidecaradvisory.com/",
+            "provider": { "@id": "https://www.sidecaradvisory.com/#organization" },
+            "description": "Month-to-month AI implementation support. Monitoring, tuning, new automations, and ongoing guidance after the initial engagement.",
+            "areaServed": "Metro Detroit, Michigan",
+            "offers": { "@type": "Offer", "lowPrice": "750", "highPrice": "2500", "priceCurrency": "USD" }
+          },
+          {
+            "@type": "Service",
+            "name": "Full Practice Automation",
+            "serviceType": "AI Implementation",
+            "url": "https://www.sidecaradvisory.com/",
+            "provider": { "@id": "https://www.sidecaradvisory.com/#organization" },
+            "description": "Broader AI and automation implementation for professional service firms with more complex or advanced workflow needs.",
+            "areaServed": "Metro Detroit, Michigan",
+            "offers": { "@type": "Offer", "lowPrice": "5000", "highPrice": "9000", "priceCurrency": "USD" }
+          },
+          {
+            "@type": "Service",
+            "name": "Custom AI Integration",
+            "serviceType": "AI Implementation",
+            "url": "https://www.sidecaradvisory.com/",
+            "provider": { "@id": "https://www.sidecaradvisory.com/#organization" },
+            "description": "Custom AI and automation build for firms with specialized or advanced integration needs beyond standard workflow tooling.",
+            "areaServed": "Metro Detroit, Michigan",
+            "offers": { "@type": "Offer", "price": "10000", "priceCurrency": "USD" }
+          }
+        ]
       }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
