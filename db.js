@@ -83,9 +83,14 @@ db.exec(`
 // Migration: add source_message_id column to activities if it doesn't exist
 try {
   const cols = db.prepare('PRAGMA table_info(activities)').all();
-  if (!cols.some(c => c.name === 'source_message_id')) {
+  const colNames = cols.map(c => c.name);
+  if (!colNames.includes('source_message_id')) {
     db.exec('ALTER TABLE activities ADD COLUMN source_message_id TEXT');
     console.log('Migrated: added source_message_id to activities');
+  }
+  if (!colNames.includes('sent_message_id')) {
+    db.exec('ALTER TABLE activities ADD COLUMN sent_message_id TEXT');
+    console.log('Migrated: added sent_message_id to activities');
   }
 } catch (e) { /* ignore */ }
 
@@ -117,6 +122,9 @@ try {
   }
   if (!actCols.includes('open_count')) {
     db.exec('ALTER TABLE activities ADD COLUMN open_count INTEGER NOT NULL DEFAULT 0');
+  }
+  if (!actCols.includes('open_location')) {
+    db.exec('ALTER TABLE activities ADD COLUMN open_location TEXT');
   }
 } catch (e) { /* ignore */ }
 
@@ -187,6 +195,20 @@ try {
     db.exec('ALTER TABLE activities ADD COLUMN step_number INTEGER');
     console.log('Migrated: added step_number to activities');
   }
+} catch (e) { /* ignore */ }
+
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS scheduled_emails (
+    id TEXT PRIMARY KEY,
+    type TEXT NOT NULL DEFAULT 'single',
+    contact_id TEXT REFERENCES contacts(id) ON DELETE CASCADE,
+    contacts_json TEXT,
+    subject TEXT NOT NULL,
+    body TEXT NOT NULL,
+    scheduled_at TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`);
 } catch (e) { /* ignore */ }
 
 // Seed default templates on first run (only if table is empty).
@@ -445,6 +467,293 @@ Worth a reply to see if it makes sense? sidecaradvisory.com`,
 ];
 
 for (const t of industryTemplates) {
+  const exists = db.prepare('SELECT id FROM email_templates WHERE name = ?').get(t.name);
+  if (!exists) {
+    db.prepare('INSERT INTO email_templates (id, name, subject, body) VALUES (?, ?, ?, ?)')
+      .run(uuidv4(), t.name, t.subject, t.body);
+  }
+}
+
+// Reply Method framework — update cold outreach templates to new format.
+// Runs every startup (safe — only updates subject/body, never touches IDs or tracking data).
+const replyMethodUpdates = [
+  {
+    name: 'Insurance Agencies - Cold Outreach',
+    subject: 'renewals',
+    body: `Hi {{firstName}},
+
+Noticed {{firm}} runs independent lines out of [city]. That usually means your team spends two weeks of every month buried in renewal prep.
+
+Most independent agencies I sit down with around Metro Detroit are still pulling loss runs, rewriting summaries, and chasing client docs by hand. That's where the 8 to 12 hour weekly leak hides.
+
+Can I show you the 2 to 3 places this usually shows up in an agency your size?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Insurance Agency — Renewal Follow-up',
+    subject: 'commercial renewals',
+    body: `Hi {{firstName}},
+
+Saw {{firm}} handles both commercial and personal lines out of [city]. That mix usually means your CSRs spend two weeks of every month on renewal prep.
+
+Most independent agencies I sit down with are still pulling loss runs by hand, rewriting summaries, and chasing docs by email. That's where 8 to 12 hours a week disappears.
+
+Can I show you the 2 to 3 places it usually hides in an agency your size?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Law Firms - Cold Out Reach',
+    subject: 'intake backlog',
+    body: `Hi {{firstName}},
+
+Came across {{firm}} while looking at [practice area] practices in [city]. For a solo or small firm, intake is usually where the billable hours go to die.
+
+The questionnaires, the doc chase, the back-and-forth before the first real meeting. Most attorneys I talk to are losing 5 to 8 billable hours a week to that work.
+
+Can I show you the 3 spots most [practice area] solos pull that time back?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Law Firm — Intake Workflow',
+    subject: 'billable hours',
+    body: `Hi {{firstName}},
+
+Noticed {{firm}} focuses on estate planning out of [city]. For a solo or two-attorney shop, intake is usually where the billable hours go to die.
+
+The questionnaires, the doc chase, the back-and-forth before the first real meeting. Most attorneys I talk to are losing 5 to 8 billable hours a week to that work.
+
+Worth a quick look at the 3 spots most estate planning solos pull that time back?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'CPA / Accounting Firms - Cold Outreach',
+    subject: '1040 prep',
+    body: `Hi {{firstName}},
+
+Came across {{firm}} while looking at accounting firms in [city]. For a firm your size, tax season is usually when the document chase gets out of control.
+
+Most small CPA firms I sit down with around Metro Detroit are still chasing client docs by email, re-sending engagement letters manually, and running deadline reminders by hand. That's where 6 to 10 hours a week disappears.
+
+Want me to send the one-page breakdown of where those hours typically hide during 1040 season?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'CPA Firm — Document Workflow',
+    subject: 'client document chase',
+    body: `Hi {{firstName}},
+
+Noticed {{firm}} has [X] staff handling clients out of [city]. For a firm that size, someone is spending 4 to 6 hours a week just chasing documents during busy season.
+
+Most small CPA firms I sit down with are still doing this by email, manually, every single year. Engagement letters, 1099 collection, signed returns.
+
+Want me to send the one-page breakdown of where those hours hide?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Real Estate Offices - Cold Outreach',
+    subject: 'listing prep',
+    body: `Hi {{firstName}},
+
+Came across {{firm}} while looking at independent brokerages in [city]. For a boutique shop, listing prep and lead follow-up are usually where the admin hours disappear.
+
+Most independent brokerages I work with are still pulling comps, building CMAs, and following up on leads by hand. That adds up fast when you're running [X] agents.
+
+Can I show you the 3 places listing prep usually eats a full day?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Real Estate Brokerage — Lead Follow-up',
+    subject: 'lead response',
+    body: `Hi {{firstName}},
+
+Saw {{firm}} is running [X] agents out of [city]. At that size, lead response speed and transaction coordination are usually where the hours go.
+
+Most independent brokerages I work with are still doing lead follow-up by hand. Under-5-minute response is the bar. Most shops miss it by hours.
+
+Want me to send the breakdown of the 3 spots lead response usually breaks down at your volume?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Cold Outreach — Clarity Session',
+    subject: '[renewal prep / intake backlog / 1040 prep / listing prep]',
+    body: `Hi {{firstName}},
+
+Noticed {{firm}} runs a [X]-person {{industry}} practice out of [city]. For a firm your size, admin follow-up and repetitive prep work usually eat 6 to 10 hours a week that should be going elsewhere.
+
+Most of the firms I sit down with around Metro Detroit haven't had a chance to look at it clearly. The time just disappears into the workflow.
+
+Can I show you the 2 to 3 places it usually hides in a firm your size?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Cold Outreach — Admin Load',
+    subject: '[admin stack / renewal prep / weekly reporting]',
+    body: `Hi {{firstName}},
+
+Came across {{firm}} while looking at {{industry}} firms in [city]. For a team your size, the admin stack, intake, follow-up, reporting, recurring client communication, usually adds up to 8 to 12 hours a week that most owners don't account for.
+
+Most firms I work with are handling it the same way they did 5 years ago.
+
+Can I show you the 2 to 3 spots where it's usually hiding?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Case Study — Similar Firm',
+    subject: '[renewal prep / intake backlog / 1040 prep]',
+    body: `Hi {{firstName}},
+
+Wrapped up a project last month with a [3-person CPA firm / insurance agency / estate planning solo] in [nearby city]. They were spending about 6 hours a week chasing client docs and sending follow-up emails by hand.
+
+We fixed that in about a day. They got those 6 hours back the first week.
+
+I'm guessing {{firm}} has a version of the same thing. Worth a look?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Research Question — Client Intake',
+    subject: 'client intake',
+    body: `Hi {{firstName}},
+
+I've been mapping how [CPA / estate planning / insurance] firms in [city] handle client intake, specifically who's still doing it manually and who's gotten something automated.
+
+Quick honest question: where does {{firm}} land on that? Still mostly by email and phone, or have you figured something out?
+
+Not pitching anything. Just curious where the line is.
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Sidecar Advisory — Quick Intro',
+    subject: 'metro detroit {{industry}}',
+    body: `Hi {{firstName}},
+
+I run Sidecar Advisory, a Metro Detroit firm that helps small {{industry}} firms cut the admin hours that sneak up on you. Intake, follow-up, recurring reporting, client communication.
+
+I came across {{firm}} and noticed [something specific about their firm].
+
+Curious whether it's something on your radar or not.
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Follow-up — After No Response',
+    subject: 'Re: [original subject]',
+    body: `Hi {{firstName}},
+
+Worth a quick look at where this hides in a [agency / firm / practice] your size?
+
+Neil Barris`,
+  },
+  {
+    name: 'Construction / Contractors - Cold Outreach',
+    subject: 'estimate follow-up',
+    body: `Hi {{firstName}},
+
+Came across {{firm}} while looking at [trade / contracting] businesses in [city]. For a team running multiple jobs, estimate follow-up and job scheduling communication are usually where the admin hours pile up.
+
+Most contractors I work with are still doing follow-up by hand after every estimate. At your volume, that's 6 to 10 hours a week.
+
+Can I show you the 2 to 3 places it usually gets stuck?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Dental Practice — Patient Recall',
+    subject: 'patient recall',
+    body: `Hi Dr. {{lastName}},
+
+Noticed {{firm}}'s new patient intake is still a printable PDF. For a practice with multiple hygienists running full days, patient recall and intake follow-up are usually the two biggest admin bottlenecks.
+
+Most practices I work with are spending 2 to 3 hours a day on outbound recall calls that could be automated.
+
+Can I show you the 3 places most dental practices pull that time back?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+  {
+    name: 'Staffing / HR Firm — Candidate Follow-up',
+    subject: 'candidate follow-up',
+    body: `Hi {{firstName}},
+
+Came across {{firm}} while looking at independent staffing firms in [city]. For a recruiter-focused shop, candidate follow-up after initial contact is usually where the most hours disappear.
+
+Most staffing firms I work with are still doing touchpoints by hand. At your volume, that's 6 to 8 hours a week on email alone.
+
+Can I show you the 2 to 3 places that time usually hides?
+
+Neil Barris
+Founder, Sidecar Advisory
+sidecaradvisory.com`,
+  },
+];
+
+const updateTemplateStmt = db.prepare("UPDATE email_templates SET subject=?, body=?, updated_at=datetime('now') WHERE name=?");
+for (const t of replyMethodUpdates) {
+  updateTemplateStmt.run(t.subject, t.body, t.name);
+}
+
+// Bump sequence templates — Day 9 and Day 16 (Day 4 is the updated "Follow-up — After No Response")
+const bumpTemplates = [
+  {
+    name: 'Bump — Day 9 (Offer)',
+    subject: 'Re: [original subject]',
+    body: `Hi {{firstName}},
+
+Put together a one-page breakdown of where the [renewal hours / intake bottleneck / 1040 hours / lead follow-up time] usually hides in a [firm type] your size. Want me to send it?
+
+Neil Barris`,
+  },
+  {
+    name: 'Bump — Day 16 (Breakup)',
+    subject: 'Re: [original subject]',
+    body: `Should I be reaching out to someone else at {{firm}} about operations, or is this just not on the radar right now?
+
+Neil Barris`,
+  },
+];
+
+for (const t of bumpTemplates) {
   const exists = db.prepare('SELECT id FROM email_templates WHERE name = ?').get(t.name);
   if (!exists) {
     db.prepare('INSERT INTO email_templates (id, name, subject, body) VALUES (?, ?, ?, ?)')
