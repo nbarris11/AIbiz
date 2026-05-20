@@ -482,9 +482,9 @@ const replyMethodUpdates = [
     subject: 'renewals',
     body: `Hi {{firstName}},
 
-Noticed {{firm}} runs independent lines out of [city]. That usually means your team spends two weeks of every month buried in renewal prep.
+Noticed {{firm}} runs independent lines in Metro Detroit. That usually means your team spends two weeks of every month buried in renewal prep.
 
-Most independent agencies I sit down with around Metro Detroit are still pulling loss runs, rewriting summaries, and chasing client docs by hand. That's where the 8 to 12 hour weekly leak hides.
+Most independent agencies I sit down with around here are still pulling loss runs, rewriting summaries, and chasing client docs by hand. That's where the 8 to 12 hour weekly leak hides.
 
 Can I show you the 2 to 3 places this usually shows up in an agency your size?
 
@@ -497,7 +497,7 @@ sidecaradvisory.com`,
     subject: 'commercial renewals',
     body: `Hi {{firstName}},
 
-Saw {{firm}} handles both commercial and personal lines out of [city]. That mix usually means your CSRs spend two weeks of every month on renewal prep.
+Saw {{firm}} handles both commercial and personal lines in Metro Detroit. That mix usually means your CSRs spend two weeks of every month on renewal prep.
 
 Most independent agencies I sit down with are still pulling loss runs by hand, rewriting summaries, and chasing docs by email. That's where 8 to 12 hours a week disappears.
 
@@ -512,11 +512,11 @@ sidecaradvisory.com`,
     subject: 'intake backlog',
     body: `Hi {{firstName}},
 
-Came across {{firm}} while looking at [practice area] practices in [city]. For a solo or small firm, intake is usually where the billable hours go to die.
+Came across {{firm}} while looking at law practices in Metro Detroit. For a solo or small firm, intake is usually where the billable hours go to die.
 
 The questionnaires, the doc chase, the back-and-forth before the first real meeting. Most attorneys I talk to are losing 5 to 8 billable hours a week to that work.
 
-Can I show you the 3 spots most [practice area] solos pull that time back?
+Can I show you the 3 spots most solos in your practice pull that time back?
 
 Neil Barris
 Founder, Sidecar Advisory
@@ -527,7 +527,7 @@ sidecaradvisory.com`,
     subject: 'billable hours',
     body: `Hi {{firstName}},
 
-Noticed {{firm}} focuses on estate planning out of [city]. For a solo or two-attorney shop, intake is usually where the billable hours go to die.
+Noticed {{firm}} focuses on estate planning in Metro Detroit. For a solo or two-attorney shop, intake is usually where the billable hours go to die.
 
 The questionnaires, the doc chase, the back-and-forth before the first real meeting. Most attorneys I talk to are losing 5 to 8 billable hours a week to that work.
 
@@ -542,9 +542,9 @@ sidecaradvisory.com`,
     subject: '1040 prep',
     body: `Hi {{firstName}},
 
-Came across {{firm}} while looking at accounting firms in [city]. For a firm your size, tax season is usually when the document chase gets out of control.
+Came across {{firm}} while looking at accounting firms in Metro Detroit. For a firm your size, tax season is usually when the document chase gets out of control.
 
-Most small CPA firms I sit down with around Metro Detroit are still chasing client docs by email, re-sending engagement letters manually, and running deadline reminders by hand. That's where 6 to 10 hours a week disappears.
+Most small CPA firms I sit down with are still chasing client docs by email, re-sending engagement letters manually, and running deadline reminders by hand. That's where 6 to 10 hours a week disappears.
 
 Want me to send the one-page breakdown of where those hours typically hide during 1040 season?
 
@@ -557,7 +557,7 @@ sidecaradvisory.com`,
     subject: 'client document chase',
     body: `Hi {{firstName}},
 
-Noticed {{firm}} has [X] staff handling clients out of [city]. For a firm that size, someone is spending 4 to 6 hours a week just chasing documents during busy season.
+Noticed {{firm}} handles clients in Metro Detroit. For a firm your size, someone is spending 4 to 6 hours a week just chasing documents during busy season.
 
 Most small CPA firms I sit down with are still doing this by email, manually, every single year. Engagement letters, 1099 collection, signed returns.
 
@@ -572,9 +572,9 @@ sidecaradvisory.com`,
     subject: 'listing prep',
     body: `Hi {{firstName}},
 
-Came across {{firm}} while looking at independent brokerages in [city]. For a boutique shop, listing prep and lead follow-up are usually where the admin hours disappear.
+Came across {{firm}} while looking at independent brokerages in Metro Detroit. For a boutique shop, listing prep and lead follow-up are usually where the admin hours disappear.
 
-Most independent brokerages I work with are still pulling comps, building CMAs, and following up on leads by hand. That adds up fast when you're running [X] agents.
+Most independent brokerages I work with are still pulling comps, building CMAs, and following up on leads by hand. That adds up fast at your scale.
 
 Can I show you the 3 places listing prep usually eats a full day?
 
@@ -587,7 +587,7 @@ sidecaradvisory.com`,
     subject: 'lead response',
     body: `Hi {{firstName}},
 
-Saw {{firm}} is running [X] agents out of [city]. At that size, lead response speed and transaction coordination are usually where the hours go.
+Saw {{firm}} is an independent brokerage in Metro Detroit. At your scale, lead response speed and transaction coordination are usually where the hours go.
 
 Most independent brokerages I work with are still doing lead follow-up by hand. Under-5-minute response is the bar. Most shops miss it by hours.
 
@@ -599,12 +599,12 @@ sidecaradvisory.com`,
   },
   {
     name: 'Cold Outreach — Clarity Session',
-    subject: '[renewal prep / intake backlog / 1040 prep / listing prep]',
+    subject: 'admin bottleneck',
     body: `Hi {{firstName}},
 
-Noticed {{firm}} runs a [X]-person {{industry}} practice out of [city]. For a firm your size, admin follow-up and repetitive prep work usually eat 6 to 10 hours a week that should be going elsewhere.
+Noticed {{firm}} runs a small {{industry}} practice in Metro Detroit. For a firm your size, admin follow-up and repetitive prep work usually eat 6 to 10 hours a week that should be going elsewhere.
 
-Most of the firms I sit down with around Metro Detroit haven't had a chance to look at it clearly. The time just disappears into the workflow.
+Most of the firms I sit down with around here haven't had a chance to look at it clearly. The time just disappears into the workflow.
 
 Can I show you the 2 to 3 places it usually hides in a firm your size?
 
@@ -614,10 +614,10 @@ sidecaradvisory.com`,
   },
   {
     name: 'Cold Outreach — Admin Load',
-    subject: '[admin stack / renewal prep / weekly reporting]',
+    subject: 'admin stack',
     body: `Hi {{firstName}},
 
-Came across {{firm}} while looking at {{industry}} firms in [city]. For a team your size, the admin stack, intake, follow-up, reporting, recurring client communication, usually adds up to 8 to 12 hours a week that most owners don't account for.
+Came across {{firm}} while looking at {{industry}} firms in Metro Detroit. For a team your size, the admin stack, intake, follow-up, reporting, recurring client communication, usually adds up to 8 to 12 hours a week that most owners don't account for.
 
 Most firms I work with are handling it the same way they did 5 years ago.
 
@@ -629,10 +629,10 @@ sidecaradvisory.com`,
   },
   {
     name: 'Case Study — Similar Firm',
-    subject: '[renewal prep / intake backlog / 1040 prep]',
+    subject: 'quick case study',
     body: `Hi {{firstName}},
 
-Wrapped up a project last month with a [3-person CPA firm / insurance agency / estate planning solo] in [nearby city]. They were spending about 6 hours a week chasing client docs and sending follow-up emails by hand.
+Wrapped up a project last month with a small {{industry}} firm in Metro Detroit. They were spending about 6 hours a week chasing client docs and sending follow-up emails by hand.
 
 We fixed that in about a day. They got those 6 hours back the first week.
 
@@ -647,7 +647,7 @@ sidecaradvisory.com`,
     subject: 'client intake',
     body: `Hi {{firstName}},
 
-I've been mapping how [CPA / estate planning / insurance] firms in [city] handle client intake, specifically who's still doing it manually and who's gotten something automated.
+I've been mapping how {{industry}} firms in Metro Detroit handle client intake, specifically who's still doing it manually and who's gotten something automated.
 
 Quick honest question: where does {{firm}} land on that? Still mostly by email and phone, or have you figured something out?
 
@@ -664,9 +664,7 @@ sidecaradvisory.com`,
 
 I run Sidecar Advisory, a Metro Detroit firm that helps small {{industry}} firms cut the admin hours that sneak up on you. Intake, follow-up, recurring reporting, client communication.
 
-I came across {{firm}} and noticed [something specific about their firm].
-
-Curious whether it's something on your radar or not.
+Came across {{firm}} and wanted to see if any of this is on your radar.
 
 Neil Barris
 Founder, Sidecar Advisory
@@ -677,7 +675,7 @@ sidecaradvisory.com`,
     subject: 'Re: [original subject]',
     body: `Hi {{firstName}},
 
-Worth a quick look at where this hides in a [agency / firm / practice] your size?
+Worth a quick look at where this hides in a firm your size?
 
 Neil Barris`,
   },
@@ -686,7 +684,7 @@ Neil Barris`,
     subject: 'estimate follow-up',
     body: `Hi {{firstName}},
 
-Came across {{firm}} while looking at [trade / contracting] businesses in [city]. For a team running multiple jobs, estimate follow-up and job scheduling communication are usually where the admin hours pile up.
+Came across {{firm}} while looking at contracting businesses in Metro Detroit. For a team running multiple jobs, estimate follow-up and job scheduling are usually where the admin hours pile up.
 
 Most contractors I work with are still doing follow-up by hand after every estimate. At your volume, that's 6 to 10 hours a week.
 
@@ -716,7 +714,7 @@ sidecaradvisory.com`,
     subject: 'candidate follow-up',
     body: `Hi {{firstName}},
 
-Came across {{firm}} while looking at independent staffing firms in [city]. For a recruiter-focused shop, candidate follow-up after initial contact is usually where the most hours disappear.
+Came across {{firm}} while looking at independent staffing firms in Metro Detroit. For a recruiter-focused shop, candidate follow-up after initial contact is usually where the most hours disappear.
 
 Most staffing firms I work with are still doing touchpoints by hand. At your volume, that's 6 to 8 hours a week on email alone.
 
@@ -733,6 +731,22 @@ for (const t of replyMethodUpdates) {
   updateTemplateStmt.run(t.subject, t.body, t.name);
 }
 
+// Also update bump templates in case they were previously seeded with old placeholder content
+const bumpUpdates = [
+  {
+    name: 'Bump — Day 9 (Offer)',
+    subject: 'Re: [original subject]',
+    body: `Hi {{firstName}},
+
+Put together a one-page breakdown of where the admin hours usually hide in a {{industry}} firm your size. Want me to send it?
+
+Neil Barris`,
+  },
+];
+for (const t of bumpUpdates) {
+  updateTemplateStmt.run(t.subject, t.body, t.name);
+}
+
 // Bump sequence templates — Day 9 and Day 16 (Day 4 is the updated "Follow-up — After No Response")
 const bumpTemplates = [
   {
@@ -740,7 +754,7 @@ const bumpTemplates = [
     subject: 'Re: [original subject]',
     body: `Hi {{firstName}},
 
-Put together a one-page breakdown of where the [renewal hours / intake bottleneck / 1040 hours / lead follow-up time] usually hides in a [firm type] your size. Want me to send it?
+Put together a one-page breakdown of where the admin hours usually hide in a {{industry}} firm your size. Want me to send it?
 
 Neil Barris`,
   },
