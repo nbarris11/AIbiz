@@ -282,12 +282,146 @@ p {
 
 .hero-grid {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 56px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
 }
 
 .hero-copy {
   position: relative;
   z-index: 1;
   padding-top: 8px;
+  min-width: 0;
+}
+
+.hero-artifact {
+  position: relative;
+  z-index: 1;
+  padding-top: 24px;
+  min-width: 0;
+}
+
+.artifact-card {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--tan-light);
+  border-radius: 6px;
+  padding: 28px 28px 22px;
+  box-shadow: 0 14px 32px rgba(44, 36, 24, 0.08), 0 2px 6px rgba(44, 36, 24, 0.04);
+  overflow: hidden;
+}
+
+.artifact-stamp {
+  position: absolute;
+  top: 18px;
+  right: -36px;
+  transform: rotate(14deg);
+  padding: 4px 44px;
+  background: rgba(196, 71, 58, 0.08);
+  border: 1px solid rgba(196, 71, 58, 0.35);
+  color: var(--ember);
+  font-family: "Epilogue", sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  pointer-events: none;
+}
+
+.artifact-eyebrow {
+  font-family: "Epilogue", sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--tan);
+  margin-bottom: 16px;
+}
+
+.artifact-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--saddle);
+  margin-bottom: 22px;
+}
+
+.artifact-title br + {
+  display: block;
+}
+
+.artifact-list {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  border-top: 1px solid var(--tan-light);
+}
+
+.artifact-list li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(212, 196, 168, 0.5);
+}
+
+.artifact-num {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--ember);
+  line-height: 1;
+}
+
+.artifact-line {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.artifact-line strong {
+  font-family: "Epilogue", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--saddle);
+  letter-spacing: 0.02em;
+}
+
+.artifact-line span {
+  font-family: "Epilogue", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--tan-dark);
+  line-height: 1.45;
+}
+
+.artifact-list em {
+  font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  font-style: normal;
+  font-size: 0.72rem;
+  color: var(--tan-dark);
+  white-space: nowrap;
+}
+
+.artifact-footer {
+  font-family: "Epilogue", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--tan-dark);
+  line-height: 1.6;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(212, 196, 168, 0.7);
+  padding-top: 14px;
 }
 
 .hero-subhead {

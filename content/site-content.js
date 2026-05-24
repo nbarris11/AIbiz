@@ -10,39 +10,39 @@ window.SIDECAR_SITE_CONTENT = {
     serviceArea: "Serving small businesses across Metro Detroit, Michigan.",
   },
   hero: {
-    eyebrow: "AI ADVISORY FOR SMALL BUSINESS",
-    headline: "Get back 10+ hours a week. Guaranteed.",
+    eyebrow: "FREE DELIVERABLE · 6-PAGE WORKFLOW AUDIT",
+    headline: "Your free Workflow Audit. $5,000 found — or I send it anyway.",
     subheadline:
-      "I help Metro Detroit professional service firms — insurance agencies, law firms, accountants, real estate offices — implement AI that actually works. In 45 minutes I'll find at least $5,000 in annual savings for your business — or you walk away with a free written workflow review either way.",
+      "A written 6-page audit of where your week is leaking time and money — produced live with you in 45 minutes. You leave with a prioritized list of workflows, an annual dollar number next to each, and a clear recommendation. If we don't find $5,000+ of savings, I send the audit anyway. No pitch. No follow-up.",
     pathNote:
-      "Start with a free Clarity Session, launch your first workflow with the Starter Pack, and stay supported with the AI Co-Pilot if it makes sense.",
+      "Start with a free Workflow Audit, launch your first automations with the Starter Pack, and stay supported with the AI Co-Pilot if it makes sense.",
     guarantee:
-      "Founder-led implementation help for small teams that need practical workflow support.",
+      "You get the audit either way. The only question is whether the savings number is big enough that you want to act on it.",
     stats: [
-      "45-minute working session built around your current workflows",
-      "Professional services focused and designed for small teams",
-      "Plain-English implementation guidance with clear next steps",
-      "Metro Detroit based and founder-led",
+      "A written, 6-page workflow audit you keep",
+      "Prioritized list of automations with an annual dollar value each",
+      "Built live with you in a 45-minute working session",
+      "Free, whether or not we end up working together",
     ],
   },
   offerPath: {
     eyebrow: "WORK WITH US",
     headline: "A simple path to practical AI",
     intro:
-      "Most clients start with a free Clarity Session, move into a focused Starter Pack, and stay supported with ongoing monthly help as the business grows.",
-    helper: "Most clients begin with a Clarity Session.",
+      "Most clients start with a free Workflow Audit, move into a focused Starter Pack, and stay supported with ongoing monthly help as the business grows.",
+    helper: "Most clients begin with a Workflow Audit.",
     cards: [
       {
         label: "Start Here",
-        title: "Clarity Session",
+        title: "Workflow Audit",
         body:
-          "A free 45-minute working session to identify where workflow friction is slowing the business down and what to fix first.",
+          "A free 45-minute working session that produces a written 6-page audit. Identifies where your week is leaking time and what to automate first.",
         details: [
-          "45 minutes",
-          "Free",
-          "Leaves you with a savings estimate, priority workflows, and a clear recommendation",
+          "45 minutes of your time",
+          "Free — you keep the audit either way",
+          "Walk away with a prioritized list of automations and an annual dollar value next to each",
         ],
-        cta: "Book a Free Clarity Session",
+        cta: "Get my free Workflow Audit",
       },
       {
         label: "Most Popular",
@@ -93,10 +93,12 @@ window.SIDECAR_SITE_CONTENT = {
   },
   guarantee: {
     eyebrow: "NO-RISK START",
-    headline: "The $5,000 Promise",
+    headline: "The Audit Is Yours Either Way",
     body:
-      "The Clarity Session is free. So instead of a money-back guarantee, here's what I'll commit to: if our 45 minutes together doesn't surface at least $5,000 in annual savings opportunities for your business, I'll send you a written workflow review afterward — for free — with my honest take on what I'd recommend instead. No pitch. No follow-up. We go our separate ways.\n\nThat's the deal. You give me 45 minutes. I give you either a real plan worth pursuing, or a written second opinion you can use however you want.",
-    callout: "$5,000+ in annual savings opportunities — or a free written workflow review.",
+      "The Workflow Audit is free. Here's what I'll commit to: if our 45 minutes together doesn't surface at least $5,000 in annual savings opportunities, I send you the written audit afterward anyway — with my honest take on what I'd recommend instead. No pitch. No follow-up.",
+    body2:
+      "That's the deal. You give me 45 minutes. I give you either a real plan worth pursuing, or a written second opinion you can use however you want.",
+    callout: "$5,000+ in annual savings opportunities — or a written audit on the house.",
   },
   whoWeServe: {
     eyebrow: "OUR FOCUS",
@@ -159,7 +161,7 @@ window.SIDECAR_SITE_CONTENT = {
     steps: [
       {
         number: "1",
-        title: "Book a Clarity Session",
+        title: "Get your Workflow Audit",
         time: "45 min · Free",
         body:
           "We review your current workflows, spot where time is getting lost, and leave with a shortlist of the best opportunities.",
@@ -207,13 +209,13 @@ window.SIDECAR_SITE_CONTENT = {
   contact: {
     headline: "Ready to ride?",
     body:
-      "Book a free 45-minute Clarity Session and get a practical look at where AI can help your business first.",
+      "Get a free 45-minute Workflow Audit and walk away with a written 6-page plan for where AI can help your business first.",
     trustSignals: [
-      "Free 45-minute Clarity Session",
-      "Practical workflow review",
+      "Free 45-minute Workflow Audit",
+      "Written 6-page deliverable",
       "Metro Detroit, MI",
     ],
-    ctaText: "Book a Free Clarity Session",
+    ctaText: "Get my free Workflow Audit",
     meta: "hello@sidecaradvisory.com · sidecaradvisory.com · Metro Detroit, MI",
   },
 };

@@ -2,32 +2,44 @@
 
 > Fractional AI advisory and workflow automation for Metro Detroit small professional service firms.
 > Neil Barris helps insurance agencies, law firms, accounting practices, and real estate offices
-> implement practical AI with guaranteed results. Free 45-minute AI Clarity Session — or you
-> walk away with a written workflow review at no charge.
+> implement practical AI with guaranteed results. Free 45-minute Workflow Audit — find at least
+> $5,000 in annual savings or walk away with a written workflow review at no charge.
+
+## About
+
+Neil Barris is a fractional AI advisor based in Metro Detroit, Michigan. He spent nearly a decade
+in customer success and technology adoption before founding Sidecar Advisory to help small
+professional service firms implement practical, measurable AI. He works exclusively with
+service-based businesses that want plain-English guidance, not vendor demos. Contact:
+hello@sidecaradvisory.com | (248) 291-7642.
 
 ## Services
 
 - [Home / Overview](https://www.sidecaradvisory.com/): Services, pricing, and the $5,000 savings guarantee
-- [Contact](https://www.sidecaradvisory.com/contact/): Book a free AI Clarity Session or send a general inquiry
+- [Pricing](https://www.sidecaradvisory.com/pricing/): Full pricing for all services — Workflow Audit (free), implementation, retainer, workshops
+- [Contact](https://www.sidecaradvisory.com/contact/): Book a free Workflow Audit or send a general inquiry
 - [Savings Calculator](https://www.sidecaradvisory.com/savings-calculator/): Free 90-second estimate of AI time and cost savings for your firm
 
 ## Industry Guides
 
-- [AI for Insurance Agencies](https://www.sidecaradvisory.com/insurance-agencies/): Practical AI guide for Metro Detroit independent insurance agencies in 2026
-- [AI for Law Firms](https://www.sidecaradvisory.com/law-firms/): Practical AI guide for small law firms in Metro Detroit in 2026
-- [AI for Accounting Firms](https://www.sidecaradvisory.com/accounting-firms/): Practical AI guide for CPA and accounting firms in Metro Detroit in 2026
-- [AI for Real Estate Offices](https://www.sidecaradvisory.com/real-estate/): Practical AI guide for real estate offices in Metro Detroit in 2026
+- [AI for Insurance Agencies](https://www.sidecaradvisory.com/insurance-agencies/): Practical AI service page for Metro Detroit independent insurance agencies
+- [AI for Law Firms](https://www.sidecaradvisory.com/law-firms/): Practical AI service page for small law firms in Metro Detroit
+- [AI for Accounting Firms](https://www.sidecaradvisory.com/accounting-firms/): Practical AI service page for CPA and accounting firms in Metro Detroit
+- [AI for Real Estate Offices](https://www.sidecaradvisory.com/real-estate/): Practical AI service page for real estate offices in Metro Detroit
 
 ## Blog
 
 - [AI for Insurance Agencies — 7 Tasks to Automate](https://www.sidecaradvisory.com/blog/ai-for-insurance-agencies-2026/): The 7 highest-ROI AI automations for independent insurance agencies
 - [AI Intake for Law Firms](https://www.sidecaradvisory.com/blog/ai-intake-for-law-firms/): How AI is changing client intake for small law firms
-- [AI Tools for Real Estate Offices 2026](https://www.sidecaradvisory.com/blog/ai-tools-for-real-estate-offices-2026/): Practical AI tools for real estate offices this year
+- [AI Tools for Real Estate Offices 2026](https://www.sidecaradvisory.com/blog/ai-tools-for-real-estate-offices-2026/): Practical AI tools for real estate offices in 2026
 - [AI Workflows for Accounting Firms](https://www.sidecaradvisory.com/blog/ai-for-accounting-firms-workflows/): The 5 AI workflows accounting firms should automate first
+- [How to Implement AI in a Small Business](https://www.sidecaradvisory.com/blog/how-to-implement-ai-small-business/): Step-by-step guide to implementing AI with no technical background required
+- [What Is a Workflow Audit?](https://www.sidecaradvisory.com/blog/what-is-an-ai-clarity-session/): What to expect from a free 45-minute Workflow Audit with Sidecar Advisory
+- [What Is a Fractional AI Advisor?](https://www.sidecaradvisory.com/blog/what-is-fractional-ai-advisor/): What a fractional AI advisor does, when you need one, and what it costs
 - [Blog Index](https://www.sidecaradvisory.com/blog/): All Sidecar Advisory articles on AI for small business
 
 ## Optional
 
-- [FAQ](https://www.sidecaradvisory.com/faq.html): Common questions about AI consulting, costs, timelines, and what to expect
+- [FAQ](https://www.sidecaradvisory.com/faq/): Common questions about AI consulting, costs, timelines, and what to expect
 - [Privacy Policy](https://www.sidecaradvisory.com/privacy/): Privacy practices
 - [Terms of Use](https://www.sidecaradvisory.com/terms/): Terms of service

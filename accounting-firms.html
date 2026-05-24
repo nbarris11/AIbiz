@@ -29,30 +29,29 @@
 {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://www.sidecaradvisory.com/#organization",
   "name": "Sidecar Advisory LLC",
   "url": "https://www.sidecaradvisory.com",
-  "logo": "https://www.sidecaradvisory.com/assets/logo.png",
-  "founder": { "@type": "Person", "name": "Neil Barris" },
-  "areaServed": { "@type": "Place", "name": "Metro Detroit, Michigan" },
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://www.sidecaradvisory.com/assets/logo.png"
+  },
   "email": "hello@sidecaradvisory.com",
-  "description": "AI implementation for Metro Detroit small professional service firms."
+  "telephone": "+12482917642",
+  "sameAs": []
 }
 </script>
 <!-- Schema: Article -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Article",
+  "@type": "WebPage",
   "headline": "A practical AI guide for accounting firms in 2026",
-  "author": { "@type": "Person", "name": "Neil Barris" },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Sidecar Advisory LLC",
-    "logo": { "@type": "ImageObject", "url": "https://www.sidecaradvisory.com/assets/logo.png" }
-  },
+  "author": { "@id": "https://www.sidecaradvisory.com/#neil-barris" },
+  "publisher": { "@id": "https://www.sidecaradvisory.com/#organization" },
   "datePublished": "2026-04-16",
   "dateModified": "2026-05-02",
-  "image": "https://www.sidecaradvisory.com/assets/og-image.png",
+  "image": { "@type": "ImageObject", "url": "https://www.sidecaradvisory.com/assets/og-image.png", "width": 1200, "height": 630 },
   "description": "Where AI helps small CPA and accounting firms automate monthly closes, document intake, deadline tracking, and routine client communication — without adding headcount.",
   "mainEntityOfPage": "https://www.sidecaradvisory.com/accounting-firms/"
 }
@@ -64,8 +63,7 @@
   "@type": "BreadcrumbList",
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Home",            "item": "https://www.sidecaradvisory.com/" },
-    { "@type": "ListItem", "position": 2, "name": "Blog",            "item": "https://www.sidecaradvisory.com/blog/" },
-    { "@type": "ListItem", "position": 3, "name": "Accounting Firms","item": "https://www.sidecaradvisory.com/accounting-firms/" }
+    { "@type": "ListItem", "position": 2, "name": "Accounting Firms","item": "https://www.sidecaradvisory.com/accounting-firms/" }
   ]
 }
 </script>
@@ -98,7 +96,7 @@
     {
       "@type": "Question",
       "name": "What does AI advisory cost for an accounting firm?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Sidecar Advisory's AI Clarity Session is free (45 minutes) and produces a prioritized list of where AI can save the most time in your specific firm. Implementation projects typically run $2,500–$3,500. Ongoing fractional AI advisory support starts at $750/month. Most firms see a measurable return on the first workflow within 60 days." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Sidecar Advisory's Workflow Audit is free (45 minutes) and produces a prioritized list of where AI can save the most time in your specific firm. Implementation projects typically run $2,500–$3,500. Ongoing fractional AI advisory support starts at $750/month. Most firms see a measurable return on the first workflow within 60 days." }
     },
     {
       "@type": "Question",
@@ -590,14 +588,14 @@
   </a>
   <a href="/savings-calculator/" class="nav-calculator">Savings Calculator</a>
   <a href="https://scheduler.zoom.us/neil-barris-pvp8jj/ai-clarity-session" class="nav-cta" target="_blank" rel="noreferrer" data-calendly-link>
-    Book a Free Clarity Session
+    Get my free Workflow Audit
   </a>
 </nav>
 
 <header class="article-header">
-  <p class="breadcrumb"><a href="/">Home</a> &nbsp;/&nbsp; <a href="/blog/">Blog</a> &nbsp;/&nbsp; Accounting Firms</p>
+  <p class="breadcrumb"><a href="/">Home</a> &nbsp;/&nbsp; Accounting Firms</p>
   <span class="category-badge">Accounting Firms</span>
-  <h1>A practical AI guide for accounting firms in 2026</h1>
+  <h1>AI Workflow Automation for Accounting Firms in Metro Detroit</h1>
   <p class="subtitle">Where AI can help a small CPA or accounting firm reduce the recurring admin that never stops — monthly closes, client document intake, deadline tracking, and routine client communication.</p>
   <div class="article-meta">
     <span>By Neil Barris, Founder</span>
@@ -799,6 +797,14 @@
     </div>
   </div>
 
+  <div class="article-cta-inline" style="background:var(--cream,#F8F5EF);border:1px solid var(--tan-light,#D6CDB8);border-radius:8px;padding:28px 32px;margin:48px 0;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+    <div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--charcoal,#2C2418);margin:0 0 6px;">Not sure where to start?</p>
+      <p style="font-family:'Epilogue',sans-serif;font-weight:300;font-size:15px;color:var(--tan-dark,#7A6E5F);margin:0;">Free 45-min Workflow Audit — find $5,000 in savings or pay nothing.</p>
+    </div>
+    <a href="https://scheduler.zoom.us/neil-barris-pvp8jj/ai-clarity-session" target="_blank" rel="noopener noreferrer" style="font-family:'Epilogue',sans-serif;font-size:14px;font-weight:500;color:var(--forest,#2D4A3E);border:1.5px solid var(--forest,#2D4A3E);padding:12px 24px;border-radius:4px;white-space:nowrap;text-decoration:none;">Get my free Workflow Audit</a>
+  </div>
+
   <h2 id="real-numbers">What accounting firms typically see after implementation</h2>
 
   <p>These are planning-level illustrations of what automated workflows can look like in practice. They are not case studies from specific firms, and your results will depend on your firm's size, workflow volume, and how consistently the tools are adopted.</p>
@@ -845,9 +851,9 @@
 
   <div class="article-cta">
     <h3>Not sure where to start?</h3>
-    <p>Book a free 45-minute <a href="/#schedule" style="color: var(--parchment); text-decoration: underline;">AI Clarity Session</a> if you want to review your firm's workflows and talk through where AI may be worth the effort first.</p>
+    <p>Book a free 45-minute <a href="/#schedule" style="color: var(--parchment); text-decoration: underline;">Workflow Audit</a> if you want to review your firm's workflows and talk through where AI may be worth the effort first.</p>
     <a href="https://scheduler.zoom.us/neil-barris-pvp8jj/ai-clarity-session" target="_blank" rel="noreferrer" data-calendly-link>
-      Book a Free Clarity Session
+      Get my free Workflow Audit
     </a>
   </div>
 
@@ -881,7 +887,7 @@
 
     <div class="faq-item" style="margin-bottom: 28px;">
       <h3 style="font-family: 'Epilogue', sans-serif; font-size: 17px; font-weight: 500; margin-bottom: 8px;">What does AI advisory cost for an accounting firm?</h3>
-      <p>The AI Clarity Session is free (45 minutes) and produces a prioritized list of where AI can save the most time in your specific firm. Implementation projects typically run $2,500–$3,500. Ongoing fractional AI advisory support starts at $750/month. Most firms see a measurable return on the first workflow within 60 days.</p>
+      <p>The Workflow Audit is free (45 minutes) and produces a prioritized list of where AI can save the most time in your specific firm. Implementation projects typically run $2,500–$3,500. Ongoing fractional AI advisory support starts at $750/month. Most firms see a measurable return on the first workflow within 60 days.</p>
     </div>
 
     <div class="faq-item">
@@ -891,7 +897,7 @@
   </section>
 
   <div class="author-bio">
-    <div class="author-avatar">SA</div>
+    <img class="author-avatar" src="/assets/neil-barris.jpg" alt="Neil Barris" style="object-fit:cover;" />
     <div class="author-bio-text">
       <h4>Neil Barris, Founder</h4>
       <p>Neil works with professional service firms that want practical AI help tied to day-to-day operations. The focus is clean implementation, team adoption, and plain-English guidance. <a href="/" style="color: var(--forest);">Learn more about Sidecar Advisory.</a></p>
@@ -966,7 +972,7 @@
       <p itemprop="name">Sidecar Advisory LLC</p>
       <p itemprop="areaServed">Serving Metro Detroit, Michigan</p>
       <p itemprop="email">hello@sidecaradvisory.com</p>
-      <!-- TODO: Add itemprop="telephone" once Google Voice number is set up -->
+      <p itemprop="telephone"><a href="tel:+12482917642">(248) 291-7642</a></p>
     </div>
   </div>
 </footer>

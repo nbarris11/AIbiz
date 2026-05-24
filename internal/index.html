@@ -1086,7 +1086,7 @@ textarea { resize: vertical; min-height: 80px; }
           <option value="email_sent">Email Sent</option>
           <option value="email_received">Email Received</option>
           <option value="call">Call</option>
-          <option value="clarity_session">Clarity Session</option>
+          <option value="clarity_session">Workflow Audit</option>
           <option value="proposal">Proposal</option>
           <option value="note">Note</option>
         </select>
@@ -1353,7 +1353,7 @@ const stageBadge = s => {
   const cls = { Lead: 'Lead', 'Session Booked': 'Session', 'Proposal Sent': 'Proposal', 'Active Client': 'Active', Dormant: 'Dormant' };
   return `<span class="badge badge-${cls[s] || 'Lead'}">${s}</span>`;
 };
-const typeLabel = { email_sent: 'Email Sent', email_received: 'Email Received', call: 'Call', clarity_session: 'Clarity Session', proposal: 'Proposal', note: 'Note' };
+const typeLabel = { email_sent: 'Email Sent', email_received: 'Email Received', call: 'Call', clarity_session: 'Workflow Audit', proposal: 'Proposal', note: 'Note' };
 
 // ── NAVIGATION ───────────────────────────────────────
 function nav(el, page) {
