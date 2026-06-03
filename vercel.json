@@ -41,6 +41,27 @@
     { "source": "/blog/ai-tools-for-real-estate-offices-2026",  "destination": "/blog-ai-tools-real-estate-2026.html" },
     { "source": "/blog/ai-tools-for-real-estate-offices-2026/", "destination": "/blog-ai-tools-real-estate-2026.html" },
     { "source": "/blog/ai-for-accounting-firms-workflows",   "destination": "/blog-ai-accounting-firms-workflows.html" },
-    { "source": "/blog/ai-for-accounting-firms-workflows/",  "destination": "/blog-ai-accounting-firms-workflows.html" }
+    { "source": "/blog/ai-for-accounting-firms-workflows/",  "destination": "/blog-ai-accounting-firms-workflows.html" },
+    { "source": "/blog/how-to-implement-ai-small-business",  "destination": "/blog/how-to-implement-ai-small-business.html" },
+    { "source": "/blog/how-to-implement-ai-small-business/", "destination": "/blog/how-to-implement-ai-small-business.html" },
+    { "source": "/blog/what-is-an-ai-clarity-session",       "destination": "/blog/what-is-an-ai-clarity-session.html" },
+    { "source": "/blog/what-is-an-ai-clarity-session/",      "destination": "/blog/what-is-an-ai-clarity-session.html" },
+    { "source": "/blog/what-is-fractional-ai-advisor",       "destination": "/blog/what-is-fractional-ai-advisor.html" },
+    { "source": "/blog/what-is-fractional-ai-advisor/",      "destination": "/blog/what-is-fractional-ai-advisor.html" },
+    { "source": "/faq",                                       "destination": "/faq.html" },
+    { "source": "/faq/",                                      "destination": "/faq.html" },
+    { "source": "/pricing",                                    "destination": "/pricing.html" },
+    { "source": "/pricing/",                                   "destination": "/pricing.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options",  "value": "nosniff" },
+        { "key": "X-Frame-Options",         "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy",         "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy",      "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    }
   ]
 }

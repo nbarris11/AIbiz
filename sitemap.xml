@@ -1,87 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- ======= CORE / HOMEPAGE ======= -->
   <url>
     <loc>https://www.sidecaradvisory.com/</loc>
-    <lastmod>2026-04-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-05-16</lastmod>
   </url>
+
+  <!-- ======= INDUSTRY PAGES ======= -->
   <url>
     <loc>https://www.sidecaradvisory.com/insurance-agencies/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.sidecaradvisory.com/law-firms/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.sidecaradvisory.com/real-estate/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.sidecaradvisory.com/accounting-firms/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
+
+  <!-- ======= TOOLS ======= -->
   <url>
     <loc>https://www.sidecaradvisory.com/savings-calculator/</loc>
     <lastmod>2026-04-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
+
+  <!-- ======= BLOG INDEX ======= -->
   <url>
     <loc>https://www.sidecaradvisory.com/blog/</loc>
-    <lastmod>2026-04-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-05-16</lastmod>
   </url>
+
+  <!-- ======= BLOG POSTS ======= -->
   <url>
     <loc>https://www.sidecaradvisory.com/blog/ai-for-insurance-agencies-2026/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.sidecaradvisory.com/blog/ai-intake-for-law-firms/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.sidecaradvisory.com/blog/ai-tools-for-real-estate-offices-2026/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.sidecaradvisory.com/blog/ai-for-accounting-firms-workflows/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://www.sidecaradvisory.com/blog/how-to-implement-ai-small-business/</loc>
+    <lastmod>2026-04-01</lastmod>
+  </url>
+  <url>
+    <loc>https://www.sidecaradvisory.com/blog/what-is-an-ai-clarity-session/</loc>
+    <lastmod>2026-04-01</lastmod>
+  </url>
+  <url>
+    <loc>https://www.sidecaradvisory.com/blog/what-is-fractional-ai-advisor/</loc>
+    <lastmod>2026-04-01</lastmod>
+  </url>
+
+  <!-- ======= SUPPORT / FAQ ======= -->
+  <url>
+    <loc>https://www.sidecaradvisory.com/faq/</loc>
+    <lastmod>2026-04-22</lastmod>
+  </url>
+
+  <!-- ======= PRICING ======= -->
+  <url>
+    <loc>https://www.sidecaradvisory.com/pricing/</loc>
+    <lastmod>2026-05-16</lastmod>
+  </url>
+
+  <!-- ======= CONTACT ======= -->
   <url>
     <loc>https://www.sidecaradvisory.com/contact/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
   </url>
+
+  <!-- ======= LEGAL ======= -->
   <url>
     <loc>https://www.sidecaradvisory.com/privacy/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.sidecaradvisory.com/terms/</loc>
     <lastmod>2026-04-16</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
   </url>
+
 </urlset>

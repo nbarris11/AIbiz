@@ -2,4 +2,29 @@ User-agent: *
 Allow: /
 Disallow: /internal/
 
+# AI crawlers — explicitly allowed for indexing and citation
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+User-agent: Googlebot-Extended
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
 Sitemap: https://www.sidecaradvisory.com/sitemap.xml
