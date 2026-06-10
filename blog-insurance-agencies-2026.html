@@ -29,13 +29,16 @@
 {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://www.sidecaradvisory.com/#organization",
   "name": "Sidecar Advisory LLC",
   "url": "https://www.sidecaradvisory.com",
-  "logo": "https://www.sidecaradvisory.com/assets/logo.png",
-  "founder": { "@type": "Person", "name": "Neil Barris" },
-  "areaServed": { "@type": "Place", "name": "Metro Detroit, Michigan" },
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://www.sidecaradvisory.com/assets/logo.png"
+  },
   "email": "hello@sidecaradvisory.com",
-  "description": "AI implementation for Metro Detroit small professional service firms."
+  "telephone": "+12482917642",
+  "sameAs": []
 }
 </script>
 <!-- Schema: Article -->
@@ -44,15 +47,11 @@
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "AI for Insurance Agencies: 7 Tasks You Can Automate This Week",
-  "author": { "@type": "Person", "name": "Neil Barris" },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Sidecar Advisory LLC",
-    "logo": { "@type": "ImageObject", "url": "https://www.sidecaradvisory.com/assets/logo.png" }
-  },
+  "author": { "@id": "https://www.sidecaradvisory.com/#neil-barris" },
+  "publisher": { "@id": "https://www.sidecaradvisory.com/#organization" },
   "datePublished": "2026-04-16",
   "dateModified": "2026-04-16",
-  "image": "https://www.sidecaradvisory.com/assets/og-image.png",
+  "image": { "@type": "ImageObject", "url": "https://www.sidecaradvisory.com/assets/og-image.png", "width": 1200, "height": 630 },
   "description": "Discover the 7 highest-ROI tasks Metro Detroit independent insurance agencies can automate with AI — from quote follow-up to renewals and client communication.",
   "mainEntityOfPage": "https://www.sidecaradvisory.com/blog/ai-for-insurance-agencies-2026/"
 }
@@ -70,6 +69,7 @@
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -805,7 +805,7 @@
   </div>
 
   <div class="author-bio">
-    <div class="author-avatar">SA</div>
+    <img class="author-avatar" src="/assets/neil-barris.jpg" alt="Neil Barris" width="700" height="635" loading="lazy" style="object-fit:cover;" />
     <div class="author-bio-text">
       <h4>Neil Barris, Founder</h4>
       <p>Neil works with professional service firms that want practical AI help tied to day-to-day operations. The focus is clean implementation, team adoption, and plain-English guidance. <a href="/" style="color: var(--forest);">Learn more about Sidecar Advisory.</a></p>
@@ -884,7 +884,7 @@
   </div>
 </footer>
 
-<script src="/content/site-content.js"></script>
+<script src="/content/site-content.js" defer></script>
 <script>
   const bookingUrl = window.SIDECAR_SITE_CONTENT?.settings?.bookingPageUrl;
   if (bookingUrl) {
@@ -894,7 +894,6 @@
   }
 </script>
 
-<script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous"></script>
-<script>window.LogRocket && window.LogRocket.init('hejhm8/sidecar');</script>
+<script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous" async onload="window.LogRocket && window.LogRocket.init('hejhm8/sidecar');"></script>
 </body>
 </html>

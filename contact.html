@@ -458,8 +458,8 @@
       </section>
     </main>
 
-    <script src="/content/site-content.js"></script>
-    <script src="/script.js"></script>
+    <script src="/content/site-content.js" defer></script>
+    <script src="/script.js" defer></script>
     <script>
       const email = window.SIDECAR_SITE_CONTENT?.settings?.email || "hello@sidecaradvisory.com";
       const contactForm = document.querySelector("#contact-form");
@@ -548,7 +548,6 @@
         });
       }
     </script>
-  <script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous"></script>
-  <script>window.LogRocket && window.LogRocket.init('hejhm8/sidecar');</script>
+  <script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous" async onload="window.LogRocket && window.LogRocket.init('hejhm8/sidecar');"></script>
   </body>
 </html>

@@ -112,6 +112,7 @@
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -571,7 +572,7 @@
   </section>
 
   <div class="author-bio">
-    <img class="author-avatar" src="/assets/neil-barris.jpg" alt="Neil Barris" style="object-fit:cover;" />
+    <img class="author-avatar" src="/assets/neil-barris.jpg" alt="Neil Barris" width="700" height="635" loading="lazy" style="object-fit:cover;" />
     <div class="author-bio-text">
       <h4>Neil Barris, Founder</h4>
       <p>Neil helps professional service firms turn AI and automation into usable day-to-day workflows. The focus is implementation, adoption, and practical business value for small teams. <a href="/" style="color: var(--forest);">Learn more about Sidecar Advisory.</a></p>
@@ -651,7 +652,7 @@
   </div>
 </footer>
 
-<script src="/content/site-content.js"></script>
+<script src="/content/site-content.js" defer></script>
 <script>
   const bookingUrl = window.SIDECAR_SITE_CONTENT?.settings?.bookingPageUrl;
   if (bookingUrl) {
@@ -661,7 +662,6 @@
   }
 </script>
 
-<script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous"></script>
-<script>window.LogRocket && window.LogRocket.init('hejhm8/sidecar');</script>
+<script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous" async onload="window.LogRocket && window.LogRocket.init('hejhm8/sidecar');"></script>
 </body>
 </html>

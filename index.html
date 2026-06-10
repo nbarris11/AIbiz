@@ -898,6 +898,9 @@
                 data-about-image="true"
                 data-content="about.imageUrl"
                 data-alt-content="about.imageAlt"
+                width="1000"
+                height="666"
+                loading="lazy"
                 hidden
               />
               <svg class="about-icon" viewBox="0 0 120 92" fill="none">
@@ -1062,10 +1065,9 @@
       </a>
     </div>
 
-    <script src="content/site-content.js"></script>
+    <script src="content/site-content.js" defer></script>
 
-    <script src="script.js"></script>
-    <script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous"></script>
-    <script>window.LogRocket && window.LogRocket.init('hejhm8/sidecar', { mergeIframes: true });</script>
+    <script src="script.js" defer></script>
+    <script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous" async onload="window.LogRocket && window.LogRocket.init('hejhm8/sidecar', { mergeIframes: true });"></script>
   </body>
 </html>
