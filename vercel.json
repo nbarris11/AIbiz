@@ -8,7 +8,10 @@
     { "source": "/preview/ai-for-insurance-agencies-guide.html",           "destination": "/insurance-agencies/", "permanent": true },
     { "source": "/preview/ai-for-law-firms-guide.html",                    "destination": "/law-firms/",          "permanent": true },
     { "source": "/preview/privacy.html",                                   "destination": "/privacy/",            "permanent": true },
-    { "source": "/preview/terms.html",                                     "destination": "/terms/",              "permanent": true }
+    { "source": "/preview/terms.html",                                     "destination": "/terms/",              "permanent": true },
+    { "source": "/blog/what-is-an-ai-clarity-session",                     "destination": "/blog/what-is-a-workflow-audit/", "permanent": true },
+    { "source": "/blog/what-is-an-ai-clarity-session/",                    "destination": "/blog/what-is-a-workflow-audit/", "permanent": true },
+    { "source": "/blog/what-is-an-ai-clarity-session.html",                "destination": "/blog/what-is-a-workflow-audit/", "permanent": true }
   ],
   "rewrites": [
     { "source": "/internal/:path*", "destination": "https://app.sidecaradvisory.com/internal/:path*" },
@@ -44,8 +47,8 @@
     { "source": "/blog/ai-for-accounting-firms-workflows/",  "destination": "/blog-ai-accounting-firms-workflows.html" },
     { "source": "/blog/how-to-implement-ai-small-business",  "destination": "/blog/how-to-implement-ai-small-business.html" },
     { "source": "/blog/how-to-implement-ai-small-business/", "destination": "/blog/how-to-implement-ai-small-business.html" },
-    { "source": "/blog/what-is-an-ai-clarity-session",       "destination": "/blog/what-is-an-ai-clarity-session.html" },
-    { "source": "/blog/what-is-an-ai-clarity-session/",      "destination": "/blog/what-is-an-ai-clarity-session.html" },
+    { "source": "/blog/what-is-a-workflow-audit",            "destination": "/blog/what-is-a-workflow-audit.html" },
+    { "source": "/blog/what-is-a-workflow-audit/",           "destination": "/blog/what-is-a-workflow-audit.html" },
     { "source": "/blog/what-is-fractional-ai-advisor",       "destination": "/blog/what-is-fractional-ai-advisor.html" },
     { "source": "/blog/what-is-fractional-ai-advisor/",      "destination": "/blog/what-is-fractional-ai-advisor.html" },
     { "source": "/faq",                                       "destination": "/faq.html" },

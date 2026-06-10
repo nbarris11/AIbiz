@@ -57,10 +57,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,600&family=Epilogue:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" /><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet" /></noscript>
     <link rel="stylesheet" href="/styles.css" />
     <style>
       /* ── Calculator page layout ───────────────────────── */
@@ -760,7 +757,8 @@
                 The calculator uses 3 sliders. The Workflow Audit uses your actual workflows.
               </h2>
               <p class="result-cta-body">
-                Most live sessions find 30–60% more than the calculator estimates. 45 minutes, free,
+                Your <strong id="result-cta-ref"></strong> estimate is a floor, not a ceiling —
+                most live sessions find 30–60% more than the calculator. 45 minutes, free,
                 and either way you walk away with something useful — a plan worth pursuing or a free
                 written workflow review.
               </p>
@@ -918,6 +916,8 @@
           'Most of this comes from ' + fmt(r.laborRounded) + ' in labor recovery and ' +
           fmt(r.toolRounded) + ' in tool consolidation.';
         document.getElementById('result-range-ref').textContent =
+          fmt(r.range_low) + '–' + fmt(r.range_high);
+        document.getElementById('result-cta-ref').textContent =
           fmt(r.range_low) + '–' + fmt(r.range_high);
 
         var resultSection = document.getElementById('calc-result');

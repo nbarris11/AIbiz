@@ -34,11 +34,13 @@ hello@sidecaradvisory.com | (248) 291-7642.
 - [AI Tools for Real Estate Offices 2026](https://www.sidecaradvisory.com/blog/ai-tools-for-real-estate-offices-2026/): Practical AI tools for real estate offices in 2026
 - [AI Workflows for Accounting Firms](https://www.sidecaradvisory.com/blog/ai-for-accounting-firms-workflows/): The 5 AI workflows accounting firms should automate first
 - [How to Implement AI in a Small Business](https://www.sidecaradvisory.com/blog/how-to-implement-ai-small-business/): Step-by-step guide to implementing AI with no technical background required
-- [What Is a Workflow Audit?](https://www.sidecaradvisory.com/blog/what-is-an-ai-clarity-session/): What to expect from a free 45-minute Workflow Audit with Sidecar Advisory
+- [What Is a Workflow Audit?](https://www.sidecaradvisory.com/blog/what-is-a-workflow-audit/): What to expect from a free 45-minute Workflow Audit with Sidecar Advisory
 - [What Is a Fractional AI Advisor?](https://www.sidecaradvisory.com/blog/what-is-fractional-ai-advisor/): What a fractional AI advisor does, when you need one, and what it costs
 - [Blog Index](https://www.sidecaradvisory.com/blog/): All Sidecar Advisory articles on AI for small business
 
 ## Optional
+
+- [Full content for LLMs](https://www.sidecaradvisory.com/llms-full.txt): Concatenated full text of all key pages
 
 - [FAQ](https://www.sidecaradvisory.com/faq/): Common questions about AI consulting, costs, timelines, and what to expect
 - [Privacy Policy](https://www.sidecaradvisory.com/privacy/): Privacy practices

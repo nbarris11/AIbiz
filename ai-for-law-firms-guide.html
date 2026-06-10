@@ -45,12 +45,13 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
+  "@type": "Article",
   "headline": "A practical AI guide for small law firms in 2026",
   "author": { "@id": "https://www.sidecaradvisory.com/#neil-barris" },
   "publisher": { "@id": "https://www.sidecaradvisory.com/#organization" },
   "datePublished": "2026-04-06",
-  "dateModified": "2026-05-02",
+  "dateModified": "2026-06-10",
+  "speakable": { "@type": "SpeakableSpecification", "cssSelector": [".tldr-box"] },
   "image": { "@type": "ImageObject", "url": "https://www.sidecaradvisory.com/assets/og-image.png", "width": 1200, "height": 630 },
   "description": "A practical, plain-English guide to AI for small law firms, including intake workflows, drafting support, and implementation considerations.",
   "mainEntityOfPage": "https://www.sidecaradvisory.com/law-firms/"
@@ -113,7 +114,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" /><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" /><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet" /></noscript></noscript>
 <style>
   :root {
     --saddle: #2C2418;
@@ -217,7 +218,12 @@
   @media (min-width: 769px) {
     .footer-bar { flex-direction: row; align-items: center; justify-content: space-between; }
   }
-</style>
+
+    /* TL;DR direct-answer box (AEO) */
+    .tldr-box { background: #f7f3ed; border-left: 3px solid #9c8b6e; border-radius: 6px; padding: 20px 24px; margin: 0 0 32px; }
+    .tldr-box p { margin: 0; font-size: 1.05rem; line-height: 1.65; }
+    .tldr-box strong { color: #2c2418; }
+  </style>
     <!-- PostHog -->
     <script>
         !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
@@ -259,6 +265,10 @@
 
 <main class="article-wrap">
 
+  <div class="tldr-box">
+    <p><strong>The five highest-impact AI applications for a small law firm are client intake automation, document drafting, call transcription, billing narratives, and client status updates.</strong> This guide breaks down each one, the tools that fit small firms, the ethics rules that apply, and how to implement without disrupting active matters.</p>
+  </div>
+
   <div class="toc">
     <div class="toc-title">What's in this guide</div>
     <ol>
@@ -282,7 +292,7 @@
     <p>"The attorneys who embrace AI are not replacing their expertise — they are freeing themselves to use it more. Less time on admin means more time on the work that actually requires a lawyer."</p>
   </div>
 
-  <h2 id="reality">The Reality of AI in Legal Practice Today</h2>
+  <h2 id="reality">What&rsquo;s the reality of AI in legal practice today?</h2>
 
   <p>Let us start with what AI cannot do, because the hype has created unrealistic expectations on both sides.</p>
 
@@ -321,7 +331,7 @@
     </div>
   </div>
 
-  <h2 id="highest-impact">5 Highest-Impact AI Applications for Small Law Firms</h2>
+  <h2 id="highest-impact">What are the 5 highest-impact AI applications for small law firms?</h2>
 
   <h3>1. Client Intake Automation</h3>
 
@@ -368,7 +378,7 @@
   <p><strong>Typical impact:</strong> Less time spent writing one-off status emails and fewer updates falling through the cracks.<br>
   <strong>Client satisfaction impact:</strong> Clients usually respond well to clearer and more consistent communication.</p>
 
-  <h2 id="intake">AI-Powered Client Intake: A Step-by-Step Breakdown</h2>
+  <h2 id="intake">How does AI-powered client intake actually work?</h2>
 
   <p>Because intake automation is the highest-impact starting point for most small firms, here is a detailed look at how a fully automated intake workflow functions. For firms that want to move from diagnosis to delivery, the <a href="/#services" style="color: var(--forest);">AI Starter Pack for small service teams</a> is the clearest next step after a Workflow Audit.</p>
 
@@ -414,7 +424,7 @@
 
   <p>The entire sequence — from first contact to signed engagement letter — can run with far less attorney involvement until the consultation itself. In a firm with steady new matters, that can turn intake from a recurring admin drain into a more manageable review process.</p>
 
-  <h2 id="tools">The Tools That Work for Small Firms Specifically</h2>
+  <h2 id="tools">Which AI tools work for small law firms specifically?</h2>
 
   <div class="tool-card">
     <div class="tool-name">Clio Grow + Clio Manage <span class="tool-badge">Best for intake + case management</span></div>
@@ -450,7 +460,7 @@
     <p><strong>A note on legal-specific AI tools:</strong> Several companies market AI tools specifically built for legal research (Harvey, Lexis+ AI, Westlaw AI). These are powerful but expensive — typically $100 to $500+ per month. For small firms, the general-purpose tools above deliver the vast majority of the value at a fraction of the cost. Consider legal-specific research tools only after you have maximized the simpler, cheaper options.</p>
   </div>
 
-  <h2 id="ethics">What Every Attorney Needs to Know About AI and Ethics</h2>
+  <h2 id="ethics">What does every attorney need to know about AI and ethics?</h2>
 
   <p>This section matters. AI use in legal practice raises legitimate ethical questions, and every attorney needs to approach it thoughtfully.</p>
 
@@ -470,7 +480,7 @@
     <p><strong>The practical rule:</strong> Use AI for tasks that do not require legal judgment and that you will review carefully before anything leaves the office. Never rely on AI output without verification. Treat it as a capable assistant who sometimes makes mistakes — because that is exactly what it is.</p>
   </div>
 
-  <h2 id="implementation">How to Implement Without Disrupting Your Practice</h2>
+  <h2 id="implementation">How do you implement AI without disrupting your practice?</h2>
 
   <p>The temptation is to overhaul everything at once. Resist it. The attorneys who get the most value from AI do it incrementally — one workflow at a time, fully implemented, before moving to the next.</p>
 
@@ -505,7 +515,7 @@
     <a href="https://scheduler.zoom.us/neil-barris-pvp8jj/ai-clarity-session" target="_blank" rel="noopener noreferrer" style="font-family:'Epilogue',sans-serif;font-size:14px;font-weight:500;color:var(--forest,#2D4A3E);border:1.5px solid var(--forest,#2D4A3E);padding:12px 24px;border-radius:4px;white-space:nowrap;text-decoration:none;">Get my free Workflow Audit</a>
   </div>
 
-  <h2 id="roi">What small law firms typically see after implementation</h2>
+  <h2 id="roi">What do small law firms typically see after implementation?</h2>
 
   <p>Here are the kinds of workflow improvements small law firms see after a focused implementation period. Results vary by practice area, matter mix, and team adoption — the most credible way to evaluate impact is to measure one workflow before and after inside your own firm.</p>
 

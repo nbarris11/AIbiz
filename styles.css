@@ -1622,3 +1622,14 @@ p {
 .nav-calculator:hover {
   color: var(--ember);
 }
+
+/* TL;DR direct-answer box (AEO) */
+.tldr-box {
+  background: var(--parchment);
+  border-left: 3px solid var(--tan);
+  border-radius: 6px;
+  padding: 20px 24px;
+  margin: 0 0 32px;
+}
+.tldr-box p { margin: 0; font-size: 1.05rem; line-height: 1.65; }
+.tldr-box strong { color: var(--saddle); }
