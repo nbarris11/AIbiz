@@ -190,7 +190,7 @@ window.SIDECAR_SITE_CONTENT = {
     "body": "Book a free Workflow Audit, or send me a few lines about the process that is slowing you down. You do not need to know which AI tool to use.",
     "trustSignals": [
       "Free 45-minute Workflow Audit",
-      "Written 6-page deliverable",
+      "Written recommendations you keep",
       "Metro Detroit, MI"
     ],
     "ctaText": "Get my free Workflow Audit",

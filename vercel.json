@@ -1,85 +1,471 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
-    { "source": "/services/ai-clarity-session.html", "destination": "/#schedule", "permanent": true },
-    { "source": "/services/ai-implementation.html", "destination": "/pricing/", "permanent": true },
-    { "source": "/services/fractional-ai-advisor.html", "destination": "/pricing/", "permanent": true },
-    { "source": "/blog/index.html", "destination": "/blog/", "permanent": true },
-    { "source": "/preview",                                                "destination": "/",                    "permanent": true },
-    { "source": "/preview/",                                               "destination": "/",                    "permanent": true },
-    { "source": "/preview/contact.html",                                   "destination": "/contact/",            "permanent": true },
-    { "source": "/preview/blog.html",                                      "destination": "/blog/",               "permanent": true },
-    { "source": "/preview/ai-for-insurance-agencies-guide.html",           "destination": "/insurance-agencies/", "permanent": true },
-    { "source": "/preview/ai-for-law-firms-guide.html",                    "destination": "/law-firms/",          "permanent": true },
-    { "source": "/preview/privacy.html",                                   "destination": "/privacy/",            "permanent": true },
-    { "source": "/preview/terms.html",                                     "destination": "/terms/",              "permanent": true },
-    { "source": "/blog/what-is-an-ai-clarity-session",                     "destination": "/blog/what-is-a-workflow-audit/", "permanent": true },
-    { "source": "/blog/what-is-an-ai-clarity-session/",                    "destination": "/blog/what-is-a-workflow-audit/", "permanent": true },
-    { "source": "/blog/what-is-an-ai-clarity-session.html",                "destination": "/blog/what-is-a-workflow-audit/", "permanent": true }
+    {
+      "source": "/services/ai-clarity-session.html",
+      "destination": "/#schedule",
+      "permanent": true
+    },
+    {
+      "source": "/services/ai-implementation.html",
+      "destination": "/pricing/",
+      "permanent": true
+    },
+    {
+      "source": "/services/fractional-ai-advisor.html",
+      "destination": "/pricing/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/index.html",
+      "destination": "/blog/",
+      "permanent": true
+    },
+    {
+      "source": "/preview",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/preview/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/preview/contact.html",
+      "destination": "/contact/",
+      "permanent": true
+    },
+    {
+      "source": "/preview/blog.html",
+      "destination": "/blog/",
+      "permanent": true
+    },
+    {
+      "source": "/preview/ai-for-insurance-agencies-guide.html",
+      "destination": "/insurance-agencies/",
+      "permanent": true
+    },
+    {
+      "source": "/preview/ai-for-law-firms-guide.html",
+      "destination": "/law-firms/",
+      "permanent": true
+    },
+    {
+      "source": "/preview/privacy.html",
+      "destination": "/privacy/",
+      "permanent": true
+    },
+    {
+      "source": "/preview/terms.html",
+      "destination": "/terms/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-is-an-ai-clarity-session",
+      "destination": "/blog/what-is-a-workflow-audit/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-is-an-ai-clarity-session/",
+      "destination": "/blog/what-is-a-workflow-audit/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-is-an-ai-clarity-session.html",
+      "destination": "/blog/what-is-a-workflow-audit/",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/contact.html",
+      "destination": "/contact/",
+      "permanent": true
+    },
+    {
+      "source": "/blog.html",
+      "destination": "/blog/",
+      "permanent": true
+    },
+    {
+      "source": "/ai-for-insurance-agencies-guide.html",
+      "destination": "/insurance-agencies/",
+      "permanent": true
+    },
+    {
+      "source": "/ai-for-law-firms-guide.html",
+      "destination": "/law-firms/",
+      "permanent": true
+    },
+    {
+      "source": "/privacy.html",
+      "destination": "/privacy/",
+      "permanent": true
+    },
+    {
+      "source": "/terms.html",
+      "destination": "/terms/",
+      "permanent": true
+    },
+    {
+      "source": "/accounting-firms.html",
+      "destination": "/accounting-firms/",
+      "permanent": true
+    },
+    {
+      "source": "/savings-calculator.html",
+      "destination": "/savings-calculator/",
+      "permanent": true
+    },
+    {
+      "source": "/real-estate.html",
+      "destination": "/real-estate/",
+      "permanent": true
+    },
+    {
+      "source": "/blog-insurance-agencies-2026.html",
+      "destination": "/blog/ai-for-insurance-agencies-2026/",
+      "permanent": true
+    },
+    {
+      "source": "/blog-ai-intake-for-law-firms.html",
+      "destination": "/blog/ai-intake-for-law-firms/",
+      "permanent": true
+    },
+    {
+      "source": "/blog-ai-tools-real-estate-2026.html",
+      "destination": "/blog/ai-tools-for-real-estate-offices-2026/",
+      "permanent": true
+    },
+    {
+      "source": "/blog-ai-accounting-firms-workflows.html",
+      "destination": "/blog/ai-for-accounting-firms-workflows/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/how-to-implement-ai-small-business.html",
+      "destination": "/blog/how-to-implement-ai-small-business/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-is-a-workflow-audit.html",
+      "destination": "/blog/what-is-a-workflow-audit/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-is-fractional-ai-advisor.html",
+      "destination": "/blog/what-is-fractional-ai-advisor/",
+      "permanent": true
+    },
+    {
+      "source": "/faq.html",
+      "destination": "/faq/",
+      "permanent": true
+    },
+    {
+      "source": "/pricing.html",
+      "destination": "/pricing/",
+      "permanent": true
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact/",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog/",
+      "permanent": true
+    },
+    {
+      "source": "/insurance-agencies",
+      "destination": "/insurance-agencies/",
+      "permanent": true
+    },
+    {
+      "source": "/law-firms",
+      "destination": "/law-firms/",
+      "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy/",
+      "permanent": true
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms/",
+      "permanent": true
+    },
+    {
+      "source": "/accounting-firms",
+      "destination": "/accounting-firms/",
+      "permanent": true
+    },
+    {
+      "source": "/savings-calculator",
+      "destination": "/savings-calculator/",
+      "permanent": true
+    },
+    {
+      "source": "/real-estate",
+      "destination": "/real-estate/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/ai-for-insurance-agencies-2026",
+      "destination": "/blog/ai-for-insurance-agencies-2026/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/ai-intake-for-law-firms",
+      "destination": "/blog/ai-intake-for-law-firms/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/ai-tools-for-real-estate-offices-2026",
+      "destination": "/blog/ai-tools-for-real-estate-offices-2026/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/ai-for-accounting-firms-workflows",
+      "destination": "/blog/ai-for-accounting-firms-workflows/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/how-to-implement-ai-small-business",
+      "destination": "/blog/how-to-implement-ai-small-business/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-is-a-workflow-audit",
+      "destination": "/blog/what-is-a-workflow-audit/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-is-fractional-ai-advisor",
+      "destination": "/blog/what-is-fractional-ai-advisor/",
+      "permanent": true
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq/",
+      "permanent": true
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing/",
+      "permanent": true
+    }
   ],
   "rewrites": [
-    { "source": "/internal/:path*", "destination": "https://app.sidecaradvisory.com/internal/:path*" },
-    { "source": "/api/:path*",      "destination": "https://app.sidecaradvisory.com/api/:path*" },
-    { "source": "/portal/:path*",   "destination": "https://app.sidecaradvisory.com/portal/:path*" },
-    { "source": "/t/:path*",        "destination": "https://app.sidecaradvisory.com/t/:path*" },
-    { "source": "/r/:path*",        "destination": "https://app.sidecaradvisory.com/r/:path*" },
-    { "source": "/contact",             "destination": "/contact.html" },
-    { "source": "/contact/",            "destination": "/contact.html" },
-    { "source": "/blog",                "destination": "/blog.html" },
-    { "source": "/blog/",               "destination": "/blog.html" },
-    { "source": "/insurance-agencies",  "destination": "/ai-for-insurance-agencies-guide.html" },
-    { "source": "/insurance-agencies/", "destination": "/ai-for-insurance-agencies-guide.html" },
-    { "source": "/law-firms",           "destination": "/ai-for-law-firms-guide.html" },
-    { "source": "/law-firms/",          "destination": "/ai-for-law-firms-guide.html" },
-    { "source": "/privacy",             "destination": "/privacy.html" },
-    { "source": "/privacy/",            "destination": "/privacy.html" },
-    { "source": "/terms",               "destination": "/terms.html" },
-    { "source": "/terms/",              "destination": "/terms.html" },
-    { "source": "/accounting-firms",    "destination": "/accounting-firms.html" },
-    { "source": "/accounting-firms/",   "destination": "/accounting-firms.html" },
-    { "source": "/savings-calculator",   "destination": "/savings-calculator.html" },
-    { "source": "/savings-calculator/", "destination": "/savings-calculator.html" },
-    { "source": "/real-estate",         "destination": "/real-estate.html" },
-    { "source": "/real-estate/",        "destination": "/real-estate.html" },
-    { "source": "/blog/ai-for-insurance-agencies-2026",      "destination": "/blog-insurance-agencies-2026.html" },
-    { "source": "/blog/ai-for-insurance-agencies-2026/",     "destination": "/blog-insurance-agencies-2026.html" },
-    { "source": "/blog/ai-intake-for-law-firms",             "destination": "/blog-ai-intake-for-law-firms.html" },
-    { "source": "/blog/ai-intake-for-law-firms/",            "destination": "/blog-ai-intake-for-law-firms.html" },
-    { "source": "/blog/ai-tools-for-real-estate-offices-2026",  "destination": "/blog-ai-tools-real-estate-2026.html" },
-    { "source": "/blog/ai-tools-for-real-estate-offices-2026/", "destination": "/blog-ai-tools-real-estate-2026.html" },
-    { "source": "/blog/ai-for-accounting-firms-workflows",   "destination": "/blog-ai-accounting-firms-workflows.html" },
-    { "source": "/blog/ai-for-accounting-firms-workflows/",  "destination": "/blog-ai-accounting-firms-workflows.html" },
-    { "source": "/blog/how-to-implement-ai-small-business",  "destination": "/blog/how-to-implement-ai-small-business.html" },
-    { "source": "/blog/how-to-implement-ai-small-business/", "destination": "/blog/how-to-implement-ai-small-business.html" },
-    { "source": "/blog/what-is-a-workflow-audit",            "destination": "/blog/what-is-a-workflow-audit.html" },
-    { "source": "/blog/what-is-a-workflow-audit/",           "destination": "/blog/what-is-a-workflow-audit.html" },
-    { "source": "/blog/what-is-fractional-ai-advisor",       "destination": "/blog/what-is-fractional-ai-advisor.html" },
-    { "source": "/blog/what-is-fractional-ai-advisor/",      "destination": "/blog/what-is-fractional-ai-advisor.html" },
-    { "source": "/faq",                                       "destination": "/faq.html" },
-    { "source": "/faq/",                                      "destination": "/faq.html" },
-    { "source": "/pricing",                                    "destination": "/pricing.html" },
-    { "source": "/pricing/",                                   "destination": "/pricing.html" }
+    {
+      "source": "/internal/:path*",
+      "destination": "https://app.sidecaradvisory.com/internal/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://app.sidecaradvisory.com/api/:path*"
+    },
+    {
+      "source": "/portal/:path*",
+      "destination": "https://app.sidecaradvisory.com/portal/:path*"
+    },
+    {
+      "source": "/t/:path*",
+      "destination": "https://app.sidecaradvisory.com/t/:path*"
+    },
+    {
+      "source": "/r/:path*",
+      "destination": "https://app.sidecaradvisory.com/r/:path*"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/contact/",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/blog/",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/insurance-agencies",
+      "destination": "/ai-for-insurance-agencies-guide.html"
+    },
+    {
+      "source": "/insurance-agencies/",
+      "destination": "/ai-for-insurance-agencies-guide.html"
+    },
+    {
+      "source": "/law-firms",
+      "destination": "/ai-for-law-firms-guide.html"
+    },
+    {
+      "source": "/law-firms/",
+      "destination": "/ai-for-law-firms-guide.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/privacy/",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/terms/",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/accounting-firms",
+      "destination": "/accounting-firms.html"
+    },
+    {
+      "source": "/accounting-firms/",
+      "destination": "/accounting-firms.html"
+    },
+    {
+      "source": "/savings-calculator",
+      "destination": "/savings-calculator.html"
+    },
+    {
+      "source": "/savings-calculator/",
+      "destination": "/savings-calculator.html"
+    },
+    {
+      "source": "/real-estate",
+      "destination": "/real-estate.html"
+    },
+    {
+      "source": "/real-estate/",
+      "destination": "/real-estate.html"
+    },
+    {
+      "source": "/blog/ai-for-insurance-agencies-2026",
+      "destination": "/blog-insurance-agencies-2026.html"
+    },
+    {
+      "source": "/blog/ai-for-insurance-agencies-2026/",
+      "destination": "/blog-insurance-agencies-2026.html"
+    },
+    {
+      "source": "/blog/ai-intake-for-law-firms",
+      "destination": "/blog-ai-intake-for-law-firms.html"
+    },
+    {
+      "source": "/blog/ai-intake-for-law-firms/",
+      "destination": "/blog-ai-intake-for-law-firms.html"
+    },
+    {
+      "source": "/blog/ai-tools-for-real-estate-offices-2026",
+      "destination": "/blog-ai-tools-real-estate-2026.html"
+    },
+    {
+      "source": "/blog/ai-tools-for-real-estate-offices-2026/",
+      "destination": "/blog-ai-tools-real-estate-2026.html"
+    },
+    {
+      "source": "/blog/ai-for-accounting-firms-workflows",
+      "destination": "/blog-ai-accounting-firms-workflows.html"
+    },
+    {
+      "source": "/blog/ai-for-accounting-firms-workflows/",
+      "destination": "/blog-ai-accounting-firms-workflows.html"
+    },
+    {
+      "source": "/blog/how-to-implement-ai-small-business",
+      "destination": "/blog/how-to-implement-ai-small-business.html"
+    },
+    {
+      "source": "/blog/how-to-implement-ai-small-business/",
+      "destination": "/blog/how-to-implement-ai-small-business.html"
+    },
+    {
+      "source": "/blog/what-is-a-workflow-audit",
+      "destination": "/blog/what-is-a-workflow-audit.html"
+    },
+    {
+      "source": "/blog/what-is-a-workflow-audit/",
+      "destination": "/blog/what-is-a-workflow-audit.html"
+    },
+    {
+      "source": "/blog/what-is-fractional-ai-advisor",
+      "destination": "/blog/what-is-fractional-ai-advisor.html"
+    },
+    {
+      "source": "/blog/what-is-fractional-ai-advisor/",
+      "destination": "/blog/what-is-fractional-ai-advisor.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/faq/",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing.html"
+    },
+    {
+      "source": "/pricing/",
+      "destination": "/pricing.html"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options",  "value": "nosniff" },
-        { "key": "X-Frame-Options",         "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy",         "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy",      "value": "camera=(), microphone=(), geolocation=()" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
       ]
     },
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=86400" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=86400"
+        }
       ]
     },
     {
       "source": "/(styles\\.css|script\\.js|content/.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=3600" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=3600"
+        }
       ]
     }
   ]

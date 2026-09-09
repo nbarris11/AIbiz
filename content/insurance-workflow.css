@@ -1,0 +1,34 @@
+/* Shared presentation for the insurance service and its planning guide. */
+.service-kicker { color: #6a583d; font-size: .8rem; font-weight: 500; letter-spacing: .12em; }
+.article-wrap .service-lead { font-size: 1.2rem; line-height: 1.7; }
+.service-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin: 24px 0; }
+.article-wrap .service-button { display: inline-block; padding: 14px 22px; border: 1px solid #2D5A3D; border-radius: 8px; background: #2D5A3D; color: #fff; text-decoration: none; font: inherit; font-size: 1rem; line-height: 1.5; cursor: pointer; }
+.service-button:hover { background: #23482f; }
+.service-button:focus-visible, .service-reset:focus-visible { outline: 3px solid #9C8B6E; outline-offset: 4px; }
+.service-button:disabled { cursor: default; opacity: .65; }
+.service-reset { background: none; border: 0; color: #2D5A3D; font: inherit; font-size: 1rem; text-decoration: underline; cursor: pointer; padding: 12px; }
+.service-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; margin: 28px 0; }
+.service-grid section { background: #f5f0e8; border: 1px solid #d4c4a8; border-radius: 12px; padding: 24px; }
+.article-wrap .service-grid h3 { margin-top: 0; }
+.workflow-demo { border: 1px solid #9C8B6E; border-radius: 14px; padding: 28px; margin: 28px 0; background: #f5f0e8; }
+.article-wrap .workflow-steps { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); padding: 0; list-style-position: inside; gap: 10px; }
+.workflow-steps li { padding: 12px; background: #fff; border-bottom: 3px solid #d4c4a8; font-size: .875rem; }
+.workflow-steps li[aria-current="step"] { border-color: #2D5A3D; font-weight: 500; }
+.workflow-demo > .service-actions { display: none; }
+.workflow-demo.is-interactive > .service-actions { display: flex; }
+.workflow-status { min-height: 160px; }
+.article-wrap .demo-note { font-size: .875rem; margin-bottom: 0; }
+.guide-table-wrap { overflow-x: auto; }
+.guide-table-wrap table { width: 100%; border-collapse: collapse; }
+.guide-table-wrap th,.guide-table-wrap td { text-align: left; padding: 14px; border: 1px solid #d4c4a8; vertical-align: top; }
+.guide-table-wrap th { background: #f5f0e8; }
+.article-wrap blockquote { margin: 24px 0; padding: 20px 24px; border-left: 4px solid #2D5A3D; background: #f5f0e8; }
+@media (max-width: 600px) {
+ .service-grid { grid-template-columns: 1fr; }
+ .article-wrap .workflow-steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .workflow-demo { padding: 18px; }
+ .workflow-status { min-height: 190px; }
+ .service-actions { align-items: stretch; flex-direction: column; }
+ .article-wrap .service-button { text-align: center; }
+}
+@media print { .service-actions, .workflow-demo button { display: none; } }

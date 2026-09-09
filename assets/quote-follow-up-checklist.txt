@@ -1,0 +1,44 @@
+SIDECAR ADVISORY — QUOTE FOLLOW-UP WORKFLOW CHECKLIST
+Updated September 9, 2026
+
+Use this planning checklist with your agency's process owner. It is an
+illustrative operational aid, not a product specification or client result.
+
+DEFINE THE GAP
+[ ] Name the missed handoff or repeated task.
+[ ] Pick one quote type or manageable process to review.
+[ ] Record the current volume and staff effort using a consistent method.
+
+MAP THE PROCESS
+[ ] Identify the source of truth for quote status.
+[ ] Define what confirms a quote was actually sent.
+[ ] Give every open quote an owner and next-action date.
+[ ] Decide who reviews messages and handles exceptions.
+[ ] Define stop conditions: reply, decline, pause, do not contact.
+[ ] Decide how staff update status if replies cannot be detected reliably.
+
+CHECK YOUR TOOLS
+[ ] Verify features, account permissions, and integration availability.
+[ ] Check whether existing tools already solve the problem.
+[ ] Identify extra subscriptions and ongoing administration costs.
+[ ] Agree on required data, access, processing, and review requirements.
+
+TEST WITH FICTIONAL RECORDS
+[ ] Open, assigned, due quote produces one correct task.
+[ ] Missing owner or contact details is flagged for review.
+[ ] Reply before a reminder prevents the reminder from continuing.
+[ ] Duplicate quote does not create duplicate reminders.
+[ ] Paused/declined/do-not-contact record does not continue.
+[ ] Connection failure is visible to the responsible person.
+[ ] A team member can pause and restart the process safely.
+
+HAND OFF AND MEASURE
+[ ] Write down ownership, maintenance, and escalation steps.
+[ ] Train the person who will administer the workflow.
+[ ] Compare overdue tasks and staff effort using the original method.
+[ ] Include review, maintenance, and software costs in the assessment.
+[ ] Treat time saved as capacity; do not assume it equals cash savings.
+
+Guide: https://www.sidecaradvisory.com/blog/ai-for-insurance-agencies-2026/
+Implementation: https://www.sidecaradvisory.com/insurance-agencies/
+Questions: hello@sidecaradvisory.com

@@ -2,8 +2,8 @@
 
 > Fractional AI advisory and workflow automation for Metro Detroit small professional service firms.
 > Neil Barris helps insurance agencies, law firms, accounting practices, and real estate offices
-> implement practical AI with guaranteed results. Free 45-minute Workflow Audit — find at least
-> $5,000 in annual savings or walk away with a written workflow review at no charge.
+> implement practical workflow improvements. The free 45-minute Workflow Audit provides
+> written priorities and estimates, with no obligation to buy implementation.
 
 ## About
 
@@ -15,7 +15,7 @@ hello@sidecaradvisory.com | (248) 291-7642.
 
 ## Services
 
-- [Home / Overview](https://www.sidecaradvisory.com/): Services, pricing, and the $5,000 savings guarantee
+- [Home / Overview](https://www.sidecaradvisory.com/): Services, pricing, and the free Workflow Audit
 - [Pricing](https://www.sidecaradvisory.com/pricing/): Full pricing for all services — Workflow Audit (free), implementation, retainer, workshops
 - [Contact](https://www.sidecaradvisory.com/contact/): Book a free Workflow Audit or send a general inquiry
 - [Savings Calculator](https://www.sidecaradvisory.com/savings-calculator/): Free 90-second estimate of AI time and cost savings for your firm
@@ -29,7 +29,7 @@ hello@sidecaradvisory.com | (248) 291-7642.
 
 ## Blog
 
-- [AI for Insurance Agencies — 7 Tasks to Automate](https://www.sidecaradvisory.com/blog/ai-for-insurance-agencies-2026/): The 7 highest-ROI AI automations for independent insurance agencies
+- [How to Plan Insurance Quote Follow-Up Automation](https://www.sidecaradvisory.com/blog/ai-for-insurance-agencies-2026/): Worked example, staff review, stop conditions, and a downloadable checklist
 - [AI Intake for Law Firms](https://www.sidecaradvisory.com/blog/ai-intake-for-law-firms/): How AI is changing client intake for small law firms
 - [AI Tools for Real Estate Offices 2026](https://www.sidecaradvisory.com/blog/ai-tools-for-real-estate-offices-2026/): Practical AI tools for real estate offices in 2026
 - [AI Workflows for Accounting Firms](https://www.sidecaradvisory.com/blog/ai-for-accounting-firms-workflows/): The 5 AI workflows accounting firms should automate first
