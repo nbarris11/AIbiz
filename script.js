@@ -69,6 +69,39 @@ function applySiteContent() {
 
 applySiteContent();
 
+// Use the existing analytics integration. Never send form contents or contact
+// details; analytics failure must not interrupt navigation or submissions.
+window.sidecarTrack = (name, properties = {}) => {
+  if (['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)) return;
+  try {
+    window.posthog?.capture(name, { page_path: window.location.pathname, ...properties });
+  } catch (_) { /* Analytics is optional. */ }
+};
+
+document.addEventListener('click', (event) => {
+  const link = event.target.closest('a[href]');
+  if (!link) return;
+  const url = new URL(link.href, window.location.href);
+  const placement = link.closest('section')?.id || (link.closest('nav') ? 'navigation' : 'page');
+  if (url.hostname === 'calendly.com' || url.hash === '#schedule') {
+    window.sidecarTrack('booking_cta_clicked', { placement });
+  } else if (url.pathname === '/contact/' && url.origin === window.location.origin) {
+    window.sidecarTrack('contact_cta_clicked', { placement });
+  }
+});
+
+// Count a booking only when the embedded calendar reports a scheduled event.
+// A CTA click alone is not a completed booking.
+let bookingRecorded = false;
+window.addEventListener('message', (event) => {
+  const calendar = document.querySelector('#schedule iframe');
+  if (!calendar || event.origin !== 'https://calendly.com' || event.source !== calendar.contentWindow) return;
+  if (event.data?.event === 'calendly.event_scheduled' && !bookingRecorded) {
+    bookingRecorded = true;
+    window.sidecarTrack('booking_completed', { placement: 'embedded_calendar' });
+  }
+});
+
 if (header) {
   const syncHeaderState = () => {
     header.classList.toggle("is-scrolled", window.scrollY > 12);
@@ -92,7 +125,7 @@ if (navToggle && primaryNav) {
   });
 }
 
-if (revealItems.length > 0) {
+if (revealItems.length > 0 && 'IntersectionObserver' in window) {
   const revealObserver = new IntersectionObserver(
     (entries, observer) => {
       for (const entry of entries) {
@@ -108,11 +141,12 @@ if (revealItems.length > 0) {
   );
 
   for (const item of revealItems) {
+    item.classList.add('reveal-ready');
     revealObserver.observe(item);
   }
 }
 
-if (heroSection && mobileCtaBar) {
+if (heroSection && mobileCtaBar && 'IntersectionObserver' in window) {
   const syncMobileCtaState = (entries) => {
     const shouldShow = window.innerWidth < 768 && entries[0] && !entries[0].isIntersecting;
     mobileCtaBar.classList.toggle("is-visible", shouldShow);

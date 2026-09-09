@@ -45,7 +45,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" /><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,600&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css?v=20260909" />
     <style>
       .contact-page-hero {
         padding-top: 160px;
@@ -284,7 +284,7 @@
           <a href="/blog/">Blog</a>
           <a
             class="button button-outline nav-cta"
-            href="https://scheduler.zoom.us/neil-barris-pvp8jj/ai-clarity-session"
+            href="https://calendly.com/sidecaradvisory/30min"
             data-link-content="settings.bookingPageUrl"
           >
             Get my free Workflow Audit
@@ -298,10 +298,9 @@
         <div class="container">
           <div class="contact-page-copy reveal">
             <p class="eyebrow">CONTACT</p>
-            <h1>Contact Sidecar Advisory.</h1>
+            <h1>What keeps slowing your team down?</h1>
             <p>
-              Use this page for general questions, partnership inquiries, speaking requests, or
-              anything that does not need a scheduled Workflow Audit.
+              Tell me about one repetitive task, missed follow-up, or messy handoff. You can start here without booking a call.
             </p>
           </div>
 
@@ -323,9 +322,9 @@
                 <div>
                   <p class="contact-info-label">BEST FOR</p>
                   <div class="contact-bullet-list">
-                    <p><span class="checkmark" aria-hidden="true"></span><span>General questions about Sidecar Advisory</span></p>
+                    <p><span class="checkmark" aria-hidden="true"></span><span>A workflow that takes too much of your week</span></p>
                     <p><span class="checkmark" aria-hidden="true"></span><span>Referral partner and collaboration inquiries</span></p>
-                    <p><span class="checkmark" aria-hidden="true"></span><span>Speaking, media, and community opportunities</span></p>
+                    <p><span class="checkmark" aria-hidden="true"></span><span>Questions about implementation and pricing</span></p>
                     <p><span class="checkmark" aria-hidden="true"></span><span>Businesses that are still figuring out the right next step</span></p>
                   </div>
                 </div>
@@ -340,7 +339,7 @@
                 <p>Already know you want help identifying savings opportunities?</p>
                 <a
                   class="button button-primary"
-                  href="https://scheduler.zoom.us/neil-barris-pvp8jj/ai-clarity-session"
+                  href="https://calendly.com/sidecaradvisory/30min"
                   data-link-content="settings.bookingPageUrl"
                 >
                   Get my free Workflow Audit
@@ -356,10 +355,10 @@
                 always email me directly at
                 <a class="contact-email-link" href="mailto:hello@sidecaradvisory.com">hello@sidecaradvisory.com</a>.
               </p>
-              <p class="contact-form-note">Messages are sent through a hosted contact form and routed directly to Sidecar Advisory.</p>
+              <p class="contact-form-note">A few lines are enough. Please leave out passwords and confidential client information.</p>
               <p class="contact-form-note">You'll hear back within 1 business day.</p>
 
-              <form class="contact-form" id="contact-form" novalidate>
+              <form class="contact-form" id="contact-form" action="https://formsubmit.co/hello@sidecaradvisory.com" method="POST">
                 <div class="contact-form-row">
                   <div class="contact-field">
                     <label for="contact-name">Name</label>
@@ -373,11 +372,11 @@
 
                 <div class="contact-form-row">
                   <div class="contact-field">
-                    <label for="contact-company">Company</label>
+                    <label for="contact-company">Company (optional)</label>
                     <input id="contact-company" name="company" type="text" autocomplete="organization" />
                   </div>
                   <div class="contact-field">
-                    <label for="contact-business-type">Business type</label>
+                    <label for="contact-business-type">Business type (optional)</label>
                     <input id="contact-business-type" name="business_type" type="text" placeholder="Law firm, accounting firm, agency, etc." />
                   </div>
                 </div>
@@ -386,6 +385,7 @@
                   <div class="contact-field">
                     <label for="contact-reason">Reason for reaching out</label>
                     <select id="contact-reason" name="reason">
+                      <option value="Workflow help">Help with a workflow</option>
                       <option value="General question">General question</option>
                       <option value="Referral partnership">Referral partnership</option>
                       <option value="Speaking or media request">Speaking or media request</option>
@@ -400,7 +400,7 @@
                   <textarea
                     id="contact-message"
                     name="message"
-                    placeholder="What can I help with?"
+                    placeholder="What task keeps repeating, which tools do you use, and what happens when it gets delayed?" maxlength="5000"
                     required
                   ></textarea>
                 </div>
@@ -418,7 +418,7 @@
               </form>
 
               <div class="contact-success-card" id="contact-success-card" aria-live="polite">
-                <h3>Message received.</h3>
+                <h3 tabindex="-1" id="contact-success-title">Your note has been submitted.</h3>
                 <p>Thanks for reaching out. Your note has been submitted and Sidecar Advisory will reply within 1 business day.</p>
               </div>
             </section>
@@ -455,96 +455,9 @@
       </section>
     </main>
 
-    <script src="/content/site-content.js" defer></script>
-    <script src="/script.js" defer></script>
-    <script>
-      const email = window.SIDECAR_SITE_CONTENT?.settings?.email || "hello@sidecaradvisory.com";
-      const contactForm = document.querySelector("#contact-form");
-      const contactStatus = document.querySelector("#contact-form-status");
-      const contactSuccessCard = document.querySelector("#contact-success-card");
-      const contactSubmitButton = document.querySelector("#contact-submit-button");
-
-      document.querySelectorAll("[data-content='settings.email']").forEach((node) => {
-        node.textContent = email;
-        node.setAttribute("href", `mailto:${email}`);
-      });
-
-      if (contactForm) {
-        contactForm.addEventListener("submit", (event) => {
-          event.preventDefault();
-
-          const formData = new FormData(contactForm);
-          const name = String(formData.get("name") || "").trim();
-          const senderEmail = String(formData.get("email") || "").trim();
-          const company = String(formData.get("company") || "").trim();
-          const businessType = String(formData.get("business_type") || "").trim();
-          const reason = String(formData.get("reason") || "").trim();
-          const message = String(formData.get("message") || "").trim();
-          const honey = String(formData.get("_honey") || "").trim();
-
-          if (!name || !senderEmail || !message || honey) {
-            contactStatus.textContent = "Please complete the required fields before submitting.";
-            contactStatus.classList.add("is-error");
-            return;
-          }
-
-          if (contactSubmitButton) {
-            contactSubmitButton.disabled = true;
-            contactSubmitButton.textContent = "Sending...";
-          }
-
-          contactStatus.textContent = "Submitting...";
-          contactStatus.classList.remove("is-error");
-
-          const payload = {
-            name,
-            email: senderEmail,
-            company,
-            business_type: businessType,
-            reason,
-            message,
-            _subject: "New Sidecar Advisory contact form submission",
-            _captcha: "false",
-            _template: "table",
-            source_page: `${window.location.origin}${window.location.pathname}`,
-          };
-
-          fetch(`https://formsubmit.co/ajax/${encodeURIComponent(email)}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify(payload),
-          })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Submission failed");
-              }
-
-              return response.json();
-            })
-            .then(() => {
-              contactForm.reset();
-              contactForm.hidden = true;
-              if (contactSuccessCard) {
-                contactSuccessCard.classList.add("is-visible");
-              }
-              contactStatus.textContent = "";
-            })
-            .catch(() => {
-              contactStatus.textContent = `Something went wrong. Please try again or email ${email} directly.`;
-              contactStatus.classList.add("is-error");
-            })
-            .finally(() => {
-              if (contactSubmitButton) {
-                contactSubmitButton.disabled = false;
-                contactSubmitButton.textContent = "Send Message";
-              }
-            });
-        });
-      }
-    </script>
+    <script src="/content/site-content.js?v=20260909" defer></script>
+    <script src="/script.js?v=20260909" defer></script>
+    <script src="/content/contact-form.js" defer></script>
   <script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous" async onload="window.LogRocket && window.LogRocket.init('hejhm8/sidecar');"></script>
   </body>
 </html>

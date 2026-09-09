@@ -57,7 +57,7 @@ p {
   padding: 56px 0;
 }
 
-.reveal {
+.reveal-ready {
   opacity: 0;
   transform: translateY(18px);
   transition:
@@ -1343,6 +1343,18 @@ p {
   border-radius: 12px;
   background: var(--white);
 }
+
+.contact-form[hidden] { display: none; }
+.scheduler-fallback { margin-top: 16px; color: var(--parchment); }
+.scheduler-fallback a { text-decoration: underline; text-underline-offset: 3px; }
+.additional-services-details > summary {
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 16px 0;
+}
+.additional-services-details[open] > summary { margin-bottom: 28px; }
+.contact-scheduler iframe { display: block; max-width: 100%; background: white; border-radius: 12px; }
 
 .footer-bar {
   display: flex;

@@ -1,6 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
+    { "source": "/services/ai-clarity-session.html", "destination": "/#schedule", "permanent": true },
+    { "source": "/services/ai-implementation.html", "destination": "/pricing/", "permanent": true },
+    { "source": "/services/fractional-ai-advisor.html", "destination": "/pricing/", "permanent": true },
+    { "source": "/blog/index.html", "destination": "/blog/", "permanent": true },
     { "source": "/preview",                                                "destination": "/",                    "permanent": true },
     { "source": "/preview/",                                               "destination": "/",                    "permanent": true },
     { "source": "/preview/contact.html",                                   "destination": "/contact/",            "permanent": true },
