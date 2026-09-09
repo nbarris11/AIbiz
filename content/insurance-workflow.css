@@ -32,3 +32,6 @@
  .article-wrap .service-button { text-align: center; }
 }
 @media print { .service-actions, .workflow-demo button { display: none; } }
+
+/* Keep article navigation separate from the sticky site navigation. */
+.article-wrap nav.toc { position: static; display: block; z-index: auto; }
